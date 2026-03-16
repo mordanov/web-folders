@@ -1,0 +1,32 @@
+server {
+    listen 80;
+    listen [::]:80;
+    server_name ${RECIPES_SERVER_NAMES};
+
+    client_max_body_size 20M;
+
+    location /.well-known/acme-challenge/ {
+        root /var/www/certbot;
+    }
+
+    location /api/ {
+        set $recipes_backend http://recipes-backend:8000;
+        proxy_pass $recipes_backend;
+        include /etc/nginx/snippets/proxy-common.conf;
+        proxy_read_timeout 120s;
+    }
+
+    location /uploads/ {
+        set $recipes_backend http://recipes-backend:8000;
+        proxy_pass $recipes_backend;
+        include /etc/nginx/snippets/proxy-common.conf;
+        proxy_read_timeout 120s;
+    }
+
+    location / {
+        set $recipes_frontend http://recipes-frontend:3000;
+        proxy_pass $recipes_frontend;
+        include /etc/nginx/snippets/proxy-common.conf;
+    }
+}
+

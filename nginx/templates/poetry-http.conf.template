@@ -1,0 +1,42 @@
+server {
+    listen 80;
+    listen [::]:80;
+    server_name ${POETRY_SERVER_NAMES};
+
+    root /srv/poetry-site;
+    index index.html;
+    client_max_body_size 100M;
+
+    location /.well-known/acme-challenge/ {
+        root /var/www/certbot;
+    }
+
+    location /static/ {
+        expires 7d;
+        add_header Cache-Control "public, immutable";
+    }
+
+    location /api/ {
+        set $poetry_backend http://poetry-backend:8000;
+        proxy_pass $poetry_backend;
+        include /etc/nginx/snippets/proxy-common.conf;
+        proxy_read_timeout 300s;
+        proxy_connect_timeout 300s;
+        proxy_send_timeout 300s;
+    }
+
+    location /uploads/ {
+        set $poetry_backend http://poetry-backend:8000;
+        proxy_pass $poetry_backend;
+        include /etc/nginx/snippets/proxy-common.conf;
+        proxy_read_timeout 300s;
+    }
+
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+
+    gzip on;
+    gzip_types text/plain text/css application/json application/javascript text/xml application/xml;
+}
+

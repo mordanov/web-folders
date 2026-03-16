@@ -1,0 +1,35 @@
+server {
+    listen 443 ssl;
+    listen [::]:443 ssl;
+    server_name ${RECIPES_SERVER_NAMES};
+
+    ssl_certificate /etc/letsencrypt/live/${RECIPES_PRIMARY_DOMAIN}/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/${RECIPES_PRIMARY_DOMAIN}/privkey.pem;
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_ciphers HIGH:!aNULL:!MD5;
+    ssl_session_cache shared:SSL:10m;
+    ssl_session_timeout 1d;
+
+    client_max_body_size 20M;
+
+    location /api/ {
+        set $recipes_backend http://recipes-backend:8000;
+        proxy_pass $recipes_backend;
+        include /etc/nginx/snippets/proxy-common.conf;
+        proxy_read_timeout 120s;
+    }
+
+    location /uploads/ {
+        set $recipes_backend http://recipes-backend:8000;
+        proxy_pass $recipes_backend;
+        include /etc/nginx/snippets/proxy-common.conf;
+        proxy_read_timeout 120s;
+    }
+
+    location / {
+        set $recipes_frontend http://recipes-frontend:3000;
+        proxy_pass $recipes_frontend;
+        include /etc/nginx/snippets/proxy-common.conf;
+    }
+}
+

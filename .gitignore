@@ -1,0 +1,57 @@
+# Environment variables with secrets
+.env
+.env.local
+.env.*.local
+
+# Docker volumes (generated at runtime)
+recipes_postgres_data/
+recipes_uploads_data/
+poetry_data/
+certbot_certs/
+certbot_www/
+
+# Let's Encrypt certificates (auto-generated)
+/certs/
+/letsencrypt/
+
+# OS files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.env.swp
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Node modules (if any frontend dependencies are tracked locally)
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# Logs
+*.log
+logs/
+
+# IDE
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Temporary files
+*.tmp
+tmp/
+temp/
+
+# Docker
+.dockerignore
+

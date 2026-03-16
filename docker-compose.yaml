@@ -1,0 +1,109 @@
+services:
+  recipes-db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${RECIPES_POSTGRES_DB:-recipes}
+      POSTGRES_USER: ${RECIPES_POSTGRES_USER:-recipes_user}
+      POSTGRES_PASSWORD: ${RECIPES_POSTGRES_PASSWORD:-change-me-recipes-db}
+    volumes:
+      - recipes_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${RECIPES_POSTGRES_USER:-recipes_user} -d ${RECIPES_POSTGRES_DB:-recipes}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  recipes-backend:
+    build:
+      context: ../family-kitchen-recipes/backend
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql+asyncpg://${RECIPES_POSTGRES_USER:-recipes_user}:${RECIPES_POSTGRES_PASSWORD:-change-me-recipes-db}@recipes-db:5432/${RECIPES_POSTGRES_DB:-recipes}
+      SECRET_KEY: ${RECIPES_SECRET_KEY:-change-me-recipes-secret}
+      OPENAI_API_KEY: ${RECIPES_OPENAI_API_KEY:-}
+      USER1_NAME: ${RECIPES_USER1_NAME:-mama}
+      USER1_PASSWORD: ${RECIPES_USER1_PASSWORD:-change-me-password1}
+      USER2_NAME: ${RECIPES_USER2_NAME:-papa}
+      USER2_PASSWORD: ${RECIPES_USER2_PASSWORD:-change-me-password2}
+    volumes:
+      - recipes_uploads_data:/app/uploads
+    expose:
+      - "8000"
+    depends_on:
+      recipes-db:
+        condition: service_healthy
+
+  recipes-frontend:
+    build:
+      context: ../family-kitchen-recipes/frontend
+    restart: unless-stopped
+    expose:
+      - "3000"
+
+  poetry-backend:
+    build:
+      context: ../poetry-site/backend
+    restart: unless-stopped
+    environment:
+      SECRET_KEY: ${POETRY_SECRET_KEY:-change-me-poetry-secret}
+      ADMIN_USERNAME: ${POETRY_ADMIN_USERNAME:-admin}
+      ADMIN_PASSWORD: ${POETRY_ADMIN_PASSWORD:-change-me-admin-password}
+      DB_PATH: /app/data/poetry.db
+      UPLOADS_DIR: /app/data/uploads/poems
+      POET_NAME: ${POETRY_POET_NAME:-Famous poet}
+    volumes:
+      - poetry_data:/app/data
+    expose:
+      - "8000"
+
+  nginx:
+    build:
+      context: ./nginx
+    container_name: web-folders-nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      RECIPES_PRIMARY_DOMAIN: ${RECIPES_PRIMARY_DOMAIN:-recipes.local}
+      RECIPES_SERVER_NAMES: ${RECIPES_SERVER_NAMES:-recipes.local}
+      POETRY_PRIMARY_DOMAIN: ${POETRY_PRIMARY_DOMAIN:-poetry.local}
+      POETRY_SERVER_NAMES: ${POETRY_SERVER_NAMES:-poetry.local}
+      NGINX_CERT_POLL_INTERVAL: ${NGINX_CERT_POLL_INTERVAL:-300}
+    volumes:
+      - ../poetry-site/frontend/templates/index.html:/srv/poetry-site/index.html:ro
+      - ../poetry-site/frontend/static:/srv/poetry-site/static:ro
+      - certbot_certs:/etc/letsencrypt:ro
+      - certbot_www:/var/www/certbot:ro
+    depends_on:
+      - recipes-backend
+      - recipes-frontend
+      - poetry-backend
+
+  certbot:
+    image: certbot/certbot:latest
+    restart: unless-stopped
+    volumes:
+      - certbot_certs:/etc/letsencrypt
+      - certbot_www:/var/www/certbot
+    entrypoint: /bin/sh
+    command:
+      - -c
+      - |
+        trap exit TERM INT;
+        while :; do
+          certbot renew --webroot -w /var/www/certbot --quiet;
+          sleep "${CERTBOT_RENEW_INTERVAL_SECONDS:-43200}" &
+          wait $${!};
+        done
+    depends_on:
+      - nginx
+
+volumes:
+  recipes_postgres_data:
+  recipes_uploads_data:
+  poetry_data:
+  certbot_certs:
+  certbot_www:
+

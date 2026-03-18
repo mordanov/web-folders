@@ -1,0 +1,96 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Deploy shared stack with one PostgreSQL instance and two databases (recipes + poetry).
+# Run from web-folders repository root or pass WEB_FOLDERS_DIR.
+
+WEB_FOLDERS_DIR="${WEB_FOLDERS_DIR:-$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)}"
+COMPOSE_FILE="${COMPOSE_FILE:-docker-compose.yaml}"
+
+RECIPES_DB="${RECIPES_POSTGRES_DB:-recipes}"
+RECIPES_USER="${RECIPES_POSTGRES_USER:-recipes_user}"
+POETRY_DB="${POETRY_POSTGRES_DB:-poetry}"
+POETRY_USER="${POETRY_POSTGRES_USER:-poetry_user}"
+POETRY_PASSWORD="${POETRY_POSTGRES_PASSWORD:-change-me-poetry-db}"
+
+compose() {
+  if command -v docker-compose >/dev/null 2>&1; then
+    docker-compose -f "$COMPOSE_FILE" "$@"
+  else
+    docker compose -f "$COMPOSE_FILE" "$@"
+  fi
+}
+
+wait_for_pg() {
+  local retries=30
+  local delay=2
+
+  echo "Waiting for PostgreSQL readiness..."
+  for ((i=1; i<=retries; i++)); do
+    if compose exec -T recipes-db pg_isready -U "$RECIPES_USER" -d "$RECIPES_DB" >/dev/null 2>&1; then
+      echo "PostgreSQL is ready"
+      return 0
+    fi
+    sleep "$delay"
+  done
+
+  echo "PostgreSQL did not become ready in time"
+  return 1
+}
+
+ensure_poetry_db() {
+  echo "Ensuring poetry role/database exist..."
+  compose exec -T recipes-db psql -v ON_ERROR_STOP=1 \
+    -U "$RECIPES_USER" -d "$RECIPES_DB" \
+    --set=poetry_user="$POETRY_USER" \
+    --set=poetry_password="$POETRY_PASSWORD" \
+    --set=poetry_db="$POETRY_DB" <<'SQL'
+DO
+$$
+BEGIN
+  IF NOT EXISTS (SELECT FROM pg_catalog.pg_roles WHERE rolname = :'poetry_user') THEN
+    EXECUTE format('CREATE ROLE %I LOGIN PASSWORD %L', :'poetry_user', :'poetry_password');
+  END IF;
+END
+$$;
+
+SELECT format('CREATE DATABASE %I OWNER %I', :'poetry_db', :'poetry_user')
+WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = :'poetry_db')\gexec
+
+DO
+$$
+BEGIN
+  EXECUTE format('GRANT ALL PRIVILEGES ON DATABASE %I TO %I', :'poetry_db', :'poetry_user');
+END
+$$;
+SQL
+}
+
+main() {
+  cd "$WEB_FOLDERS_DIR"
+
+  compose config >/dev/null
+
+  compose up -d recipes-db
+  wait_for_pg
+  ensure_poetry_db
+
+  echo "Building backend/frontend/nginx images..."
+  compose build recipes-backend poetry-backend recipes-frontend nginx
+
+  echo "Starting stack..."
+  compose up -d --remove-orphans recipes-db recipes-backend poetry-backend recipes-frontend nginx certbot
+
+  echo "Checking health endpoint..."
+  if curl -fsS http://localhost/api/health >/dev/null; then
+    echo "Health check passed"
+  else
+    echo "Health check failed"
+    return 1
+  fi
+
+  compose ps
+}
+
+main "$@"
+

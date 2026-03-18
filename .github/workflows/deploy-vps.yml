@@ -55,17 +55,17 @@ jobs:
           REF_NAME="$2"
           WEB_FOLDERS_DIR="${3:-$HOME/web-folders}"
 
-          # Allow git to work with directories owned by different users
           git config --global --add safe.directory '*'
 
           PREVIOUS_COMMIT=""
 
           debug_dump() {
             docker compose -f docker-compose.yaml ps || true
+            docker compose -f docker-compose.yaml logs --no-color --tail=200 recipes-db || true
+            docker compose -f docker-compose.yaml logs --no-color --tail=200 recipes-backend || true
+            docker compose -f docker-compose.yaml logs --no-color --tail=200 poetry-backend || true
             docker compose -f docker-compose.yaml logs --no-color --tail=200 nginx || true
             docker compose -f docker-compose.yaml logs --no-color --tail=200 certbot || true
-            docker compose -f docker-compose.yaml logs --no-color --tail=200 poetry-backend || true
-            docker compose -f docker-compose.yaml logs --no-color --tail=200 recipes-backend || true
           }
 
           mkdir -p "$WEB_FOLDERS_DIR"
@@ -81,31 +81,21 @@ jobs:
           git checkout "$REF_NAME"
           git reset --hard "origin/$REF_NAME"
 
-          if ! docker compose -f docker-compose.yaml build nginx; then
-            debug_dump
+          if [ ! -f ./deploy-one-db.sh ]; then
+            echo "deploy-one-db.sh not found in $WEB_FOLDERS_DIR"
             exit 1
           fi
 
-          if ! docker compose -f docker-compose.yaml up -d nginx certbot; then
+          if ! bash ./deploy-one-db.sh; then
             debug_dump
             if [ -n "$PREVIOUS_COMMIT" ]; then
               git reset --hard "$PREVIOUS_COMMIT"
-              docker compose -f docker-compose.yaml build nginx || true
-              docker compose -f docker-compose.yaml up -d nginx certbot || true
+              bash ./deploy-one-db.sh || true
             fi
             exit 1
           fi
 
-          if ! docker compose -f docker-compose.yaml exec -T nginx nginx -t; then
-            debug_dump
-            if [ -n "$PREVIOUS_COMMIT" ]; then
-              git reset --hard "$PREVIOUS_COMMIT"
-              docker compose -f docker-compose.yaml build nginx || true
-              docker compose -f docker-compose.yaml up -d nginx certbot || true
-            fi
-            exit 1
-          fi
-
+          docker compose -f docker-compose.yaml exec -T nginx nginx -t || true
           docker compose -f docker-compose.yaml exec -T nginx nginx -s reload || true
 
           EOF

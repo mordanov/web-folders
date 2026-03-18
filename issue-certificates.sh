@@ -52,7 +52,7 @@ run_certbot() {
     fi
   done
 
-  docker compose -f "$COMPOSE_FILE" run --rm certbot "$@"
+  docker compose -f "$COMPOSE_FILE" run --rm --entrypoint certbot certbot "$@"
 }
 
 run_certbot "family-kitchen-recipes" "$RECIPES_PRIMARY_DOMAIN" "$RECIPES_SERVER_NAMES"
@@ -61,4 +61,3 @@ run_certbot "poetry-site" "$POETRY_PRIMARY_DOMAIN" "$POETRY_SERVER_NAMES"
 docker compose -f "$COMPOSE_FILE" exec nginx nginx -s reload >/dev/null 2>&1 || true
 
 echo "Done. If nginx was already running, it has been reloaded."
-

@@ -13,6 +13,9 @@ POETRY_DB="${POETRY_POSTGRES_DB:-poetry}"
 POETRY_USER="${POETRY_POSTGRES_USER:-poetry_user}"
 POETRY_PASSWORD="${POETRY_POSTGRES_PASSWORD:-change-me-poetry-db}"
 
+RECIPES_HTTP_HOST="${RECIPES_PRIMARY_DOMAIN:-recipes.local}"
+POETRY_HTTP_HOST="${POETRY_PRIMARY_DOMAIN:-poetry.local}"
+
 compose() {
   if command -v docker-compose >/dev/null 2>&1; then
     docker-compose -f "$COMPOSE_FILE" "$@"
@@ -70,6 +73,25 @@ END
 SQL
 }
 
+wait_for_http_health() {
+  local name="$1"
+  local host_header="$2"
+  local retries=60
+  local delay=2
+
+  echo "Waiting for ${name} health via nginx (Host: ${host_header})..."
+  for ((i=1; i<=retries; i++)); do
+    if curl -fsS -H "Host: ${host_header}" http://localhost/api/health >/dev/null 2>&1; then
+      echo "${name} health check passed"
+      return 0
+    fi
+    sleep "$delay"
+  done
+
+  echo "${name} health check failed after $((retries * delay))s"
+  return 1
+}
+
 main() {
   cd "$WEB_FOLDERS_DIR"
 
@@ -85,16 +107,10 @@ main() {
   echo "Starting stack..."
   compose up -d --remove-orphans recipes-db recipes-backend poetry-backend recipes-frontend nginx certbot
 
-  echo "Checking health endpoint..."
-  if curl -fsS http://localhost/api/health >/dev/null; then
-    echo "Health check passed"
-  else
-    echo "Health check failed"
-    return 1
-  fi
+  wait_for_http_health "recipes" "$RECIPES_HTTP_HOST"
+  wait_for_http_health "poetry" "$POETRY_HTTP_HOST"
 
   compose ps
 }
 
 main "$@"
-

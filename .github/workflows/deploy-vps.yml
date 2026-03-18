@@ -55,6 +55,9 @@ jobs:
           REF_NAME="$2"
           WEB_FOLDERS_DIR="${3:-$HOME/web-folders}"
 
+          # Allow git to work with directories owned by different users
+          git config --global --add safe.directory '*'
+
           PREVIOUS_COMMIT=""
 
           debug_dump() {

@@ -40,29 +40,33 @@ wait_for_pg() {
 
 ensure_poetry_db() {
   echo "Ensuring poetry role/database exist..."
+  # Shell substitution in heredoc (no single-quotes around SQL) so that
+  # $POETRY_USER / $POETRY_PASSWORD / $POETRY_DB are expanded by bash
+  # before the SQL reaches psql.  We escape the password with printf to
+  # neutralise any single-quotes it may contain.
+  local escaped_pw
+  escaped_pw=$(printf '%s' "$POETRY_PASSWORD" | sed "s/'/''/g")
+
   compose exec -T recipes-db psql -v ON_ERROR_STOP=1 \
-    -U "$RECIPES_USER" -d "$RECIPES_DB" \
-    --set=poetry_user="$POETRY_USER" \
-    --set=poetry_password="$POETRY_PASSWORD" \
-    --set=poetry_db="$POETRY_DB" <<'SQL'
+    -U "$RECIPES_USER" -d "$RECIPES_DB" <<SQL
 DO
-$$
+\$\$
 BEGIN
-  IF NOT EXISTS (SELECT FROM pg_catalog.pg_roles WHERE rolname = :'poetry_user') THEN
-    EXECUTE format('CREATE ROLE %I LOGIN PASSWORD %L', :'poetry_user', :'poetry_password');
+  IF NOT EXISTS (SELECT FROM pg_catalog.pg_roles WHERE rolname = '${POETRY_USER}') THEN
+    EXECUTE format('CREATE ROLE %I LOGIN PASSWORD %L', '${POETRY_USER}', '${escaped_pw}');
   END IF;
 END
-$$;
+\$\$;
 
-SELECT format('CREATE DATABASE %I OWNER %I', :'poetry_db', :'poetry_user')
-WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = :'poetry_db')\gexec
+SELECT format('CREATE DATABASE %I OWNER %I', '${POETRY_DB}', '${POETRY_USER}')
+WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = '${POETRY_DB}')\gexec
 
 DO
-$$
+\$\$
 BEGIN
-  EXECUTE format('GRANT ALL PRIVILEGES ON DATABASE %I TO %I', :'poetry_db', :'poetry_user');
+  EXECUTE format('GRANT ALL PRIVILEGES ON DATABASE %I TO %I', '${POETRY_DB}', '${POETRY_USER}');
 END
-$$;
+\$\$;
 SQL
 }
 

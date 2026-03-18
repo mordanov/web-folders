@@ -69,6 +69,15 @@ chmod +x issue-certificates.sh
 - один контейнер `certbot` обслуживает оба сайта;
 - сертификаты лежат в общем volume `certbot_certs`;
 - общий `nginx` отслеживает изменение сертификатов и делает `reload` без отдельного контейнера/cron.
+- `issue-certificates.sh` предназначен только для первичного выпуска сертификатов и запускается вручную.
+
+## CI/CD (web-folders)
+
+Workflow `web-folders/.github/workflows/deploy-vps.yml`:
+
+- не запускает `issue-certificates.sh` автоматически;
+- деплоит и проверяет только конфигурационный слой (`nginx`/`certbot`);
+- выводит debug-информацию (`docker compose ps` и логи) только при ошибках старта/валидации контейнеров.
 
 ## Полезные команды
 
@@ -95,4 +104,3 @@ docker compose -f docker-compose.yaml down
 - Для `poetry-site` используется существующая SQLite-база в volume `poetry_data`, потому что именно так сейчас настроен его `docker-compose.yml`.
 - Если позже захотите перевести `poetry-site` на PostgreSQL, это можно сделать отдельно, не меняя shared-`nginx`/`certbot` слой.
 - До выдачи сертификатов сайты будут доступны по HTTP. После появления сертификатов для конкретного домена этот домен автоматически начнёт редиректить на HTTPS.
-

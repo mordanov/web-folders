@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Mainpage</title>
+  <title>__MAINPAGE_BROWSER_TITLE__</title>
   <style>
     :root {
       color-scheme: light;
@@ -116,25 +116,26 @@
 </head>
 <body>
   <main class="container">
-    <h1>Mainpage</h1>
+    <h1>__MAINPAGE_TITLE__</h1>
     <div class="grid">
-      <a class="tile" href="https://recipes.mainpage.ru" title="" aria-disabled="false" tabindex="0">
+      <a class="tile __RECIPES_LINK_CLASS__" href="__RECIPES_LINK_HREF__" title="__RECIPES_LINK_TITLE__" aria-disabled="__RECIPES_LINK_ARIA_DISABLED__" tabindex="__RECIPES_LINK_TABINDEX__">
         <img src="/icons/recipes.svg" alt="">
-        <span>Рецепты нашей семьи</span>
+        <span>&#1056;&#1077;&#1094;&#1077;&#1087;&#1090;&#1099; &#1085;&#1072;&#1096;&#1077;&#1081; &#1089;&#1077;&#1084;&#1100;&#1080;</span>
       </a>
-      <a class="tile" href="https://reminders.mainpage.ru" title="" aria-disabled="false" tabindex="0">
+      <a class="tile __REMINDERS_LINK_CLASS__" href="__REMINDERS_LINK_HREF__" title="__REMINDERS_LINK_TITLE__" aria-disabled="__REMINDERS_LINK_ARIA_DISABLED__" tabindex="__REMINDERS_LINK_TABINDEX__">
         <img src="/icons/reminders.svg" alt="">
-        <span>Напоминания</span>
+        <span>&#1053;&#1072;&#1087;&#1086;&#1084;&#1080;&#1085;&#1072;&#1085;&#1080;&#1103;</span>
       </a>
-      <a class="tile" href="https://familyphoto.mainpage.ru" title="" aria-disabled="false" tabindex="0">
+      <a class="tile __FAMILYPHOTO_LINK_CLASS__" href="__FAMILYPHOTO_LINK_HREF__" title="__FAMILYPHOTO_LINK_TITLE__" aria-disabled="__FAMILYPHOTO_LINK_ARIA_DISABLED__" tabindex="__FAMILYPHOTO_LINK_TABINDEX__">
         <img src="/icons/archive.svg" alt="">
-        <span>Семейный архив</span>
+        <span>&#1057;&#1077;&#1084;&#1077;&#1081;&#1085;&#1099;&#1081; &#1072;&#1088;&#1093;&#1080;&#1074;</span>
       </a>
-      <a class="tile" href="https://home.mainpage.ru" title="" aria-disabled="false" tabindex="0">
+      <a class="tile __HOME_LINK_CLASS__" href="__HOME_LINK_HREF__" title="__HOME_LINK_TITLE__" aria-disabled="__HOME_LINK_ARIA_DISABLED__" tabindex="__HOME_LINK_TABINDEX__">
         <img src="/icons/home.svg" alt="">
-        <span>Умный дом</span>
+        <span>&#1059;&#1084;&#1085;&#1099;&#1081; &#1076;&#1086;&#1084;</span>
       </a>
     </div>
   </main>
 </body>
 </html>
+

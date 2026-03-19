@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Mainpage</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f5f7fb;
+      --card: #ffffff;
+      --text: #1f2937;
+      --muted: #4b5563;
+      --ring: #dbe3f3;
+      --ring-hover: #c3d4f7;
+      --shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, Helvetica, Arial, sans-serif;
+      background: radial-gradient(circle at top, #ffffff 0%, var(--bg) 55%);
+      color: var(--text);
+      padding: 24px;
+    }
+
+    .container {
+      width: min(760px, 100%);
+      text-align: center;
+    }
+
+    h1 {
+      font-size: clamp(1.4rem, 2.5vw, 2rem);
+      margin: 0 0 24px;
+      font-weight: 700;
+      letter-spacing: 0.01em;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .tile {
+      text-decoration: none;
+      color: inherit;
+      background: var(--card);
+      border: 1px solid var(--ring);
+      border-radius: 16px;
+      min-height: 150px;
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      transition: transform 0.16s ease, box-shadow 0.16s ease, border-color 0.16s ease;
+      box-shadow: var(--shadow);
+    }
+
+    .tile:hover,
+    .tile:focus-visible {
+      transform: translateY(-2px);
+      border-color: var(--ring-hover);
+      box-shadow: 0 14px 28px rgba(59, 130, 246, 0.18);
+      outline: none;
+    }
+
+    .tile img {
+      width: 58px;
+      height: 58px;
+    }
+
+    .tile span {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--muted);
+    }
+
+    .tile.disabled {
+      cursor: not-allowed;
+      opacity: 0.92;
+    }
+
+    .tile.disabled:hover,
+    .tile.disabled:focus-visible {
+      transform: none;
+      border-color: var(--ring);
+      box-shadow: var(--shadow);
+      outline: none;
+    }
+
+    .tile.disabled img {
+      filter: grayscale(1);
+      opacity: 0.72;
+    }
+
+    .tile.disabled span {
+      color: #6b7280;
+    }
+
+    @media (max-width: 640px) {
+      .grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="container">
+    <h1>Mainpage</h1>
+    <div class="grid">
+      <a class="tile" href="https://recipes.mainpage.ru" title="" aria-disabled="false" tabindex="0">
+        <img src="/icons/recipes.svg" alt="">
+        <span>Рецепты нашей семьи</span>
+      </a>
+      <a class="tile" href="https://reminders.mainpage.ru" title="" aria-disabled="false" tabindex="0">
+        <img src="/icons/reminders.svg" alt="">
+        <span>Напоминания</span>
+      </a>
+      <a class="tile" href="https://familyphoto.mainpage.ru" title="" aria-disabled="false" tabindex="0">
+        <img src="/icons/archive.svg" alt="">
+        <span>Семейный архив</span>
+      </a>
+      <a class="tile" href="https://home.mainpage.ru" title="" aria-disabled="false" tabindex="0">
+        <img src="/icons/home.svg" alt="">
+        <span>Умный дом</span>
+      </a>
+    </div>
+  </main>
+</body>
+</html>

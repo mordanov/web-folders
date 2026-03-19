@@ -5,7 +5,7 @@ TEMPLATE_DIR=/etc/nginx/templates
 CONF_DIR=/etc/nginx/conf.d
 HTTPS_DIR=$CONF_DIR/https-enabled
 CERT_DIR=/etc/letsencrypt/live
-ENV_VARS='${RECIPES_PRIMARY_DOMAIN} ${RECIPES_SERVER_NAMES} ${POETRY_PRIMARY_DOMAIN} ${POETRY_SERVER_NAMES}'
+ENV_VARS='${RECIPES_PRIMARY_DOMAIN} ${RECIPES_SERVER_NAMES} ${POETRY_PRIMARY_DOMAIN} ${POETRY_SERVER_NAMES} ${MAINPAGE_PRIMARY_DOMAIN} ${MAINPAGE_SERVER_NAMES}'
 
 require_var() {
   var_name="$1"
@@ -44,6 +44,14 @@ render_configs() {
   else
     render "$TEMPLATE_DIR/poetry-http.conf.template" "$CONF_DIR/20-poetry-http.conf"
     rm -f "$HTTPS_DIR/20-poetry-https.conf"
+  fi
+
+  if has_cert "$MAINPAGE_PRIMARY_DOMAIN"; then
+    render "$TEMPLATE_DIR/mainpage-http-redirect.conf.template" "$CONF_DIR/30-mainpage-http.conf"
+    render "$TEMPLATE_DIR/mainpage-https.conf.template" "$HTTPS_DIR/30-mainpage-https.conf"
+  else
+    render "$TEMPLATE_DIR/mainpage-http.conf.template" "$CONF_DIR/30-mainpage-http.conf"
+    rm -f "$HTTPS_DIR/30-mainpage-https.conf"
   fi
 }
 
@@ -86,10 +94,11 @@ require_var RECIPES_PRIMARY_DOMAIN
 require_var RECIPES_SERVER_NAMES
 require_var POETRY_PRIMARY_DOMAIN
 require_var POETRY_SERVER_NAMES
+require_var MAINPAGE_PRIMARY_DOMAIN
+require_var MAINPAGE_SERVER_NAMES
 
 render_configs
 nginx -t
 watch_certs &
 
 exec nginx -g 'daemon off;'
-

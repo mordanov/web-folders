@@ -64,6 +64,22 @@ services:
       recipes-db:
         condition: service_healthy
 
+  mainpage-landing:
+    build:
+      context: ./mainpage-landing
+    restart: unless-stopped
+    environment:
+      MAINPAGE_PRIMARY_DOMAIN: ${MAINPAGE_PRIMARY_DOMAIN:-mainpage.local}
+      MAINPAGE_TITLE: ${MAINPAGE_TITLE:-Mainpage}
+      MAINPAGE_BROWSER_TITLE: ${MAINPAGE_BROWSER_TITLE:-}
+      MAINPAGE_LINK_DOMAIN: ${MAINPAGE_LINK_DOMAIN:-}
+      MAINPAGE_ENABLE_RECIPES: ${MAINPAGE_ENABLE_RECIPES:-1}
+      MAINPAGE_ENABLE_REMINDERS: ${MAINPAGE_ENABLE_REMINDERS:-1}
+      MAINPAGE_ENABLE_FAMILYPHOTO: ${MAINPAGE_ENABLE_FAMILYPHOTO:-1}
+      MAINPAGE_ENABLE_HOME: ${MAINPAGE_ENABLE_HOME:-1}
+    expose:
+      - "80"
+
   nginx:
     build:
       context: ./nginx
@@ -77,6 +93,8 @@ services:
       RECIPES_SERVER_NAMES: ${RECIPES_SERVER_NAMES:-recipes.local}
       POETRY_PRIMARY_DOMAIN: ${POETRY_PRIMARY_DOMAIN:-poetry.local}
       POETRY_SERVER_NAMES: ${POETRY_SERVER_NAMES:-poetry.local}
+      MAINPAGE_PRIMARY_DOMAIN: ${MAINPAGE_PRIMARY_DOMAIN:-mainpage.local}
+      MAINPAGE_SERVER_NAMES: ${MAINPAGE_SERVER_NAMES:-mainpage.local www.mainpage.local}
       NGINX_CERT_POLL_INTERVAL: ${NGINX_CERT_POLL_INTERVAL:-300}
     volumes:
       - ../poetry-site/frontend/templates/index.html:/srv/poetry-site/index.html:ro
@@ -87,6 +105,7 @@ services:
       - recipes-backend
       - recipes-frontend
       - poetry-backend
+      - mainpage-landing
 
   certbot:
     image: certbot/certbot:latest

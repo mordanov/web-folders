@@ -1,9 +1,9 @@
-# Shared Docker Compose for `family-kitchen-recipes` and `poetry-site`
+# Shared Docker Compose for `family-kitchen-recipes`, `poetry-site` and `mainpage-landing`
 
-В этой папке собран единый контур развертывания для двух проектов:
+В этой папке собран единый контур развертывания для проектов:
 
-- один `nginx` на оба сайта;
-- один `certbot` на оба сайта;
+- один `nginx` на все сайты;
+- один `certbot` на все сайты;
 - отдельные backend/frontend/db сервисы там, где это нужно;
 - автоматическое переключение каждого домена на HTTPS, как только для него появился сертификат.
 
@@ -12,7 +12,7 @@
 - `docker-compose.yaml` — общий compose-стек;
 - `.env.example` — все переменные в одном месте;
 - `nginx/` — shared reverse proxy и TLS-логика;
-- `issue-certificates.sh` — первичная выдача сертификатов Let’s Encrypt для обоих сайтов.
+- `issue-certificates.sh` — первичная выдача сертификатов Let’s Encrypt для всех сайтов.
 
 ## Архитектура
 
@@ -26,6 +26,10 @@
 - `poetry-backend` — FastAPI
 - фронтенд `poetry-site` отдаётся напрямую общим `nginx` из файлов проекта
 - `/api` и `/uploads` проксируются в `poetry-backend`
+
+### `mainpage-landing`
+- `mainpage-landing` — статическая заглушка с быстрыми ссылками
+- трафик идёт через общий `nginx`
 
 ## Как запустить
 
@@ -41,6 +45,8 @@ cp .env.example .env
 - `RECIPES_SERVER_NAMES`
 - `POETRY_PRIMARY_DOMAIN`
 - `POETRY_SERVER_NAMES`
+- `MAINPAGE_PRIMARY_DOMAIN`
+- `MAINPAGE_SERVER_NAMES`
 - `LETSENCRYPT_EMAIL`
 - секреты и пароли обоих проектов
 
@@ -52,7 +58,7 @@ cp .env.example .env
 docker compose -f docker-compose.yaml up -d --build
 ```
 
-4. Выпустите сертификаты для обоих сайтов через один `certbot`:
+4. Выпустите сертификаты для сайтов через один `certbot`:
 
 ```bash
 chmod +x issue-certificates.sh
@@ -66,7 +72,7 @@ chmod +x issue-certificates.sh
 
 Сервис `certbot` в `docker-compose.yaml` выполняет `certbot renew` в цикле.
 
-- один контейнер `certbot` обслуживает оба сайта;
+- один контейнер `certbot` обслуживает все сайты;
 - сертификаты лежат в общем volume `certbot_certs`;
 - общий `nginx` отслеживает изменение сертификатов и делает `reload` без отдельного контейнера/cron.
 - `issue-certificates.sh` предназначен только для первичного выпуска сертификатов и запускается вручную.

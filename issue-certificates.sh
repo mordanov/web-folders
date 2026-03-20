@@ -28,6 +28,8 @@ require_var POETRY_PRIMARY_DOMAIN
 require_var POETRY_SERVER_NAMES
 require_var MAINPAGE_PRIMARY_DOMAIN
 require_var MAINPAGE_SERVER_NAMES
+require_var NEWS_PRIMARY_DOMAIN
+require_var NEWS_SERVER_NAMES
 
 run_certbot() {
   site_label="$1"
@@ -60,6 +62,7 @@ run_certbot() {
 run_certbot "family-kitchen-recipes" "$RECIPES_PRIMARY_DOMAIN" "$RECIPES_SERVER_NAMES"
 run_certbot "poetry-site" "$POETRY_PRIMARY_DOMAIN" "$POETRY_SERVER_NAMES"
 run_certbot "mainpage-landing" "$MAINPAGE_PRIMARY_DOMAIN" "$MAINPAGE_SERVER_NAMES"
+run_certbot "news-site" "$NEWS_PRIMARY_DOMAIN" "$NEWS_SERVER_NAMES"
 
 docker compose -f "$COMPOSE_FILE" exec nginx nginx -s reload >/dev/null 2>&1 || true
 

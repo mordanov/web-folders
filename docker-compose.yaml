@@ -9,6 +9,9 @@ services:
       POETRY_POSTGRES_DB: ${POETRY_POSTGRES_DB:-poetry}
       POETRY_POSTGRES_USER: ${POETRY_POSTGRES_USER:-poetry_user}
       POETRY_POSTGRES_PASSWORD: ${POETRY_POSTGRES_PASSWORD:-change-me-poetry-db}
+      NEWS_POSTGRES_DB: ${NEWS_POSTGRES_DB:-news}
+      NEWS_POSTGRES_USER: ${NEWS_POSTGRES_USER:-news_user}
+      NEWS_POSTGRES_PASSWORD: ${NEWS_POSTGRES_PASSWORD:-change-me-news-db}
     volumes:
       - recipes_postgres_data:/var/lib/postgresql/data
       - ./postgres-init:/docker-entrypoint-initdb.d:ro
@@ -64,6 +67,34 @@ services:
       recipes-db:
         condition: service_healthy
 
+  news-backend:
+    build:
+      context: ../news-site/backend
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql://${NEWS_POSTGRES_USER:-news_user}:${NEWS_POSTGRES_PASSWORD:-change-me-news-db}@recipes-db:5432/${NEWS_POSTGRES_DB:-news}
+      SECRET_KEY: ${NEWS_SECRET_KEY:-change-me-news-secret}
+      PHOTOS_DIR: /app/photos
+      THUMBNAILS_DIR: /app/photos/thumbnails
+      USER1_LOGIN: ${NEWS_USER1_LOGIN:-admin}
+      USER1_PASSWORD: ${NEWS_USER1_PASSWORD:-change-me-password1}
+      USER2_LOGIN: ${NEWS_USER2_LOGIN:-user}
+      USER2_PASSWORD: ${NEWS_USER2_PASSWORD:-change-me-password2}
+    volumes:
+      - news_photos_data:/app/photos
+    expose:
+      - "8000"
+    depends_on:
+      recipes-db:
+        condition: service_healthy
+
+  news-frontend:
+    build:
+      context: ../news-site/frontend
+    restart: unless-stopped
+    expose:
+      - "80"
+
   mainpage-landing:
     build:
       context: ./mainpage-landing
@@ -96,6 +127,8 @@ services:
       POETRY_SERVER_NAMES: ${POETRY_SERVER_NAMES:-poetry.local}
       MAINPAGE_PRIMARY_DOMAIN: ${MAINPAGE_PRIMARY_DOMAIN:-mainpage.local}
       MAINPAGE_SERVER_NAMES: ${MAINPAGE_SERVER_NAMES:-mainpage.local www.mainpage.local}
+      NEWS_PRIMARY_DOMAIN: ${NEWS_PRIMARY_DOMAIN:-news.mainpage.local}
+      NEWS_SERVER_NAMES: ${NEWS_SERVER_NAMES:-news.mainpage.local}
       NGINX_CERT_POLL_INTERVAL: ${NGINX_CERT_POLL_INTERVAL:-300}
     volumes:
       - ../poetry-site/frontend/templates/index.html:/srv/poetry-site/index.html:ro
@@ -106,6 +139,8 @@ services:
       - recipes-backend
       - recipes-frontend
       - poetry-backend
+      - news-backend
+      - news-frontend
       - mainpage-landing
 
   certbot:
@@ -131,6 +166,7 @@ volumes:
   recipes_postgres_data:
   recipes_uploads_data:
   poetry_uploads_data:
+  news_photos_data:
   certbot_certs:
   certbot_www:
 

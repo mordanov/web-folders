@@ -186,23 +186,23 @@
     <h1 data-i18n-text="pageTitle">__MAINPAGE_TITLE__</h1>
     <div class="grid">
       <a class="tile __RECIPES_LINK_CLASS__" href="__RECIPES_LINK_HREF__" title="__RECIPES_LINK_TITLE__" data-i18n-enabled-title="recipesTooltip" aria-disabled="__RECIPES_LINK_ARIA_DISABLED__" tabindex="__RECIPES_LINK_TABINDEX__">
-        <img src="/icons/recipes.svg" alt="Рецепты нашей семьи" data-i18n-alt="recipesLabel">
+        <img src="/icons/miveralta_recipes.png" alt="Рецепты нашей семьи" data-i18n-alt="recipesLabel">
         <span data-i18n-text="recipesLabel">Рецепты нашей семьи</span>
       </a>
       <a class="tile __REMINDERS_LINK_CLASS__" href="__REMINDERS_LINK_HREF__" title="__REMINDERS_LINK_TITLE__" data-i18n-enabled-title="remindersTooltip" aria-disabled="__REMINDERS_LINK_ARIA_DISABLED__" tabindex="__REMINDERS_LINK_TABINDEX__">
-        <img src="/icons/reminders.svg" alt="Напоминания" data-i18n-alt="remindersLabel">
+        <img src="/icons/miveralta_notifications.png" alt="Напоминания" data-i18n-alt="remindersLabel">
         <span data-i18n-text="remindersLabel">Напоминания</span>
       </a>
       <a class="tile __FAMILYPHOTO_LINK_CLASS__" href="__FAMILYPHOTO_LINK_HREF__" title="__FAMILYPHOTO_LINK_TITLE__" data-i18n-enabled-title="archiveTooltip" aria-disabled="__FAMILYPHOTO_LINK_ARIA_DISABLED__" tabindex="__FAMILYPHOTO_LINK_TABINDEX__">
-        <img src="/icons/archive.svg" alt="Семейный архив" data-i18n-alt="archiveLabel">
+        <img src="/icons/miveralta_familyphotos.png" alt="Семейный архив" data-i18n-alt="archiveLabel">
         <span data-i18n-text="archiveLabel">Семейный архив</span>
       </a>
       <a class="tile __HOME_LINK_CLASS__" href="__HOME_LINK_HREF__" title="__HOME_LINK_TITLE__" data-i18n-enabled-title="homeTooltip" aria-disabled="__HOME_LINK_ARIA_DISABLED__" tabindex="__HOME_LINK_TABINDEX__">
-        <img src="/icons/home.svg" alt="Умный дом" data-i18n-alt="homeLabel">
+        <img src="/icons/miveralta_smarthome.png" alt="Умный дом" data-i18n-alt="homeLabel">
         <span data-i18n-text="homeLabel">Умный дом</span>
       </a>
       <a class="tile __NEWS_LINK_CLASS__" href="__NEWS_LINK_HREF__" title="__NEWS_LINK_TITLE__" data-i18n-enabled-title="newsTooltip" aria-disabled="__NEWS_LINK_ARIA_DISABLED__" tabindex="__NEWS_LINK_TABINDEX__">
-        <img src="/icons/news.svg" alt="Лента новостей" data-i18n-alt="newsLabel">
+        <img src="/icons/miveralta_news.png" alt="Лента новостей" data-i18n-alt="newsLabel">
         <span data-i18n-text="newsLabel">Лента новостей</span>
       </a>
       <a class="tile disabled placeholder" href="#" title="Скоро" data-i18n-title="soonLabel" aria-disabled="true" tabindex="-1">

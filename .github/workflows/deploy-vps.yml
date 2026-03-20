@@ -64,6 +64,8 @@ jobs:
             docker compose -f docker-compose.yaml logs --no-color --tail=200 recipes-db || true
             docker compose -f docker-compose.yaml logs --no-color --tail=200 recipes-backend || true
             docker compose -f docker-compose.yaml logs --no-color --tail=200 poetry-backend || true
+            docker compose -f docker-compose.yaml logs --no-color --tail=200 news-backend || true
+            docker compose -f docker-compose.yaml logs --no-color --tail=200 news-frontend || true
             docker compose -f docker-compose.yaml logs --no-color --tail=200 mainpage-landing || true
             docker compose -f docker-compose.yaml logs --no-color --tail=200 nginx || true
             docker compose -f docker-compose.yaml logs --no-color --tail=200 certbot || true

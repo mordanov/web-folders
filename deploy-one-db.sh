@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Deploy shared stack with one PostgreSQL instance and two databases (recipes + poetry).
+# Deploy shared stack with one PostgreSQL instance and three databases (recipes + poetry + news).
 # Run from web-folders repository root or pass WEB_FOLDERS_DIR.
 
 WEB_FOLDERS_DIR="${WEB_FOLDERS_DIR:-$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)}"
@@ -12,9 +12,13 @@ RECIPES_USER="${RECIPES_POSTGRES_USER:-recipes_user}"
 POETRY_DB="${POETRY_POSTGRES_DB:-poetry}"
 POETRY_USER="${POETRY_POSTGRES_USER:-poetry_user}"
 POETRY_PASSWORD="${POETRY_POSTGRES_PASSWORD:-change-me-poetry-db}"
+NEWS_DB="${NEWS_POSTGRES_DB:-news}"
+NEWS_USER="${NEWS_POSTGRES_USER:-news_user}"
+NEWS_PASSWORD="${NEWS_POSTGRES_PASSWORD:-change-me-news-db}"
 
 RECIPES_HTTP_HOST="${RECIPES_PRIMARY_DOMAIN:-recipes.local}"
 POETRY_HTTP_HOST="${POETRY_PRIMARY_DOMAIN:-poetry.local}"
+NEWS_HTTP_HOST="${NEWS_PRIMARY_DOMAIN:-news.mainpage.local}"
 
 compose() {
   if command -v docker-compose >/dev/null 2>&1; then
@@ -41,36 +45,44 @@ wait_for_pg() {
   return 1
 }
 
-ensure_poetry_db() {
-  echo "Ensuring poetry role/database exist..."
-  # Shell substitution in heredoc (no single-quotes around SQL) so that
-  # $POETRY_USER / $POETRY_PASSWORD / $POETRY_DB are expanded by bash
-  # before the SQL reaches psql.  We escape the password with printf to
-  # neutralise any single-quotes it may contain.
+ensure_role_db() {
+  local app_user="$1"
+  local app_password="$2"
+  local app_db="$3"
   local escaped_pw
-  escaped_pw=$(printf '%s' "$POETRY_PASSWORD" | sed "s/'/''/g")
+
+  # Escape single quotes in SQL literal before passing to psql.
+  escaped_pw=$(printf '%s' "$app_password" | sed "s/'/''/g")
 
   compose exec -T recipes-db psql -v ON_ERROR_STOP=1 \
     -U "$RECIPES_USER" -d "$RECIPES_DB" <<SQL
 DO
 \$\$
 BEGIN
-  IF NOT EXISTS (SELECT FROM pg_catalog.pg_roles WHERE rolname = '${POETRY_USER}') THEN
-    EXECUTE format('CREATE ROLE %I LOGIN PASSWORD %L', '${POETRY_USER}', '${escaped_pw}');
+  IF NOT EXISTS (SELECT FROM pg_catalog.pg_roles WHERE rolname = '${app_user}') THEN
+    EXECUTE format('CREATE ROLE %I LOGIN PASSWORD %L', '${app_user}', '${escaped_pw}');
   END IF;
 END
 \$\$;
 
-SELECT format('CREATE DATABASE %I OWNER %I', '${POETRY_DB}', '${POETRY_USER}')
-WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = '${POETRY_DB}')\gexec
+SELECT format('CREATE DATABASE %I OWNER %I', '${app_db}', '${app_user}')
+WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = '${app_db}')\gexec
 
 DO
 \$\$
 BEGIN
-  EXECUTE format('GRANT ALL PRIVILEGES ON DATABASE %I TO %I', '${POETRY_DB}', '${POETRY_USER}');
+  EXECUTE format('GRANT ALL PRIVILEGES ON DATABASE %I TO %I', '${app_db}', '${app_user}');
 END
 \$\$;
 SQL
+}
+
+ensure_app_dbs() {
+  echo "Ensuring poetry role/database exist..."
+  ensure_role_db "$POETRY_USER" "$POETRY_PASSWORD" "$POETRY_DB"
+
+  echo "Ensuring news role/database exist..."
+  ensure_role_db "$NEWS_USER" "$NEWS_PASSWORD" "$NEWS_DB"
 }
 
 wait_for_http_health() {
@@ -99,19 +111,20 @@ main() {
 
   compose up -d recipes-db
   wait_for_pg
-  ensure_poetry_db
+  ensure_app_dbs
 
   echo "Building backend/frontend/nginx images..."
-  compose build recipes-backend poetry-backend recipes-frontend mainpage-landing nginx
+  compose build recipes-backend poetry-backend news-backend recipes-frontend news-frontend mainpage-landing nginx
 
   echo "Starting stack..."
-  compose up -d --remove-orphans recipes-db recipes-backend poetry-backend recipes-frontend mainpage-landing nginx certbot
+  compose up -d --remove-orphans recipes-db recipes-backend poetry-backend news-backend recipes-frontend news-frontend mainpage-landing nginx certbot
 
   # Force-recreate landing container so static web-folders updates are applied on every deploy.
   compose up -d --force-recreate mainpage-landing
 
   wait_for_http_health "recipes" "$RECIPES_HTTP_HOST"
   wait_for_http_health "poetry" "$POETRY_HTTP_HOST"
+  wait_for_http_health "news" "$NEWS_HTTP_HOST"
 
   compose ps
 }

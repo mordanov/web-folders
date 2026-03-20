@@ -46,7 +46,7 @@
 
     .grid {
       display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
+      grid-template-columns: repeat(3, minmax(0, 1fr));
       gap: 16px;
     }
 
@@ -108,6 +108,27 @@
       color: #6b7280;
     }
 
+    .tile.placeholder {
+      cursor: default;
+      border-style: dashed;
+      background: #f8fafc;
+      box-shadow: none;
+    }
+
+    .tile.placeholder:hover,
+    .tile.placeholder:focus-visible {
+      transform: none;
+      border-color: var(--ring);
+      box-shadow: none;
+      outline: none;
+    }
+
+    @media (max-width: 900px) {
+      .grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
     @media (max-width: 640px) {
       .grid {
         grid-template-columns: 1fr;
@@ -134,6 +155,13 @@
       <a class="tile" href="https://home.mainpage.ru" title="" aria-disabled="false" tabindex="0">
         <img src="/icons/home.svg" alt="">
         <span>Умный дом</span>
+      </a>
+      <a class="tile" href="https://news.mainpage.ru" title="Открыть ленту новостей" aria-disabled="false" tabindex="0">
+        <img src="/icons/news.svg" alt="">
+        <span>Лента новостей</span>
+      </a>
+      <a class="tile disabled placeholder" href="#" title="Скоро" aria-disabled="true" tabindex="-1">
+        <span>Скоро</span>
       </a>
     </div>
   </main>

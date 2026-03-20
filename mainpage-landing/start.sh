@@ -33,7 +33,7 @@ configure_link() {
   else
     href="#"
     class="disabled"
-    title="In development"
+    title="&#1042; &#1088;&#1072;&#1079;&#1088;&#1072;&#1073;&#1086;&#1090;&#1082;&#1077;"
     aria_disabled="true"
     tabindex="-1"
   fi
@@ -49,6 +49,10 @@ configure_link "RECIPES" "recipes" "${MAINPAGE_ENABLE_RECIPES:-1}"
 configure_link "REMINDERS" "reminders" "${MAINPAGE_ENABLE_REMINDERS:-1}"
 configure_link "FAMILYPHOTO" "familyphoto" "${MAINPAGE_ENABLE_FAMILYPHOTO:-1}"
 configure_link "HOME" "home" "${MAINPAGE_ENABLE_HOME:-1}"
+configure_link "NEWS" "news" "${MAINPAGE_ENABLE_NEWS:-1}"
+if is_enabled "${MAINPAGE_ENABLE_NEWS:-1}"; then
+  NEWS_LINK_TITLE="&#1054;&#1090;&#1082;&#1088;&#1099;&#1090;&#1100; &#1083;&#1077;&#1085;&#1090;&#1091; &#1085;&#1086;&#1074;&#1086;&#1089;&#1090;&#1077;&#1081;"
+fi
 
 escape_sed() {
   printf '%s' "$1" | sed 's/[\\&|]/\\&/g'
@@ -78,6 +82,11 @@ sed \
   -e "s|__HOME_LINK_TITLE__|$(escape_sed "$HOME_LINK_TITLE")|g" \
   -e "s|__HOME_LINK_ARIA_DISABLED__|$(escape_sed "$HOME_LINK_ARIA_DISABLED")|g" \
   -e "s|__HOME_LINK_TABINDEX__|$(escape_sed "$HOME_LINK_TABINDEX")|g" \
+  -e "s|__NEWS_LINK_HREF__|$(escape_sed "$NEWS_LINK_HREF")|g" \
+  -e "s|__NEWS_LINK_CLASS__|$(escape_sed "$NEWS_LINK_CLASS")|g" \
+  -e "s|__NEWS_LINK_TITLE__|$(escape_sed "$NEWS_LINK_TITLE")|g" \
+  -e "s|__NEWS_LINK_ARIA_DISABLED__|$(escape_sed "$NEWS_LINK_ARIA_DISABLED")|g" \
+  -e "s|__NEWS_LINK_TABINDEX__|$(escape_sed "$NEWS_LINK_TABINDEX")|g" \
   /usr/share/nginx/html/index.html.template > /tmp/index.html
 mv /tmp/index.html /usr/share/nginx/html/index.html
 

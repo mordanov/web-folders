@@ -46,7 +46,7 @@
 
     .grid {
       display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
+      grid-template-columns: repeat(3, minmax(0, 1fr));
       gap: 16px;
     }
 
@@ -108,6 +108,27 @@
       color: #6b7280;
     }
 
+    .tile.placeholder {
+      cursor: default;
+      border-style: dashed;
+      background: #f8fafc;
+      box-shadow: none;
+    }
+
+    .tile.placeholder:hover,
+    .tile.placeholder:focus-visible {
+      transform: none;
+      border-color: var(--ring);
+      box-shadow: none;
+      outline: none;
+    }
+
+    @media (max-width: 900px) {
+      .grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
     @media (max-width: 640px) {
       .grid {
         grid-template-columns: 1fr;
@@ -134,6 +155,13 @@
       <a class="tile __HOME_LINK_CLASS__" href="__HOME_LINK_HREF__" title="__HOME_LINK_TITLE__" aria-disabled="__HOME_LINK_ARIA_DISABLED__" tabindex="__HOME_LINK_TABINDEX__">
         <img src="/icons/home.svg" alt="">
         <span>&#1059;&#1084;&#1085;&#1099;&#1081; &#1076;&#1086;&#1084;</span>
+      </a>
+      <a class="tile __NEWS_LINK_CLASS__" href="__NEWS_LINK_HREF__" title="__NEWS_LINK_TITLE__" aria-disabled="__NEWS_LINK_ARIA_DISABLED__" tabindex="__NEWS_LINK_TABINDEX__">
+        <img src="/icons/news.svg" alt="">
+        <span>&#1051;&#1077;&#1085;&#1090;&#1072; &#1085;&#1086;&#1074;&#1086;&#1089;&#1090;&#1077;&#1081;</span>
+      </a>
+      <a class="tile disabled placeholder" href="#" title="&#1057;&#1082;&#1086;&#1088;&#1086;" aria-disabled="true" tabindex="-1">
+        <span>&#1057;&#1082;&#1086;&#1088;&#1086;</span>
       </a>
     </div>
   </main>

@@ -62,6 +62,9 @@ BEGIN
   IF NOT EXISTS (SELECT FROM pg_catalog.pg_roles WHERE rolname = '${app_user}') THEN
     EXECUTE format('CREATE ROLE %I LOGIN PASSWORD %L', '${app_user}', '${escaped_pw}');
   END IF;
+
+  -- Keep role password in sync with current environment values.
+  EXECUTE format('ALTER ROLE %I WITH LOGIN PASSWORD %L', '${app_user}', '${escaped_pw}');
 END
 \$\$;
 
@@ -71,6 +74,7 @@ WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = '${app_db}')\gexec
 DO
 \$\$
 BEGIN
+  EXECUTE format('ALTER DATABASE %I OWNER TO %I', '${app_db}', '${app_user}');
   EXECUTE format('GRANT ALL PRIVILEGES ON DATABASE %I TO %I', '${app_db}', '${app_user}');
 END
 \$\$;

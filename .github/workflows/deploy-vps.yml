@@ -64,6 +64,7 @@ jobs:
             docker compose -f docker-compose.yaml logs --no-color --tail=200 recipes-db || true
             docker compose -f docker-compose.yaml logs --no-color --tail=200 recipes-backend || true
             docker compose -f docker-compose.yaml logs --no-color --tail=200 poetry-backend || true
+            docker compose -f docker-compose.yaml logs --no-color --tail=200 mainpage-landing || true
             docker compose -f docker-compose.yaml logs --no-color --tail=200 nginx || true
             docker compose -f docker-compose.yaml logs --no-color --tail=200 certbot || true
           }
@@ -94,6 +95,9 @@ jobs:
             fi
             exit 1
           fi
+
+          # Ensure the landing gets recreated even if compose considers it up-to-date.
+          docker compose -f docker-compose.yaml up -d --force-recreate mainpage-landing
 
           docker compose -f docker-compose.yaml exec -T nginx nginx -t || true
           docker compose -f docker-compose.yaml exec -T nginx nginx -s reload || true

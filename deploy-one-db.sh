@@ -102,10 +102,13 @@ main() {
   ensure_poetry_db
 
   echo "Building backend/frontend/nginx images..."
-  compose build recipes-backend poetry-backend recipes-frontend nginx
+  compose build recipes-backend poetry-backend recipes-frontend mainpage-landing nginx
 
   echo "Starting stack..."
-  compose up -d --remove-orphans recipes-db recipes-backend poetry-backend recipes-frontend nginx certbot
+  compose up -d --remove-orphans recipes-db recipes-backend poetry-backend recipes-frontend mainpage-landing nginx certbot
+
+  # Force-recreate landing container so static web-folders updates are applied on every deploy.
+  compose up -d --force-recreate mainpage-landing
 
   wait_for_http_health "recipes" "$RECIPES_HTTP_HOST"
   wait_for_http_health "poetry" "$POETRY_HTTP_HOST"

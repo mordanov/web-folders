@@ -29,6 +29,7 @@
 
 ### `mainpage-landing`
 - `mainpage-landing` — статическая заглушка с быстрыми ссылками
+- неизвестные пути `mainpage` перенаправляются на отдельный 404-субдомен со статической страницей
 - трафик идёт через общий `nginx`
 
 ## Как запустить
@@ -47,6 +48,7 @@ cp .env.example .env
 - `POETRY_SERVER_NAMES`
 - `MAINPAGE_PRIMARY_DOMAIN`
 - `MAINPAGE_SERVER_NAMES`
+- `MAINPAGE_404_DOMAIN`
 - `LETSENCRYPT_EMAIL`
 - секреты и пароли обоих проектов
 

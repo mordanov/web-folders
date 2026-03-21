@@ -1,0 +1,18 @@
+server {
+    listen 443 ssl;
+    listen [::]:443 ssl;
+    server_name ${MAINPAGE_404_DOMAIN};
+
+    ssl_certificate /etc/letsencrypt/live/${MAINPAGE_404_DOMAIN}/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/${MAINPAGE_404_DOMAIN}/privkey.pem;
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_ciphers HIGH:!aNULL:!MD5;
+    ssl_session_cache shared:SSL:10m;
+    ssl_session_timeout 1d;
+
+    location / {
+        root /srv/errors/404;
+        try_files /index.html =404;
+    }
+}
+

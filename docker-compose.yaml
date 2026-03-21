@@ -127,6 +127,7 @@ services:
       POETRY_SERVER_NAMES: ${POETRY_SERVER_NAMES:-poetry.local}
       MAINPAGE_PRIMARY_DOMAIN: ${MAINPAGE_PRIMARY_DOMAIN:-mainpage.local}
       MAINPAGE_SERVER_NAMES: ${MAINPAGE_SERVER_NAMES:-mainpage.local www.mainpage.local}
+      MAINPAGE_404_DOMAIN: ${MAINPAGE_404_DOMAIN:-404.mainpage.local}
       NEWS_PRIMARY_DOMAIN: ${NEWS_PRIMARY_DOMAIN:-news.mainpage.local}
       NEWS_SERVER_NAMES: ${NEWS_SERVER_NAMES:-news.mainpage.local}
       NGINX_CERT_POLL_INTERVAL: ${NGINX_CERT_POLL_INTERVAL:-300}

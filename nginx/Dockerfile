@@ -5,6 +5,7 @@ RUN apk add --no-cache gettext
 COPY nginx.conf /etc/nginx/nginx.conf
 COPY snippets /etc/nginx/snippets
 COPY templates /etc/nginx/templates
+COPY static /srv/errors
 COPY start.sh /usr/local/bin/start.sh
 
 RUN chmod +x /usr/local/bin/start.sh

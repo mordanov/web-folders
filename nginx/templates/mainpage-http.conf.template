@@ -10,6 +10,8 @@ server {
     location / {
         set $mainpage_landing http://mainpage-landing:80;
         proxy_pass $mainpage_landing;
+        proxy_intercept_errors on;
+        error_page 404 =301 https://${MAINPAGE_404_DOMAIN}/;
         include /etc/nginx/snippets/proxy-common.conf;
     }
 }

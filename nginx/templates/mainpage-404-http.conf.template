@@ -1,0 +1,15 @@
+server {
+    listen 80;
+    listen [::]:80;
+    server_name ${MAINPAGE_404_DOMAIN};
+
+    location /.well-known/acme-challenge/ {
+        root /var/www/certbot;
+    }
+
+    location / {
+        root /srv/errors/404;
+        try_files /index.html =404;
+    }
+}
+

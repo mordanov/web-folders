@@ -21,6 +21,26 @@ services:
       timeout: 5s
       retries: 5
 
+  db-password-sync:
+    image: postgres:16-alpine
+    restart: "no"
+    environment:
+      RECIPES_POSTGRES_DB: ${RECIPES_POSTGRES_DB:-recipes}
+      RECIPES_POSTGRES_USER: ${RECIPES_POSTGRES_USER:-recipes_user}
+      RECIPES_POSTGRES_PASSWORD: ${RECIPES_POSTGRES_PASSWORD:-change-me-recipes-db}
+      POETRY_POSTGRES_DB: ${POETRY_POSTGRES_DB:-poetry}
+      POETRY_POSTGRES_USER: ${POETRY_POSTGRES_USER:-poetry_user}
+      POETRY_POSTGRES_PASSWORD: ${POETRY_POSTGRES_PASSWORD:-change-me-poetry-db}
+      NEWS_POSTGRES_DB: ${NEWS_POSTGRES_DB:-news}
+      NEWS_POSTGRES_USER: ${NEWS_POSTGRES_USER:-news_user}
+      NEWS_POSTGRES_PASSWORD: ${NEWS_POSTGRES_PASSWORD:-change-me-news-db}
+    volumes:
+      - ./scripts/sync-app-db-users.sh:/usr/local/bin/sync-app-db-users.sh:ro
+    entrypoint: ["/bin/sh", "/usr/local/bin/sync-app-db-users.sh"]
+    depends_on:
+      recipes-db:
+        condition: service_healthy
+
   recipes-backend:
     build:
       context: ../family-kitchen-recipes/backend
@@ -66,6 +86,8 @@ services:
     depends_on:
       recipes-db:
         condition: service_healthy
+      db-password-sync:
+        condition: service_completed_successfully
 
   news-backend:
     build:
@@ -87,6 +109,8 @@ services:
     depends_on:
       recipes-db:
         condition: service_healthy
+      db-password-sync:
+        condition: service_completed_successfully
 
   news-frontend:
     build:

@@ -55,6 +55,7 @@ services:
       USER2_PASSWORD: ${RECIPES_USER2_PASSWORD:-change-me-password2}
     volumes:
       - recipes_uploads_data:/app/uploads
+      - recipes_documents_data:/app/documents
     expose:
       - "8000"
     depends_on:
@@ -192,6 +193,7 @@ services:
 volumes:
   recipes_postgres_data:
   recipes_uploads_data:
+  recipes_documents_data:
   poetry_uploads_data:
   news_photos_data:
   certbot_certs:

@@ -65,6 +65,8 @@ services:
     build:
       context: ../family-kitchen-recipes/frontend
     restart: unless-stopped
+    environment:
+      BACKEND_ORIGIN: http://recipes-backend:8000
     expose:
       - "3000"
 

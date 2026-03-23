@@ -30,6 +30,8 @@ server {
         set $news_frontend http://news-frontend:80;
         proxy_pass $news_frontend;
         include /etc/nginx/snippets/proxy-common.conf;
+        proxy_intercept_errors on;
+        error_page 404 =302 https://${MAINPAGE_404_DOMAIN}/;
     }
 }
 

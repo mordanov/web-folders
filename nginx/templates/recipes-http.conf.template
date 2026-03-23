@@ -27,6 +27,8 @@ server {
         set $recipes_frontend http://recipes-frontend:3000;
         proxy_pass $recipes_frontend;
         include /etc/nginx/snippets/proxy-common.conf;
+        proxy_intercept_errors on;
+        error_page 404 =302 https://${MAINPAGE_404_DOMAIN}/;
     }
 }
 

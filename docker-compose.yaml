@@ -196,7 +196,7 @@ services:
 
   budget-frontend:
     build:
-      context: ../budget-site/frontend
+      context: ../family-budget/frontend
     restart: unless-stopped
     expose:
       - "80"

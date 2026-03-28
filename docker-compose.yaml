@@ -202,7 +202,8 @@ services:
       - "80"
 
   budget-backend:
-    image: budget-backend:latest
+    build:
+      context: ../family-budget/backend
     restart: unless-stopped
     environment:
       DATABASE_URL: postgresql://${BUDGET_POSTGRES_USER:-budget_user}:${BUDGET_POSTGRES_PASSWORD:-change-me-budget-db}@recipes-db:5432/${BUDGET_POSTGRES_DB:-budget}

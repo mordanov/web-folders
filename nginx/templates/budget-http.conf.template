@@ -1,0 +1,16 @@
+server {
+    listen 80;
+    server_name ${BUDGET_SERVER_NAMES};
+
+    # ACME challenge for certbot
+    location /.well-known/acme-challenge/ {
+        root /var/www/certbot;
+    }
+
+    # Serve static or proxy to backend if needed
+    location / {
+        proxy_pass http://budget-backend:8000;
+        include /etc/nginx/snippets/proxy-common.conf;
+    }
+}
+

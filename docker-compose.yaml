@@ -157,6 +157,8 @@ services:
       MAINPAGE_404_DOMAIN: ${MAINPAGE_404_DOMAIN:-404.mainpage.local}
       NEWS_PRIMARY_DOMAIN: ${NEWS_PRIMARY_DOMAIN:-news.mainpage.local}
       NEWS_SERVER_NAMES: ${NEWS_SERVER_NAMES:-news.mainpage.local}
+      BUDGET_PRIMARY_DOMAIN: ${BUDGET_PRIMARY_DOMAIN:-budget.mainpage.local}
+      BUDGET_SERVER_NAMES: ${BUDGET_SERVER_NAMES:-budget.mainpage.local}
       NGINX_CERT_POLL_INTERVAL: ${NGINX_CERT_POLL_INTERVAL:-300}
     volumes:
       - ../poetry-site/frontend/templates/index.html:/srv/poetry-site/index.html:ro
@@ -170,6 +172,8 @@ services:
       - news-backend
       - news-frontend
       - mainpage-landing
+      - budget-backend
+      - budget-frontend
 
   certbot:
     image: certbot/certbot:latest
@@ -190,6 +194,33 @@ services:
     depends_on:
       - nginx
 
+  budget-frontend:
+    build:
+      context: ../budget-site/frontend
+    restart: unless-stopped
+    expose:
+      - "80"
+
+  budget-backend:
+    image: budget-backend:latest
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql://${BUDGET_POSTGRES_USER:-budget_user}:${BUDGET_POSTGRES_PASSWORD:-change-me-budget-db}@recipes-db:5432/${BUDGET_POSTGRES_DB:-budget}
+      SECRET_KEY: ${BUDGET_SECRET_KEY:-change-me-budget-secret}
+      USER1_LOGIN: ${BUDGET_USER1_LOGIN:-admin}
+      USER1_PASSWORD: ${BUDGET_USER1_PASSWORD:-change-me-password1}
+      USER2_LOGIN: ${BUDGET_USER2_LOGIN:-user}
+      USER2_PASSWORD: ${BUDGET_USER2_PASSWORD:-change-me-password2}
+    expose:
+      - "8000"
+    depends_on:
+      recipes-db:
+        condition: service_healthy
+      db-password-sync:
+        condition: service_completed_successfully
+    volumes:
+      - budget_data:/app/data
+
 volumes:
   recipes_postgres_data:
   recipes_uploads_data:
@@ -198,4 +229,4 @@ volumes:
   news_photos_data:
   certbot_certs:
   certbot_www:
-
+  budget_data:

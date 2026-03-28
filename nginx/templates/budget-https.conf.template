@@ -1,0 +1,15 @@
+server {
+    listen 443 ssl http2;
+    server_name ${BUDGET_SERVER_NAMES};
+
+    ssl_certificate /etc/letsencrypt/live/${BUDGET_PRIMARY_DOMAIN}/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/${BUDGET_PRIMARY_DOMAIN}/privkey.pem;
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_ciphers HIGH:!aNULL:!MD5;
+
+    location / {
+        proxy_pass http://budget-backend:8000;
+        include /etc/nginx/snippets/proxy-common.conf;
+    }
+}
+

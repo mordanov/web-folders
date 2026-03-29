@@ -15,6 +15,10 @@ NEWS_DB="${NEWS_POSTGRES_DB:-news}"
 NEWS_USER="${NEWS_POSTGRES_USER:-news_user}"
 NEWS_PASSWORD="${NEWS_POSTGRES_PASSWORD:-change-me-news-db}"
 
+BUDGET_DB="${BUDGET_POSTGRES_DB:-budget}"
+BUDGET_USER="${BUDGET_POSTGRES_USER:-budget_user}"
+BUDGET_PASSWORD="${BUDGET_POSTGRES_PASSWORD:-change-me-budget-db}"
+
 export PGPASSWORD="$ADMIN_PASSWORD"
 
 wait_for_pg() {
@@ -65,4 +69,5 @@ SQL
 wait_for_pg
 sync_role_db "$POETRY_USER" "$POETRY_PASSWORD" "$POETRY_DB"
 sync_role_db "$NEWS_USER" "$NEWS_PASSWORD" "$NEWS_DB"
+sync_role_db "$BUDGET_USER" "$BUDGET_PASSWORD" "$BUDGET_DB"
 

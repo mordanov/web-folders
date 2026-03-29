@@ -12,6 +12,9 @@ services:
       NEWS_POSTGRES_DB: ${NEWS_POSTGRES_DB:-news}
       NEWS_POSTGRES_USER: ${NEWS_POSTGRES_USER:-news_user}
       NEWS_POSTGRES_PASSWORD: ${NEWS_POSTGRES_PASSWORD:-change-me-news-db}
+      BUDGET_POSTGRES_DB: ${BUDGET_POSTGRES_DB:-news}
+      BUDGET_POSTGRES_USER: ${BUDGET_POSTGRES_USER:-budget_user}
+      BUDGET_POSTGRES_PASSWORD: ${BUDGET_POSTGRES_PASSWORD:-change-me-news-db}
     volumes:
       - recipes_postgres_data:/var/lib/postgresql/data
       - ./postgres-init:/docker-entrypoint-initdb.d:ro
@@ -34,6 +37,9 @@ services:
       NEWS_POSTGRES_DB: ${NEWS_POSTGRES_DB:-news}
       NEWS_POSTGRES_USER: ${NEWS_POSTGRES_USER:-news_user}
       NEWS_POSTGRES_PASSWORD: ${NEWS_POSTGRES_PASSWORD:-change-me-news-db}
+      BUDGET_POSTGRES_DB: ${BUDGET_POSTGRES_DB:-news}
+      BUDGET_POSTGRES_USER: ${BUDGET_POSTGRES_USER:-budget_user}
+      BUDGET_POSTGRES_PASSWORD: ${BUDGET_POSTGRES_PASSWORD:-change-me-news-db}
     volumes:
       - ./scripts/sync-app-db-users.sh:/usr/local/bin/sync-app-db-users.sh:ro
     entrypoint: ["/bin/sh", "/usr/local/bin/sync-app-db-users.sh"]

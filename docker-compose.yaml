@@ -12,9 +12,6 @@ services:
       NEWS_POSTGRES_DB: ${NEWS_POSTGRES_DB:-news}
       NEWS_POSTGRES_USER: ${NEWS_POSTGRES_USER:-news_user}
       NEWS_POSTGRES_PASSWORD: ${NEWS_POSTGRES_PASSWORD:-change-me-news-db}
-      BUDGET_POSTGRES_DB: ${BUDGET_POSTGRES_DB:-news}
-      BUDGET_POSTGRES_USER: ${BUDGET_POSTGRES_USER:-budget_user}
-      BUDGET_POSTGRES_PASSWORD: ${BUDGET_POSTGRES_PASSWORD:-change-me-news-db}
     volumes:
       - recipes_postgres_data:/var/lib/postgresql/data
       - ./postgres-init:/docker-entrypoint-initdb.d:ro
@@ -37,9 +34,6 @@ services:
       NEWS_POSTGRES_DB: ${NEWS_POSTGRES_DB:-news}
       NEWS_POSTGRES_USER: ${NEWS_POSTGRES_USER:-news_user}
       NEWS_POSTGRES_PASSWORD: ${NEWS_POSTGRES_PASSWORD:-change-me-news-db}
-      BUDGET_POSTGRES_DB: ${BUDGET_POSTGRES_DB:-news}
-      BUDGET_POSTGRES_USER: ${BUDGET_POSTGRES_USER:-budget_user}
-      BUDGET_POSTGRES_PASSWORD: ${BUDGET_POSTGRES_PASSWORD:-change-me-news-db}
     volumes:
       - ./scripts/sync-app-db-users.sh:/usr/local/bin/sync-app-db-users.sh:ro
     entrypoint: ["/bin/sh", "/usr/local/bin/sync-app-db-users.sh"]
@@ -179,7 +173,6 @@ services:
       - news-frontend
       - mainpage-landing
       - budget-backend
-      - budget-frontend
 
   certbot:
     image: certbot/certbot:latest
@@ -200,33 +193,12 @@ services:
     depends_on:
       - nginx
 
-  budget-frontend:
-    build:
-      context: ../family-budget/frontend
-    restart: unless-stopped
-    expose:
-      - "80"
-
   budget-backend:
     build:
       context: ../family-budget/backend
     restart: unless-stopped
-    environment:
-      DATABASE_URL: postgresql://${BUDGET_POSTGRES_USER:-budget_user}:${BUDGET_POSTGRES_PASSWORD:-change-me-budget-db}@recipes-db:5432/${BUDGET_POSTGRES_DB:-budget}
-      SECRET_KEY: ${BUDGET_SECRET_KEY:-change-me-budget-secret}
-      USER1_LOGIN: ${BUDGET_USER1_LOGIN:-admin}
-      USER1_PASSWORD: ${BUDGET_USER1_PASSWORD:-change-me-password1}
-      USER2_LOGIN: ${BUDGET_USER2_LOGIN:-user}
-      USER2_PASSWORD: ${BUDGET_USER2_PASSWORD:-change-me-password2}
     expose:
-      - "8000"
-    depends_on:
-      recipes-db:
-        condition: service_healthy
-      db-password-sync:
-        condition: service_completed_successfully
-    volumes:
-      - budget_data:/app/data
+      - "8501"
 
 volumes:
   recipes_postgres_data:
@@ -236,4 +208,3 @@ volumes:
   news_photos_data:
   certbot_certs:
   certbot_www:
-  budget_data:

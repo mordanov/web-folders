@@ -12,26 +12,12 @@ server {
 
     client_max_body_size 20M;
 
-    location /api/ {
-        set $budget_backend http://budget-backend:8000;
-        proxy_pass $budget_backend;
-        include /etc/nginx/snippets/proxy-common.conf;
-        proxy_read_timeout 120s;
-    }
-
-    location /uploads/ {
-        set $budget_backend http://budget-backend:8000;
-        proxy_pass $budget_backend;
-        include /etc/nginx/snippets/proxy-common.conf;
-        proxy_read_timeout 120s;
-    }
-
     location / {
-        set $budget_frontend http://budget-frontend:3000;
-        proxy_pass $budget_frontend;
+        proxy_pass http://budget-backend:8501;
         include /etc/nginx/snippets/proxy-common.conf;
-        proxy_intercept_errors on;
-        error_page 404 =302 https://${MAINPAGE_404_DOMAIN}/;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_read_timeout 120s;
     }
 }
-

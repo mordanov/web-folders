@@ -178,7 +178,7 @@ services:
       - news-backend
       - news-frontend
       - mainpage-landing
-      - budget-backend
+      - budget-site
       - budget-migrate
 
   certbot:
@@ -201,9 +201,8 @@ services:
       - nginx
 
   budget-migrate:
-    image: budget-site:latest
     build:
-      context: ../budget-site
+      context: ../family-budget
     restart: "no"
     command: ["python", "/app/scripts/run_migrations.py"]
     environment:
@@ -212,10 +211,9 @@ services:
       recipes-db:
         condition: service_healthy
 
-  budget-backend:
-    image: budget-site:latest
+  budget-site:
     build:
-      context: ../budget-site
+      context: ../family-budget
     restart: unless-stopped
     environment:
       DATABASE_URL: postgresql://${BUDGET_POSTGRES_USER:-budget_user}:${BUDGET_POSTGRES_PASSWORD:-change-me-budget-db}@recipes-db:5432/${BUDGET_POSTGRES_DB:-budget}

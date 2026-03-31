@@ -144,10 +144,10 @@ main() {
   ensure_app_dbs
 
   echo "Building backend/frontend/nginx images..."
-  compose build recipes-backend poetry-backend news-backend recipes-frontend news-frontend mainpage-landing budget-migrate budget-backend nginx
+  compose build recipes-backend poetry-backend news-backend recipes-frontend news-frontend mainpage-landing budget-migrate budget-site nginx
 
   echo "Starting stack..."
-  compose up -d --remove-orphans recipes-db recipes-backend poetry-backend news-backend recipes-frontend news-frontend mainpage-landing budget-migrate budget-backend nginx certbot
+  compose up -d --remove-orphans recipes-db recipes-backend poetry-backend news-backend recipes-frontend news-frontend mainpage-landing budget-migrate budget-site nginx certbot
 
   # Force-recreate landing container so static web-folders updates are applied on every deploy.
   compose up -d --force-recreate mainpage-landing

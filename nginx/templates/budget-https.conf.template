@@ -13,7 +13,7 @@ server {
     client_max_body_size 20M;
 
     location / {
-        proxy_pass http://budget-backend:8501;
+        proxy_pass http://budget-site:8501;
         include /etc/nginx/snippets/proxy-common.conf;
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;

@@ -15,10 +15,14 @@ POETRY_PASSWORD="${POETRY_POSTGRES_PASSWORD:-change-me-poetry-db}"
 NEWS_DB="${NEWS_POSTGRES_DB:-news}"
 NEWS_USER="${NEWS_POSTGRES_USER:-news_user}"
 NEWS_PASSWORD="${NEWS_POSTGRES_PASSWORD:-change-me-news-db}"
+BUDGET_DB="${BUDGET_POSTGRES_DB:-budget}"
+BUDGET_USER="${BUDGET_POSTGRES_USER:-budget_user}"
+BUDGET_PASSWORD="${BUDGET_POSTGRES_PASSWORD:-change-me-budget-db}"
 
 RECIPES_HTTP_HOST="${RECIPES_PRIMARY_DOMAIN:-recipes.local}"
 POETRY_HTTP_HOST="${POETRY_PRIMARY_DOMAIN:-poetry.local}"
 NEWS_HTTP_HOST="${NEWS_PRIMARY_DOMAIN:-news.mainpage.local}"
+BUDGET_HTTP_HOST="${BUDGET_PRIMARY_DOMAIN:-budget.mainpage.local}"
 
 compose() {
   if command -v docker-compose >/dev/null 2>&1; then
@@ -87,6 +91,9 @@ ensure_app_dbs() {
 
   echo "Ensuring news role/database exist..."
   ensure_role_db "$NEWS_USER" "$NEWS_PASSWORD" "$NEWS_DB"
+
+  echo "Ensuring budget role/database exist..."
+  ensure_role_db "$BUDGET_USER" "$BUDGET_PASSWORD" "$BUDGET_DB"
 }
 
 wait_for_http_health() {
@@ -108,6 +115,25 @@ wait_for_http_health() {
   return 1
 }
 
+wait_for_streamlit_health() {
+  local name="$1"
+  local host_header="$2"
+  local retries=60
+  local delay=2
+
+  echo "Waiting for ${name} (Streamlit) health via nginx (Host: ${host_header})..."
+  for ((i=1; i<=retries; i++)); do
+    if curl -fsS -H "Host: ${host_header}" http://localhost/_stcore/health >/dev/null 2>&1; then
+      echo "${name} health check passed"
+      return 0
+    fi
+    sleep "$delay"
+  done
+
+  echo "${name} health check failed after $((retries * delay))s"
+  return 1
+}
+
 main() {
   cd "$WEB_FOLDERS_DIR"
 
@@ -118,10 +144,10 @@ main() {
   ensure_app_dbs
 
   echo "Building backend/frontend/nginx images..."
-  compose build recipes-backend poetry-backend news-backend recipes-frontend news-frontend mainpage-landing nginx
+  compose build recipes-backend poetry-backend news-backend recipes-frontend news-frontend mainpage-landing budget-migrate budget-backend nginx
 
   echo "Starting stack..."
-  compose up -d --remove-orphans recipes-db recipes-backend poetry-backend news-backend recipes-frontend news-frontend mainpage-landing nginx certbot
+  compose up -d --remove-orphans recipes-db recipes-backend poetry-backend news-backend recipes-frontend news-frontend mainpage-landing budget-migrate budget-backend nginx certbot
 
   # Force-recreate landing container so static web-folders updates are applied on every deploy.
   compose up -d --force-recreate mainpage-landing
@@ -129,6 +155,7 @@ main() {
   wait_for_http_health "recipes" "$RECIPES_HTTP_HOST"
   wait_for_http_health "poetry" "$POETRY_HTTP_HOST"
   wait_for_http_health "news" "$NEWS_HTTP_HOST"
+  wait_for_streamlit_health "budget" "$BUDGET_HTTP_HOST"
 
   compose ps
 }

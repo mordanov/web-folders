@@ -12,6 +12,9 @@ services:
       NEWS_POSTGRES_DB: ${NEWS_POSTGRES_DB:-news}
       NEWS_POSTGRES_USER: ${NEWS_POSTGRES_USER:-news_user}
       NEWS_POSTGRES_PASSWORD: ${NEWS_POSTGRES_PASSWORD:-change-me-news-db}
+      BUDGET_POSTGRES_DB: ${BUDGET_POSTGRES_DB:-budget}
+      BUDGET_POSTGRES_USER: ${BUDGET_POSTGRES_USER:-budget_user}
+      BUDGET_POSTGRES_PASSWORD: ${BUDGET_POSTGRES_PASSWORD:-change-me-budget-db}
     volumes:
       - recipes_postgres_data:/var/lib/postgresql/data
       - ./postgres-init:/docker-entrypoint-initdb.d:ro
@@ -34,6 +37,9 @@ services:
       NEWS_POSTGRES_DB: ${NEWS_POSTGRES_DB:-news}
       NEWS_POSTGRES_USER: ${NEWS_POSTGRES_USER:-news_user}
       NEWS_POSTGRES_PASSWORD: ${NEWS_POSTGRES_PASSWORD:-change-me-news-db}
+      BUDGET_POSTGRES_DB: ${BUDGET_POSTGRES_DB:-budget}
+      BUDGET_POSTGRES_USER: ${BUDGET_POSTGRES_USER:-budget_user}
+      BUDGET_POSTGRES_PASSWORD: ${BUDGET_POSTGRES_PASSWORD:-change-me-budget-db}
     volumes:
       - ./scripts/sync-app-db-users.sh:/usr/local/bin/sync-app-db-users.sh:ro
     entrypoint: ["/bin/sh", "/usr/local/bin/sync-app-db-users.sh"]
@@ -173,6 +179,7 @@ services:
       - news-frontend
       - mainpage-landing
       - budget-backend
+      - budget-migrate
 
   certbot:
     image: certbot/certbot:latest
@@ -193,12 +200,41 @@ services:
     depends_on:
       - nginx
 
-  budget-backend:
+  budget-migrate:
+    image: budget-site:latest
     build:
-      context: ../family-budget/backend
+      context: ../budget-site
+    restart: "no"
+    command: ["python", "/app/scripts/run_migrations.py"]
+    environment:
+      DATABASE_URL: postgresql://${BUDGET_POSTGRES_USER:-budget_user}:${BUDGET_POSTGRES_PASSWORD:-change-me-budget-db}@recipes-db:5432/${BUDGET_POSTGRES_DB:-budget}
+    depends_on:
+      recipes-db:
+        condition: service_healthy
+
+  budget-backend:
+    image: budget-site:latest
+    build:
+      context: ../budget-site
     restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql://${BUDGET_POSTGRES_USER:-budget_user}:${BUDGET_POSTGRES_PASSWORD:-change-me-budget-db}@recipes-db:5432/${BUDGET_POSTGRES_DB:-budget}
+      UPLOAD_DIR: /app/uploads
+      LOG_DIR: /app/logs
+      LOG_LEVEL: ${BUDGET_LOG_LEVEL:-INFO}
+      SECRET_KEY: ${BUDGET_SECRET_KEY:-change-me-budget-secret}
+      DEFAULT_CURRENCY: ${BUDGET_DEFAULT_CURRENCY:-USD}
+      MAX_FILE_SIZE_MB: ${BUDGET_MAX_FILE_SIZE_MB:-10}
+    volumes:
+      - budget_uploads_data:/app/uploads
+      - budget_logs_data:/app/logs
     expose:
       - "8501"
+    depends_on:
+      recipes-db:
+        condition: service_healthy
+      budget-migrate:
+        condition: service_completed_successfully
 
 volumes:
   recipes_postgres_data:
@@ -206,5 +242,7 @@ volumes:
   recipes_documents_data:
   poetry_uploads_data:
   news_photos_data:
+  budget_uploads_data:
+  budget_logs_data:
   certbot_certs:
   certbot_www:

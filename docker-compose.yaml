@@ -205,7 +205,7 @@ services:
       context: ../family-budget/backend
     restart: unless-stopped
     environment:
-      DATABASE_URL: postgresql://${BUDGET_POSTGRES_USER:-budget_user}:${BUDGET_POSTGRES_PASSWORD:-change-me-budget-db}@recipes-db:5432/${BUDGET_POSTGRES_DB:-budget}
+      DATABASE_URL: postgresql+asyncpg://${BUDGET_POSTGRES_USER:-budget_user}:${BUDGET_POSTGRES_PASSWORD:-change-me-budget-db}@recipes-db:5432/${BUDGET_POSTGRES_DB:-budget}
       SECRET_KEY: ${BUDGET_SECRET_KEY:-change-me-budget-secret}
       ALGORITHM: ${BUDGET_ALGORITHM:-HS256}
       ACCESS_TOKEN_EXPIRE_MINUTES: ${BUDGET_ACCESS_TOKEN_EXPIRE_MINUTES:-60}

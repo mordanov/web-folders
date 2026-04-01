@@ -35,7 +35,5 @@ server {
         set $budget_frontend http://budget-frontend:80;
         proxy_pass $budget_frontend;
         include /etc/nginx/snippets/proxy-common.conf;
-        proxy_intercept_errors on;
-        error_page 404 =302 https://${MAINPAGE_404_DOMAIN}/;
     }
 }

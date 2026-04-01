@@ -115,15 +115,15 @@ wait_for_http_health() {
   return 1
 }
 
-wait_for_streamlit_health() {
+wait_for_budget_health() {
   local name="$1"
   local host_header="$2"
   local retries=60
   local delay=2
 
-  echo "Waiting for ${name} (Streamlit) health via nginx (Host: ${host_header})..."
+  echo "Waiting for ${name} health via nginx (Host: ${host_header})..."
   for ((i=1; i<=retries; i++)); do
-    if curl -fsS -H "Host: ${host_header}" http://localhost/_stcore/health >/dev/null 2>&1; then
+    if curl -fsS -H "Host: ${host_header}" http://localhost/health >/dev/null 2>&1; then
       echo "${name} health check passed"
       return 0
     fi
@@ -144,10 +144,10 @@ main() {
   ensure_app_dbs
 
   echo "Building backend/frontend/nginx images..."
-  compose build recipes-backend poetry-backend news-backend recipes-frontend news-frontend mainpage-landing budget-migrate budget-site nginx
+  compose build recipes-backend poetry-backend news-backend recipes-frontend news-frontend mainpage-landing budget-backend budget-frontend nginx
 
   echo "Starting stack..."
-  compose up -d --remove-orphans recipes-db recipes-backend poetry-backend news-backend recipes-frontend news-frontend mainpage-landing budget-migrate budget-site nginx certbot
+  compose up -d --remove-orphans recipes-db recipes-backend poetry-backend news-backend recipes-frontend news-frontend mainpage-landing budget-backend budget-frontend nginx certbot
 
   # Force-recreate landing container so static web-folders updates are applied on every deploy.
   compose up -d --force-recreate mainpage-landing
@@ -155,7 +155,7 @@ main() {
   wait_for_http_health "recipes" "$RECIPES_HTTP_HOST"
   wait_for_http_health "poetry" "$POETRY_HTTP_HOST"
   wait_for_http_health "news" "$NEWS_HTTP_HOST"
-  wait_for_streamlit_health "budget" "$BUDGET_HTTP_HOST"
+  wait_for_budget_health "budget" "$BUDGET_HTTP_HOST"
 
   compose ps
 }

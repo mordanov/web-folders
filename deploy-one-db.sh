@@ -18,11 +18,15 @@ NEWS_PASSWORD="${NEWS_POSTGRES_PASSWORD:-change-me-news-db}"
 BUDGET_DB="${BUDGET_POSTGRES_DB:-budget}"
 BUDGET_USER="${BUDGET_POSTGRES_USER:-budget_user}"
 BUDGET_PASSWORD="${BUDGET_POSTGRES_PASSWORD:-change-me-budget-db}"
+REMINDERS_DB="${REMINDERS_POSTGRES_DB:-reminders}"
+REMINDERS_USER="${REMINDERS_POSTGRES_USER:-reminders_user}"
+REMINDERS_PASSWORD="${REMINDERS_POSTGRES_PASSWORD:-change-me-reminders-db}"
 
 RECIPES_HTTP_HOST="${RECIPES_PRIMARY_DOMAIN:-recipes.local}"
 POETRY_HTTP_HOST="${POETRY_PRIMARY_DOMAIN:-poetry.local}"
 NEWS_HTTP_HOST="${NEWS_PRIMARY_DOMAIN:-news.mainpage.local}"
 BUDGET_HTTP_HOST="${BUDGET_PRIMARY_DOMAIN:-budget.mainpage.local}"
+REMINDERS_HTTP_HOST="${REMINDERS_PRIMARY_DOMAIN:-reminders.mainpage.local}"
 
 compose() {
   if command -v docker-compose >/dev/null 2>&1; then
@@ -94,6 +98,9 @@ ensure_app_dbs() {
 
   echo "Ensuring budget role/database exist..."
   ensure_role_db "$BUDGET_USER" "$BUDGET_PASSWORD" "$BUDGET_DB"
+
+  echo "Ensuring reminders role/database exist..."
+  ensure_role_db "$REMINDERS_USER" "$REMINDERS_PASSWORD" "$REMINDERS_DB"
 }
 
 wait_for_http_health() {
@@ -144,10 +151,10 @@ main() {
   ensure_app_dbs
 
   echo "Building backend/frontend/nginx images..."
-  compose build recipes-backend poetry-backend news-backend recipes-frontend news-frontend mainpage-landing budget-backend budget-frontend nginx
+  compose build recipes-backend poetry-backend news-backend recipes-frontend news-frontend mainpage-landing budget-backend budget-frontend reminders-backend reminders-frontend nginx
 
   echo "Starting stack..."
-  compose up -d --remove-orphans recipes-db recipes-backend poetry-backend news-backend recipes-frontend news-frontend mainpage-landing budget-backend budget-frontend nginx certbot
+  compose up -d --remove-orphans recipes-db recipes-backend poetry-backend news-backend recipes-frontend news-frontend mainpage-landing budget-backend budget-frontend reminders-backend reminders-frontend nginx certbot
 
   # Force-recreate landing container so static web-folders updates are applied on every deploy.
   compose up -d --force-recreate mainpage-landing
@@ -156,6 +163,7 @@ main() {
   wait_for_http_health "poetry" "$POETRY_HTTP_HOST"
   wait_for_http_health "news" "$NEWS_HTTP_HOST"
   wait_for_budget_health "budget" "$BUDGET_HTTP_HOST"
+  wait_for_budget_health "reminders" "$REMINDERS_HTTP_HOST"
 
   compose ps
 }

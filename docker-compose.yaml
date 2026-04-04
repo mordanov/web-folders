@@ -15,6 +15,9 @@ services:
       BUDGET_POSTGRES_DB: ${BUDGET_POSTGRES_DB:-budget}
       BUDGET_POSTGRES_USER: ${BUDGET_POSTGRES_USER:-budget_user}
       BUDGET_POSTGRES_PASSWORD: ${BUDGET_POSTGRES_PASSWORD:-change-me-budget-db}
+      REMINDERS_POSTGRES_DB: ${REMINDERS_POSTGRES_DB:-reminders}
+      REMINDERS_POSTGRES_USER: ${REMINDERS_POSTGRES_USER:-reminders_user}
+      REMINDERS_POSTGRES_PASSWORD: ${REMINDERS_POSTGRES_PASSWORD:-change-me-reminders-db}
     volumes:
       - recipes_postgres_data:/var/lib/postgresql/data
       - ./postgres-init:/docker-entrypoint-initdb.d:ro
@@ -40,6 +43,9 @@ services:
       BUDGET_POSTGRES_DB: ${BUDGET_POSTGRES_DB:-budget}
       BUDGET_POSTGRES_USER: ${BUDGET_POSTGRES_USER:-budget_user}
       BUDGET_POSTGRES_PASSWORD: ${BUDGET_POSTGRES_PASSWORD:-change-me-budget-db}
+      REMINDERS_POSTGRES_DB: ${REMINDERS_POSTGRES_DB:-reminders}
+      REMINDERS_POSTGRES_USER: ${REMINDERS_POSTGRES_USER:-reminders_user}
+      REMINDERS_POSTGRES_PASSWORD: ${REMINDERS_POSTGRES_PASSWORD:-change-me-reminders-db}
     volumes:
       - ./scripts/sync-app-db-users.sh:/usr/local/bin/sync-app-db-users.sh:ro
     entrypoint: ["/bin/sh", "/usr/local/bin/sync-app-db-users.sh"]
@@ -165,6 +171,8 @@ services:
       NEWS_SERVER_NAMES: ${NEWS_SERVER_NAMES:-news.mainpage.local}
       BUDGET_PRIMARY_DOMAIN: ${BUDGET_PRIMARY_DOMAIN:-budget.mainpage.local}
       BUDGET_SERVER_NAMES: ${BUDGET_SERVER_NAMES:-budget.mainpage.local}
+      REMINDERS_PRIMARY_DOMAIN: ${REMINDERS_PRIMARY_DOMAIN:-reminders.mainpage.local}
+      REMINDERS_SERVER_NAMES: ${REMINDERS_SERVER_NAMES:-reminders.mainpage.local}
       NGINX_CERT_POLL_INTERVAL: ${NGINX_CERT_POLL_INTERVAL:-300}
     volumes:
       - ../poetry-site/frontend/templates/index.html:/srv/poetry-site/index.html:ro
@@ -180,6 +188,8 @@ services:
       - mainpage-landing
       - budget-backend
       - budget-frontend
+      - reminders-backend
+      - reminders-frontend
 
   certbot:
     image: certbot/certbot:latest
@@ -232,6 +242,42 @@ services:
   budget-frontend:
     build:
       context: ../family-budget/frontend
+    restart: unless-stopped
+    expose:
+      - "80"
+
+  reminders-backend:
+    build:
+      context: ../reminders-app/backend
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql+asyncpg://${REMINDERS_POSTGRES_USER:-reminders_user}:${REMINDERS_POSTGRES_PASSWORD:-change-me-reminders-db}@recipes-db:5432/${REMINDERS_POSTGRES_DB:-reminders}
+      SECRET_KEY: ${REMINDERS_SECRET_KEY:-change-me-reminders-secret}
+      SMTP_HOST: ${REMINDERS_SMTP_HOST:-smtp.gmail.com}
+      SMTP_PORT: ${REMINDERS_SMTP_PORT:-587}
+      SMTP_USER: ${REMINDERS_SMTP_USER:-}
+      SMTP_PASSWORD: ${REMINDERS_SMTP_PASSWORD:-}
+      SMTP_FROM: ${REMINDERS_SMTP_FROM:-reminders@app.local}
+      REMINDER_CHECK_INTERVAL: ${REMINDERS_CHECK_INTERVAL:-60}
+      DEFAULT_USER1_USERNAME: ${REMINDERS_DEFAULT_USER1_USERNAME:-user1}
+      DEFAULT_USER1_EMAIL: ${REMINDERS_DEFAULT_USER1_EMAIL:-user1@family.local}
+      DEFAULT_USER1_PASSWORD: ${REMINDERS_DEFAULT_USER1_PASSWORD:-change-me-reminders-user1-password}
+      DEFAULT_USER2_USERNAME: ${REMINDERS_DEFAULT_USER2_USERNAME:-user2}
+      DEFAULT_USER2_EMAIL: ${REMINDERS_DEFAULT_USER2_EMAIL:-user2@family.local}
+      DEFAULT_USER2_PASSWORD: ${REMINDERS_DEFAULT_USER2_PASSWORD:-change-me-reminders-user2-password}
+    expose:
+      - "8000"
+    command: >
+      sh -c "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8000"
+    depends_on:
+      recipes-db:
+        condition: service_healthy
+      db-password-sync:
+        condition: service_completed_successfully
+
+  reminders-frontend:
+    build:
+      context: ../reminders-app/frontend
     restart: unless-stopped
     expose:
       - "80"

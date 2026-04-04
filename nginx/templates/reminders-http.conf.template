@@ -1,0 +1,30 @@
+server {
+    listen 80;
+    listen [::]:80;
+    server_name ${REMINDERS_SERVER_NAMES};
+
+    # ACME challenge for certbot
+    location /.well-known/acme-challenge/ {
+        root /var/www/certbot;
+    }
+
+    location /api/ {
+        set $reminders_backend http://reminders-backend:8000;
+        proxy_pass $reminders_backend;
+        include /etc/nginx/snippets/proxy-common.conf;
+        proxy_read_timeout 120s;
+    }
+
+    location /health {
+        set $reminders_backend http://reminders-backend:8000;
+        proxy_pass $reminders_backend;
+        include /etc/nginx/snippets/proxy-common.conf;
+        access_log off;
+    }
+
+    location / {
+        set $reminders_frontend http://reminders-frontend:80;
+        proxy_pass $reminders_frontend;
+        include /etc/nginx/snippets/proxy-common.conf;
+    }
+}

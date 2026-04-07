@@ -65,6 +65,8 @@ services:
       USER1_PASSWORD: ${RECIPES_USER1_PASSWORD:-change-me-password1}
       USER2_NAME: ${RECIPES_USER2_NAME:-papa}
       USER2_PASSWORD: ${RECIPES_USER2_PASSWORD:-change-me-password2}
+      SERVICE_USER_NAME: ${RECIPES_SERVICE_USER_NAME:-kitchen_service}
+      SERVICE_USER_PASSWORD: ${RECIPES_SERVICE_USER_PASSWORD:-change-me-recipes-service-password}
     volumes:
       - recipes_uploads_data:/app/uploads
       - recipes_documents_data:/app/documents
@@ -242,6 +244,11 @@ services:
   budget-frontend:
     build:
       context: ../family-budget/frontend
+      args:
+        VITE_API_URL: /api/v1
+        VITE_KITCHEN_API_URL: ${BUDGET_KITCHEN_API_URL:-}
+        VITE_KITCHEN_SERVICE_USER: ${BUDGET_KITCHEN_SERVICE_USER:-}
+        VITE_KITCHEN_SERVICE_PASSWORD: ${BUDGET_KITCHEN_SERVICE_PASSWORD:-}
     restart: unless-stopped
     expose:
       - "80"

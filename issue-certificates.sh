@@ -7,8 +7,11 @@ ENV_FILE="$SCRIPT_DIR/.env"
 
 if [ -f "$ENV_FILE" ]; then
   set -a
+  # Allow loading .env files that reference variables not yet defined.
+  set +u
   # shellcheck disable=SC1090
   . "$ENV_FILE"
+  set -u
   set +a
 fi
 

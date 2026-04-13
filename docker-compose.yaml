@@ -325,6 +325,7 @@ services:
       - poetry_uploads_data:/mnt/poetry_uploads
       - news_photos_data:/mnt/news_photos
       - budget_uploads_data:/mnt/budget_uploads
+      - /var/run/docker.sock:/var/run/docker.sock:ro
     expose:
       - "8000"
     depends_on:

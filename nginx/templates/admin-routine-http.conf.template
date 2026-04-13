@@ -1,0 +1,32 @@
+server {
+    listen 80;
+    listen [::]:80;
+    server_name ${ADMIN_ROUTINE_SERVER_NAMES};
+
+    client_max_body_size 100M;
+
+    # ACME challenge for certbot
+    location /.well-known/acme-challenge/ {
+        root /var/www/certbot;
+    }
+
+    location /api/ {
+        set $admin_routine_backend http://admin-routine-backend:8000;
+        proxy_pass $admin_routine_backend;
+        include /etc/nginx/snippets/proxy-common.conf;
+        proxy_read_timeout 3600s;
+    }
+
+    location /health {
+        set $admin_routine_backend http://admin-routine-backend:8000;
+        proxy_pass $admin_routine_backend;
+        include /etc/nginx/snippets/proxy-common.conf;
+        access_log off;
+    }
+
+    location / {
+        set $admin_routine_frontend http://admin-routine-frontend:80;
+        proxy_pass $admin_routine_frontend;
+        include /etc/nginx/snippets/proxy-common.conf;
+    }
+}

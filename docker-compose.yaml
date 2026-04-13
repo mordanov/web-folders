@@ -175,6 +175,8 @@ services:
       BUDGET_SERVER_NAMES: ${BUDGET_SERVER_NAMES:-budget.mainpage.local}
       REMINDERS_PRIMARY_DOMAIN: ${REMINDERS_PRIMARY_DOMAIN:-reminders.mainpage.local}
       REMINDERS_SERVER_NAMES: ${REMINDERS_SERVER_NAMES:-reminders.mainpage.local}
+      ADMIN_ROUTINE_PRIMARY_DOMAIN: ${ADMIN_ROUTINE_PRIMARY_DOMAIN:-admin.mainpage.local}
+      ADMIN_ROUTINE_SERVER_NAMES: ${ADMIN_ROUTINE_SERVER_NAMES:-admin.mainpage.local}
       NGINX_CERT_POLL_INTERVAL: ${NGINX_CERT_POLL_INTERVAL:-300}
     volumes:
       - ../poetry-site/frontend/templates/index.html:/srv/poetry-site/index.html:ro
@@ -192,6 +194,8 @@ services:
       - budget-frontend
       - reminders-backend
       - reminders-frontend
+      - admin-routine-backend
+      - admin-routine-frontend
 
   certbot:
     image: certbot/certbot:latest
@@ -289,6 +293,51 @@ services:
     expose:
       - "80"
 
+  admin-routine-backend:
+    build:
+      context: ../family-admin-routine/backend
+    restart: unless-stopped
+    environment:
+      SECRET_KEY: ${ADMIN_ROUTINE_SECRET_KEY:-change-me-admin-routine-secret}
+      ADMIN_USER1_USERNAME: ${ADMIN_ROUTINE_USER1_USERNAME:-admin1}
+      ADMIN_USER1_PASSWORD: ${ADMIN_ROUTINE_USER1_PASSWORD:-change-me-admin1-password}
+      ADMIN_USER2_USERNAME: ${ADMIN_ROUTINE_USER2_USERNAME:-admin2}
+      ADMIN_USER2_PASSWORD: ${ADMIN_ROUTINE_USER2_PASSWORD:-change-me-admin2-password}
+      RECIPES_POSTGRES_DB: ${RECIPES_POSTGRES_DB:-recipes}
+      RECIPES_POSTGRES_USER: ${RECIPES_POSTGRES_USER:-recipes_user}
+      RECIPES_POSTGRES_PASSWORD: ${RECIPES_POSTGRES_PASSWORD:-change-me-recipes-db}
+      POETRY_POSTGRES_DB: ${POETRY_POSTGRES_DB:-poetry}
+      POETRY_POSTGRES_USER: ${POETRY_POSTGRES_USER:-poetry_user}
+      POETRY_POSTGRES_PASSWORD: ${POETRY_POSTGRES_PASSWORD:-change-me-poetry-db}
+      NEWS_POSTGRES_DB: ${NEWS_POSTGRES_DB:-news}
+      NEWS_POSTGRES_USER: ${NEWS_POSTGRES_USER:-news_user}
+      NEWS_POSTGRES_PASSWORD: ${NEWS_POSTGRES_PASSWORD:-change-me-news-db}
+      BUDGET_POSTGRES_DB: ${BUDGET_POSTGRES_DB:-budget}
+      BUDGET_POSTGRES_USER: ${BUDGET_POSTGRES_USER:-budget_user}
+      BUDGET_POSTGRES_PASSWORD: ${BUDGET_POSTGRES_PASSWORD:-change-me-budget-db}
+      REMINDERS_POSTGRES_DB: ${REMINDERS_POSTGRES_DB:-reminders}
+      REMINDERS_POSTGRES_USER: ${REMINDERS_POSTGRES_USER:-reminders_user}
+      REMINDERS_POSTGRES_PASSWORD: ${REMINDERS_POSTGRES_PASSWORD:-change-me-reminders-db}
+    volumes:
+      - admin_routine_backups_data:/app/backups
+      - recipes_uploads_data:/mnt/recipes_uploads
+      - recipes_documents_data:/mnt/recipes_documents
+      - poetry_uploads_data:/mnt/poetry_uploads
+      - news_photos_data:/mnt/news_photos
+      - budget_uploads_data:/mnt/budget_uploads
+    expose:
+      - "8000"
+    depends_on:
+      recipes-db:
+        condition: service_healthy
+
+  admin-routine-frontend:
+    build:
+      context: ../family-admin-routine/frontend
+    restart: unless-stopped
+    expose:
+      - "80"
+
 volumes:
   recipes_postgres_data:
   recipes_uploads_data:
@@ -296,5 +345,6 @@ volumes:
   poetry_uploads_data:
   news_photos_data:
   budget_uploads_data:
+  admin_routine_backups_data:
   certbot_certs:
   certbot_www:

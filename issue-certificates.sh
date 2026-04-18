@@ -45,6 +45,8 @@ run_certbot() {
     --email "$LETSENCRYPT_EMAIL"
     --agree-tos
     --no-eff-email
+    --keep-until-expiring
+    --non-interactive
   )
   if [ "${CERTBOT_STAGING:-0}" = "1" ]; then
     args+=(--staging)

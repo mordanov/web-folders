@@ -47,7 +47,7 @@ configure_link() {
 
 configure_link "RECIPES" "recipes" "${MAINPAGE_ENABLE_RECIPES:-1}"
 configure_link "REMINDERS" "reminders" "${MAINPAGE_ENABLE_REMINDERS:-1}"
-configure_link "FAMILYPHOTO" "familyphoto" "${MAINPAGE_ENABLE_FAMILYPHOTO:-1}"
+configure_link "FAMILYPHOTO" "archive" "${MAINPAGE_ENABLE_FAMILYPHOTO:-1}"
 configure_link "HOME" "home" "${MAINPAGE_ENABLE_HOME:-1}"
 
 

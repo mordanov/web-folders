@@ -54,6 +54,7 @@ services:
       ARCHIVE_POSTGRES_PASSWORD: ${ARCHIVE_POSTGRES_PASSWORD:-change-me-archive-db}
     volumes:
       - ./scripts/sync-app-db-users.sh:/usr/local/bin/sync-app-db-users.sh:ro
+      - ./sites.yaml:/etc/web-folders/sites.yaml:ro
     entrypoint: ["/bin/sh", "/usr/local/bin/sync-app-db-users.sh"]
     depends_on:
       recipes-db:
@@ -191,6 +192,7 @@ services:
       - ../poetry-site/frontend/static:/srv/poetry-site/static:ro
       - certbot_certs:/etc/letsencrypt:ro
       - certbot_www:/var/www/certbot:ro
+      - ./sites.yaml:/etc/web-folders/sites.yaml:ro
     depends_on:
       - recipes-backend
       - recipes-frontend
@@ -328,6 +330,16 @@ services:
       REMINDERS_POSTGRES_DB: ${REMINDERS_POSTGRES_DB:-reminders}
       REMINDERS_POSTGRES_USER: ${REMINDERS_POSTGRES_USER:-reminders_user}
       REMINDERS_POSTGRES_PASSWORD: ${REMINDERS_POSTGRES_PASSWORD:-change-me-reminders-db}
+      # Backup storage backend (local FS volume by default; switch to "s3" to
+      # share family-archive's Hetzner Object Storage under a reserved prefix).
+      BACKUP_STORAGE_BACKEND: ${ADMIN_ROUTINE_BACKUP_BACKEND:-local}
+      BACKUP_S3_ENDPOINT_URL: ${ADMIN_ROUTINE_BACKUP_S3_ENDPOINT_URL:-${ARCHIVE_S3_ENDPOINT_URL:-}}
+      BACKUP_S3_REGION: ${ADMIN_ROUTINE_BACKUP_S3_REGION:-${ARCHIVE_S3_REGION:-fsn1}}
+      BACKUP_S3_BUCKET: ${ADMIN_ROUTINE_BACKUP_S3_BUCKET:-${ARCHIVE_S3_BUCKET:-}}
+      BACKUP_S3_ACCESS_KEY: ${ADMIN_ROUTINE_BACKUP_S3_ACCESS_KEY:-${ARCHIVE_S3_ACCESS_KEY:-}}
+      BACKUP_S3_SECRET_KEY: ${ADMIN_ROUTINE_BACKUP_S3_SECRET_KEY:-${ARCHIVE_S3_SECRET_KEY:-}}
+      BACKUP_S3_PREFIX: ${ADMIN_ROUTINE_BACKUP_S3_PREFIX:-admin-routine/backups/}
+      BACKUP_S3_FORCE_PATH_STYLE: ${ADMIN_ROUTINE_BACKUP_S3_FORCE_PATH_STYLE:-${ARCHIVE_S3_FORCE_PATH_STYLE:-1}}
     volumes:
       - admin_routine_backups_data:/app/backups
       - recipes_uploads_data:/mnt/recipes_uploads

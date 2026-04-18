@@ -1,0 +1,128 @@
+# Single source of truth for the shared web-folders stack.
+#
+# Adding a new site:
+#   1. Add an entry below.
+#   2. Drop 3 nginx templates in nginx/templates/<id>-{http,http-redirect,https}.conf.template
+#   3. Add the corresponding *_PRIMARY_DOMAIN / *_SERVER_NAMES (and any DB vars)
+#      to .env / .env.example
+#   4. Add the service definitions to docker-compose.yaml (backend/frontend),
+#      and append the env vars to nginx.environment.
+#
+# Every script (nginx/start.sh, issue-certificates.sh, deploy-one-db.sh,
+# scripts/sync-app-db-users.sh, .github/workflows/deploy-vps.yml debug_dump) loops
+# over this file via yq — they need no changes when adding/removing a site.
+#
+# Field reference:
+#   id                    file prefix used by nginx/templates/<id>-*.conf.template
+#   priority              integer; controls render order (multiplied by 1; lower = first)
+#   cert_label            human-readable label printed by issue-certificates.sh
+#   domain.primary_var    env var holding the cert-primary domain
+#   domain.server_names_var env var holding the full server_name list
+#   db                    optional. Site owns its own DB role (created by db-password-sync)
+#   health_path           optional. If set, deploy-one-db.sh runs an HTTP health-check
+#   compose_services      optional. Used by deploy-one-db.sh to build/start services
+#                         and by deploy-vps.yml debug_dump (logs are dumped via
+#                         `docker compose ps --services`, this is informational only)
+
+sites:
+  - id: recipes
+    priority: 10
+    cert_label: family-kitchen-recipes
+    domain:
+      primary_var: RECIPES_PRIMARY_DOMAIN
+      server_names_var: RECIPES_SERVER_NAMES
+    # No db block: recipes owns the postgres admin role/DB itself.
+    health_path: /api/health
+    compose_services: [recipes-backend, recipes-frontend]
+
+  - id: poetry
+    priority: 20
+    cert_label: poetry-site
+    domain:
+      primary_var: POETRY_PRIMARY_DOMAIN
+      server_names_var: POETRY_SERVER_NAMES
+    db:
+      db_var: POETRY_POSTGRES_DB
+      user_var: POETRY_POSTGRES_USER
+      password_var: POETRY_POSTGRES_PASSWORD
+    health_path: /api/health
+    compose_services: [poetry-backend]
+
+  - id: mainpage-404
+    priority: 25
+    cert_label: mainpage-404
+    # Special case: a single var is both the cert domain AND the only server name.
+    domain:
+      primary_var: MAINPAGE_404_DOMAIN
+      server_names_var: MAINPAGE_404_DOMAIN
+
+  - id: mainpage
+    priority: 30
+    cert_label: mainpage-landing
+    domain:
+      primary_var: MAINPAGE_PRIMARY_DOMAIN
+      server_names_var: MAINPAGE_SERVER_NAMES
+    compose_services: [mainpage-landing]
+
+  - id: news
+    priority: 40
+    cert_label: news-site
+    domain:
+      primary_var: NEWS_PRIMARY_DOMAIN
+      server_names_var: NEWS_SERVER_NAMES
+    db:
+      db_var: NEWS_POSTGRES_DB
+      user_var: NEWS_POSTGRES_USER
+      password_var: NEWS_POSTGRES_PASSWORD
+    health_path: /api/health
+    compose_services: [news-backend, news-frontend]
+
+  - id: budget
+    priority: 50
+    cert_label: budget-site
+    domain:
+      primary_var: BUDGET_PRIMARY_DOMAIN
+      server_names_var: BUDGET_SERVER_NAMES
+    db:
+      db_var: BUDGET_POSTGRES_DB
+      user_var: BUDGET_POSTGRES_USER
+      password_var: BUDGET_POSTGRES_PASSWORD
+    health_path: /health
+    compose_services: [budget-backend, budget-frontend]
+
+  - id: reminders
+    priority: 60
+    cert_label: reminders-app
+    domain:
+      primary_var: REMINDERS_PRIMARY_DOMAIN
+      server_names_var: REMINDERS_SERVER_NAMES
+    db:
+      db_var: REMINDERS_POSTGRES_DB
+      user_var: REMINDERS_POSTGRES_USER
+      password_var: REMINDERS_POSTGRES_PASSWORD
+    health_path: /health
+    compose_services: [reminders-backend, reminders-frontend]
+
+  - id: admin-routine
+    priority: 70
+    cert_label: family-admin-routine
+    domain:
+      primary_var: ADMIN_ROUTINE_PRIMARY_DOMAIN
+      server_names_var: ADMIN_ROUTINE_SERVER_NAMES
+    # No db: this app reads other apps' DBs as the admin role.
+    # No health_path: not currently health-checked by deploy-one-db.sh.
+    compose_services: [admin-routine-backend, admin-routine-frontend]
+
+  - id: archive
+    priority: 80
+    cert_label: family-archive
+    domain:
+      primary_var: ARCHIVE_PRIMARY_DOMAIN
+      server_names_var: ARCHIVE_SERVER_NAMES
+    db:
+      db_var: ARCHIVE_POSTGRES_DB
+      user_var: ARCHIVE_POSTGRES_USER
+      password_var: ARCHIVE_POSTGRES_PASSWORD
+    health_path: /health
+    compose_services: [archive-backend, archive-frontend]
+

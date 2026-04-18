@@ -1,4 +1,9 @@
 #!/bin/sh
+# scripts/sync-app-db-users.sh — runs inside the db-password-sync container
+# (postgres:16-alpine) at every `compose up` to ensure each per-site role and
+# database exists with the password from the current environment.
+#
+# Site list is read from /etc/web-folders/sites.yaml (bind-mounted by compose).
 set -eu
 
 DB_HOST="recipes-db"
@@ -6,28 +11,19 @@ DB_PORT="5432"
 ADMIN_DB="${RECIPES_POSTGRES_DB:-recipes}"
 ADMIN_USER="${RECIPES_POSTGRES_USER:-recipes_user}"
 ADMIN_PASSWORD="${RECIPES_POSTGRES_PASSWORD:-change-me-recipes-db}"
-
-POETRY_DB="${POETRY_POSTGRES_DB:-poetry}"
-POETRY_USER="${POETRY_POSTGRES_USER:-poetry_user}"
-POETRY_PASSWORD="${POETRY_POSTGRES_PASSWORD:-change-me-poetry-db}"
-
-NEWS_DB="${NEWS_POSTGRES_DB:-news}"
-NEWS_USER="${NEWS_POSTGRES_USER:-news_user}"
-NEWS_PASSWORD="${NEWS_POSTGRES_PASSWORD:-change-me-news-db}"
-
-BUDGET_DB="${BUDGET_POSTGRES_DB:-budget}"
-BUDGET_USER="${BUDGET_POSTGRES_USER:-budget_user}"
-BUDGET_PASSWORD="${BUDGET_POSTGRES_PASSWORD:-change-me-budget-db}"
-
-REMINDERS_DB="${REMINDERS_POSTGRES_DB:-reminders}"
-REMINDERS_USER="${REMINDERS_POSTGRES_USER:-reminders_user}"
-REMINDERS_PASSWORD="${REMINDERS_POSTGRES_PASSWORD:-change-me-reminders-db}"
-
-ARCHIVE_DB="${ARCHIVE_POSTGRES_DB:-archive}"
-ARCHIVE_USER="${ARCHIVE_POSTGRES_USER:-archive_user}"
-ARCHIVE_PASSWORD="${ARCHIVE_POSTGRES_PASSWORD:-change-me-archive-db}"
+SITES_YAML="${SITES_YAML:-/etc/web-folders/sites.yaml}"
 
 export PGPASSWORD="$ADMIN_PASSWORD"
+
+# Install yq once (alpine community repo, single binary).
+if ! command -v yq >/dev/null 2>&1; then
+  apk add --no-cache yq >/dev/null
+fi
+
+if [ ! -f "$SITES_YAML" ]; then
+  echo "FATAL: sites manifest not found at $SITES_YAML" >&2
+  exit 1
+fi
 
 wait_for_pg() {
   retries=30
@@ -38,7 +34,6 @@ wait_for_pg() {
     retries=$((retries - 1))
     sleep 2
   done
-
   echo "PostgreSQL is not ready for password sync" >&2
   exit 1
 }
@@ -56,7 +51,6 @@ BEGIN
   IF NOT EXISTS (SELECT FROM pg_catalog.pg_roles WHERE rolname = '${app_user}') THEN
     EXECUTE format('CREATE ROLE %I LOGIN PASSWORD %L', '${app_user}', '${app_password}');
   END IF;
-
   EXECUTE format('ALTER ROLE %I WITH LOGIN PASSWORD %L', '${app_user}', '${app_password}');
 END
 \$\$;
@@ -74,10 +68,24 @@ END
 SQL
 }
 
+# POSIX-compatible indirect expansion.
+get_env() {
+  eval "printf '%s' \"\${$1-}\""
+}
+
 wait_for_pg
-sync_role_db "$POETRY_USER" "$POETRY_PASSWORD" "$POETRY_DB"
-sync_role_db "$NEWS_USER" "$NEWS_PASSWORD" "$NEWS_DB"
-sync_role_db "$BUDGET_USER" "$BUDGET_PASSWORD" "$BUDGET_DB"
-sync_role_db "$REMINDERS_USER" "$REMINDERS_PASSWORD" "$REMINDERS_DB"
-sync_role_db "$ARCHIVE_USER" "$ARCHIVE_PASSWORD" "$ARCHIVE_DB"
+
+# Loop manifest sites that declare a `db` block.
+yq -r '.sites[] | select(.db) | [.id, .db.db_var, .db.user_var, .db.password_var] | @tsv' "$SITES_YAML" \
+| while IFS="$(printf '\t')" read -r id db_var user_var pwd_var; do
+    app_db=$(get_env "$db_var")
+    app_user=$(get_env "$user_var")
+    app_pw=$(get_env "$pwd_var")
+    if [ -z "$app_db" ] || [ -z "$app_user" ] || [ -z "$app_pw" ]; then
+      echo "WARN: site '$id' has incomplete DB env vars (${db_var}/${user_var}/${pwd_var}) -- skipping" >&2
+      continue
+    fi
+    echo "Syncing role/db for site '$id'..."
+    sync_role_db "$app_user" "$app_pw" "$app_db"
+  done
 

@@ -61,16 +61,13 @@ jobs:
 
           debug_dump() {
             docker compose -f docker-compose.yaml ps || true
-            docker compose -f docker-compose.yaml logs --no-color --tail=200 recipes-db || true
-            docker compose -f docker-compose.yaml logs --no-color --tail=200 recipes-backend || true
-            docker compose -f docker-compose.yaml logs --no-color --tail=200 poetry-backend || true
-            docker compose -f docker-compose.yaml logs --no-color --tail=200 news-backend || true
-            docker compose -f docker-compose.yaml logs --no-color --tail=200 news-frontend || true
-            docker compose -f docker-compose.yaml logs --no-color --tail=200 mainpage-landing || true
-            docker compose -f docker-compose.yaml logs --no-color --tail=200 archive-backend || true
-            docker compose -f docker-compose.yaml logs --no-color --tail=200 archive-frontend || true
-            docker compose -f docker-compose.yaml logs --no-color --tail=200 nginx || true
-            docker compose -f docker-compose.yaml logs --no-color --tail=200 certbot || true
+            # Iterate every running service via the manifest-aware compose
+            # rather than hardcoding service names. Adding a site no longer
+            # requires editing this workflow.
+            for svc in $(docker compose -f docker-compose.yaml ps --services 2>/dev/null); do
+              echo "----- logs: $svc -----"
+              docker compose -f docker-compose.yaml logs --no-color --tail=200 "$svc" || true
+            done
           }
 
           mkdir -p "$WEB_FOLDERS_DIR"

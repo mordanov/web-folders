@@ -45,9 +45,13 @@ run_certbot() {
     --email "$LETSENCRYPT_EMAIL"
     --agree-tos
     --no-eff-email
-    --keep-until-expiring
     --non-interactive
   )
+  if [ "${CERTBOT_FORCE_RENEW:-0}" = "1" ]; then
+    args+=(--force-renewal)
+  else
+    args+=(--keep-until-expiring)
+  fi
   if [ "${CERTBOT_STAGING:-0}" = "1" ]; then
     args+=(--staging)
   fi
@@ -59,7 +63,11 @@ run_certbot() {
     fi
   done
 
-  docker compose -f "$COMPOSE_FILE" run --rm --entrypoint certbot certbot "${args[@]}"
+  local rc=0
+  docker compose -f "$COMPOSE_FILE" run --rm --entrypoint certbot certbot "${args[@]}" < /dev/null || rc=$?
+  if [ "$rc" -ne 0 ]; then
+    echo "WARNING: certbot exited with code $rc for $site_label — continuing." >&2
+  fi
 }
 
 # Loop over manifest. cert_label is the human-readable label shown by certbot.

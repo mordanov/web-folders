@@ -5,7 +5,7 @@ TEMPLATE_DIR=/etc/nginx/templates
 CONF_DIR=/etc/nginx/conf.d
 HTTPS_DIR=$CONF_DIR/https-enabled
 CERT_DIR=/etc/letsencrypt/live
-ENV_VARS='${RECIPES_PRIMARY_DOMAIN} ${RECIPES_SERVER_NAMES} ${POETRY_PRIMARY_DOMAIN} ${POETRY_SERVER_NAMES} ${MAINPAGE_PRIMARY_DOMAIN} ${MAINPAGE_SERVER_NAMES} ${MAINPAGE_404_DOMAIN} ${NEWS_PRIMARY_DOMAIN} ${NEWS_SERVER_NAMES} ${BUDGET_PRIMARY_DOMAIN} ${BUDGET_SERVER_NAMES} ${REMINDERS_PRIMARY_DOMAIN} ${REMINDERS_SERVER_NAMES} ${ADMIN_ROUTINE_PRIMARY_DOMAIN} ${ADMIN_ROUTINE_SERVER_NAMES}'
+ENV_VARS='${RECIPES_PRIMARY_DOMAIN} ${RECIPES_SERVER_NAMES} ${POETRY_PRIMARY_DOMAIN} ${POETRY_SERVER_NAMES} ${MAINPAGE_PRIMARY_DOMAIN} ${MAINPAGE_SERVER_NAMES} ${MAINPAGE_404_DOMAIN} ${NEWS_PRIMARY_DOMAIN} ${NEWS_SERVER_NAMES} ${BUDGET_PRIMARY_DOMAIN} ${BUDGET_SERVER_NAMES} ${REMINDERS_PRIMARY_DOMAIN} ${REMINDERS_SERVER_NAMES} ${ADMIN_ROUTINE_PRIMARY_DOMAIN} ${ADMIN_ROUTINE_SERVER_NAMES} ${ARCHIVE_PRIMARY_DOMAIN} ${ARCHIVE_SERVER_NAMES}'
 
 require_var() {
   var_name="$1"
@@ -93,6 +93,14 @@ render_configs() {
     render "$TEMPLATE_DIR/admin-routine-http.conf.template" "$CONF_DIR/70-admin-routine-http.conf"
     rm -f "$HTTPS_DIR/70-admin-routine-https.conf"
   fi
+
+  if has_cert "$ARCHIVE_PRIMARY_DOMAIN"; then
+    render "$TEMPLATE_DIR/archive-http-redirect.conf.template" "$CONF_DIR/80-archive-http.conf"
+    render "$TEMPLATE_DIR/archive-https.conf.template" "$HTTPS_DIR/80-archive-https.conf"
+  else
+    render "$TEMPLATE_DIR/archive-http.conf.template" "$CONF_DIR/80-archive-http.conf"
+    rm -f "$HTTPS_DIR/80-archive-https.conf"
+  fi
 }
 
 cert_state() {
@@ -145,6 +153,8 @@ require_var REMINDERS_PRIMARY_DOMAIN
 require_var REMINDERS_SERVER_NAMES
 require_var ADMIN_ROUTINE_PRIMARY_DOMAIN
 require_var ADMIN_ROUTINE_SERVER_NAMES
+require_var ARCHIVE_PRIMARY_DOMAIN
+require_var ARCHIVE_SERVER_NAMES
 
 render_configs
 nginx -t

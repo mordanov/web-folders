@@ -39,6 +39,8 @@ require_var REMINDERS_PRIMARY_DOMAIN
 require_var REMINDERS_SERVER_NAMES
 require_var ADMIN_ROUTINE_PRIMARY_DOMAIN
 require_var ADMIN_ROUTINE_SERVER_NAMES
+require_var ARCHIVE_PRIMARY_DOMAIN
+require_var ARCHIVE_SERVER_NAMES
 
 MAINPAGE_404_DOMAIN="${MAINPAGE_404_DOMAIN:-404.${MAINPAGE_PRIMARY_DOMAIN}}"
 
@@ -78,6 +80,7 @@ run_certbot "news-site" "$NEWS_PRIMARY_DOMAIN" "$NEWS_SERVER_NAMES"
 run_certbot "budget-site" "$BUDGET_PRIMARY_DOMAIN" "$BUDGET_SERVER_NAMES"
 run_certbot "reminders-app" "$REMINDERS_PRIMARY_DOMAIN" "$REMINDERS_SERVER_NAMES"
 run_certbot "family-admin-routine" "$ADMIN_ROUTINE_PRIMARY_DOMAIN" "$ADMIN_ROUTINE_SERVER_NAMES"
+run_certbot "family-archive" "$ARCHIVE_PRIMARY_DOMAIN" "$ARCHIVE_SERVER_NAMES"
 
 docker compose -f "$COMPOSE_FILE" exec nginx nginx -s reload >/dev/null 2>&1 || true
 

@@ -18,6 +18,9 @@ services:
       REMINDERS_POSTGRES_DB: ${REMINDERS_POSTGRES_DB:-reminders}
       REMINDERS_POSTGRES_USER: ${REMINDERS_POSTGRES_USER:-reminders_user}
       REMINDERS_POSTGRES_PASSWORD: ${REMINDERS_POSTGRES_PASSWORD:-change-me-reminders-db}
+      ARCHIVE_POSTGRES_DB: ${ARCHIVE_POSTGRES_DB:-archive}
+      ARCHIVE_POSTGRES_USER: ${ARCHIVE_POSTGRES_USER:-archive_user}
+      ARCHIVE_POSTGRES_PASSWORD: ${ARCHIVE_POSTGRES_PASSWORD:-change-me-archive-db}
     volumes:
       - recipes_postgres_data:/var/lib/postgresql/data
       - ./postgres-init:/docker-entrypoint-initdb.d:ro
@@ -46,6 +49,9 @@ services:
       REMINDERS_POSTGRES_DB: ${REMINDERS_POSTGRES_DB:-reminders}
       REMINDERS_POSTGRES_USER: ${REMINDERS_POSTGRES_USER:-reminders_user}
       REMINDERS_POSTGRES_PASSWORD: ${REMINDERS_POSTGRES_PASSWORD:-change-me-reminders-db}
+      ARCHIVE_POSTGRES_DB: ${ARCHIVE_POSTGRES_DB:-archive}
+      ARCHIVE_POSTGRES_USER: ${ARCHIVE_POSTGRES_USER:-archive_user}
+      ARCHIVE_POSTGRES_PASSWORD: ${ARCHIVE_POSTGRES_PASSWORD:-change-me-archive-db}
     volumes:
       - ./scripts/sync-app-db-users.sh:/usr/local/bin/sync-app-db-users.sh:ro
     entrypoint: ["/bin/sh", "/usr/local/bin/sync-app-db-users.sh"]
@@ -177,6 +183,8 @@ services:
       REMINDERS_SERVER_NAMES: ${REMINDERS_SERVER_NAMES:-reminders.mainpage.local}
       ADMIN_ROUTINE_PRIMARY_DOMAIN: ${ADMIN_ROUTINE_PRIMARY_DOMAIN:-admin.mainpage.local}
       ADMIN_ROUTINE_SERVER_NAMES: ${ADMIN_ROUTINE_SERVER_NAMES:-admin.mainpage.local}
+      ARCHIVE_PRIMARY_DOMAIN: ${ARCHIVE_PRIMARY_DOMAIN:-archive.mainpage.local}
+      ARCHIVE_SERVER_NAMES: ${ARCHIVE_SERVER_NAMES:-archive.mainpage.local}
       NGINX_CERT_POLL_INTERVAL: ${NGINX_CERT_POLL_INTERVAL:-300}
     volumes:
       - ../poetry-site/frontend/templates/index.html:/srv/poetry-site/index.html:ro
@@ -196,6 +204,8 @@ services:
       - reminders-frontend
       - admin-routine-backend
       - admin-routine-frontend
+      - archive-backend
+      - archive-frontend
 
   certbot:
     image: certbot/certbot:latest
@@ -335,6 +345,46 @@ services:
   admin-routine-frontend:
     build:
       context: ../family-admin-routine/frontend
+    restart: unless-stopped
+    expose:
+      - "80"
+
+  archive-backend:
+    build:
+      context: ../family-archive/backend
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql+asyncpg://${ARCHIVE_POSTGRES_USER:-archive_user}:${ARCHIVE_POSTGRES_PASSWORD:-change-me-archive-db}@recipes-db:5432/${ARCHIVE_POSTGRES_DB:-archive}
+      SECRET_KEY: ${ARCHIVE_SECRET_KEY:-change-me-archive-secret}
+      COOKIE_SECURE: "1"
+      COOKIE_DOMAIN: ${ARCHIVE_COOKIE_DOMAIN:-}
+      SESSION_LIFETIME_DAYS: ${ARCHIVE_SESSION_LIFETIME_DAYS:-30}
+      ARCHIVE_USER1_USERNAME: ${ARCHIVE_USER1_USERNAME:-user1}
+      ARCHIVE_USER1_PASSWORD: ${ARCHIVE_USER1_PASSWORD:-change-me-archive-user1}
+      ARCHIVE_USER2_USERNAME: ${ARCHIVE_USER2_USERNAME:-user2}
+      ARCHIVE_USER2_PASSWORD: ${ARCHIVE_USER2_PASSWORD:-change-me-archive-user2}
+      S3_ENDPOINT_URL: ${ARCHIVE_S3_ENDPOINT_URL:?ARCHIVE_S3_ENDPOINT_URL is required}
+      S3_REGION: ${ARCHIVE_S3_REGION:-fsn1}
+      S3_BUCKET: ${ARCHIVE_S3_BUCKET:?ARCHIVE_S3_BUCKET is required}
+      S3_ACCESS_KEY: ${ARCHIVE_S3_ACCESS_KEY:?ARCHIVE_S3_ACCESS_KEY is required}
+      S3_SECRET_KEY: ${ARCHIVE_S3_SECRET_KEY:?ARCHIVE_S3_SECRET_KEY is required}
+      S3_FORCE_PATH_STYLE: ${ARCHIVE_S3_FORCE_PATH_STYLE:-1}
+      MAX_FILE_SIZE_BYTES: ${ARCHIVE_MAX_FILE_SIZE_BYTES:-21474836480}
+      CHUNK_SIZE_BYTES: ${ARCHIVE_CHUNK_SIZE_BYTES:-8388608}
+      TRASH_RETENTION_DAYS: ${ARCHIVE_TRASH_RETENTION_DAYS:-30}
+      ALLOWED_ORIGINS: ${ARCHIVE_ALLOWED_ORIGINS:-https://${ARCHIVE_PRIMARY_DOMAIN:-archive.mainpage.local}}
+      LOG_LEVEL: ${ARCHIVE_LOG_LEVEL:-INFO}
+    expose:
+      - "8000"
+    depends_on:
+      recipes-db:
+        condition: service_healthy
+      db-password-sync:
+        condition: service_completed_successfully
+
+  archive-frontend:
+    build:
+      context: ../family-archive/frontend
     restart: unless-stopped
     expose:
       - "80"

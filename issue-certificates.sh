@@ -19,6 +19,17 @@ if [ -f "$ENV_FILE" ]; then
   set +a
 fi
 
+compose() {
+  if command -v docker-compose >/dev/null 2>&1; then
+    docker-compose -f "$COMPOSE_FILE" "$@"
+  else
+    docker compose --env-file "$ENV_FILE" -f "$COMPOSE_FILE" "$@"
+  fi
+}
+
+# Avoid CWD-dependent compose/.env resolution.
+cd "$SCRIPT_DIR"
+
 require_var() {
   local name="$1"
   if [ -z "${!name:-}" ]; then
@@ -64,7 +75,7 @@ run_certbot() {
   done
 
   local rc=0
-  docker compose -f "$COMPOSE_FILE" run --rm --entrypoint certbot certbot "${args[@]}" < /dev/null || rc=$?
+  compose run --rm --entrypoint certbot certbot "${args[@]}" < /dev/null || rc=$?
   if [ "$rc" -ne 0 ]; then
     echo "WARNING: certbot exited with code $rc for $site_label — continuing." >&2
   fi
@@ -77,6 +88,6 @@ while IFS=$'\t' read -r id pdom_var snames_var cert_label _ _; do
   run_certbot "$cert_label" "$primary_domain" "$server_names"
 done < <(sites_iter)
 
-docker compose -f "$COMPOSE_FILE" exec nginx nginx -s reload >/dev/null 2>&1 || true
+compose exec nginx nginx -s reload >/dev/null 2>&1 || true
 echo "Done. If nginx was already running, it has been reloaded."
 

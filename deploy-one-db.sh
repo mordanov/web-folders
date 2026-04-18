@@ -4,7 +4,8 @@
 set -euo pipefail
 
 WEB_FOLDERS_DIR="${WEB_FOLDERS_DIR:-$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)}"
-COMPOSE_FILE="${COMPOSE_FILE:-docker-compose.yaml}"
+COMPOSE_FILE="${COMPOSE_FILE:-$WEB_FOLDERS_DIR/docker-compose.yaml}"
+ENV_FILE="${ENV_FILE:-$WEB_FOLDERS_DIR/.env}"
 
 # shellcheck source=scripts/sites-lib.sh
 . "$WEB_FOLDERS_DIR/scripts/sites-lib.sh"
@@ -15,9 +16,9 @@ RECIPES_USER="${RECIPES_POSTGRES_USER:-recipes_user}"
 
 compose() {
   if command -v docker-compose >/dev/null 2>&1; then
-    docker-compose -f "$COMPOSE_FILE" "$@"
+    docker-compose --env-file "$ENV_FILE" -f "$COMPOSE_FILE" "$@"
   else
-    docker compose -f "$COMPOSE_FILE" "$@"
+    docker compose --env-file "$ENV_FILE" -f "$COMPOSE_FILE" "$@"
   fi
 }
 

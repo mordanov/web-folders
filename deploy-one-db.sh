@@ -10,6 +10,15 @@ ENV_FILE="${ENV_FILE:-$WEB_FOLDERS_DIR/.env}"
 # shellcheck source=scripts/sites-lib.sh
 . "$WEB_FOLDERS_DIR/scripts/sites-lib.sh"
 
+if [ -f "$ENV_FILE" ]; then
+  set -a
+  set +u
+  # shellcheck disable=SC1090
+  . "$ENV_FILE"
+  set -u
+  set +a
+fi
+
 # The "admin" Postgres role/DB (owns the cluster). Not in the manifest.
 RECIPES_DB="${RECIPES_POSTGRES_DB:-recipes}"
 RECIPES_USER="${RECIPES_POSTGRES_USER:-recipes_user}"

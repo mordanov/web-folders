@@ -1,0 +1,35 @@
+# CI / Deployments — список репозиториев для отображения в admin-routine.
+# Добавляйте любые репозитории, в т.ч. не связанные с сайтами.
+#
+# Поля:
+#   repo   — имя репозитория на GitHub (обязательно)
+#   label  — отображаемое имя (по умолчанию = repo)
+#   owner  — владелец репозитория (по умолчанию = GITHUB_OWNER из env)
+
+repos:
+  - repo: family-kitchen-recipes
+    label: "🍳 Recipes"
+
+  - repo: poetry-site
+    label: "📝 Poetry"
+
+  - repo: family-news
+    label: "📰 News"
+
+  - repo: family-budget
+    label: "💰 Budget"
+
+  - repo: family-reminders
+    label: "🔔 Reminders"
+
+  - repo: family_archive
+    label: "🗄 Archive"
+
+  - repo: family-admin-routine
+    label: "⚙️ Admin Routine"
+
+  - repo: web-folders
+    label: "🗂️ Maintenance Site"
+
+  - repo: poetry-site
+    label: "🪶 Lev Gorev Poetry"

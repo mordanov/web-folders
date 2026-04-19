@@ -330,6 +330,17 @@ services:
       REMINDERS_POSTGRES_DB: ${REMINDERS_POSTGRES_DB:-reminders}
       REMINDERS_POSTGRES_USER: ${REMINDERS_POSTGRES_USER:-reminders_user}
       REMINDERS_POSTGRES_PASSWORD: ${REMINDERS_POSTGRES_PASSWORD:-change-me-reminders-db}
+      ARCHIVE_POSTGRES_DB: ${ARCHIVE_POSTGRES_DB:-archive}
+      ARCHIVE_POSTGRES_USER: ${ARCHIVE_POSTGRES_USER:-archive_user}
+      ARCHIVE_POSTGRES_PASSWORD: ${ARCHIVE_POSTGRES_PASSWORD:-change-me-archive-db}
+      GITHUB_TOKEN: ${GITHUB_TOKEN:-}
+      GITHUB_OWNER: ${GITHUB_OWNER:-}
+      GITHUB_REPO_FAMILY_KITCHEN_RECIPES: ${GITHUB_REPO_FAMILY_KITCHEN_RECIPES:-family-kitchen-recipes}
+      GITHUB_REPO_POETRY_SITE: ${GITHUB_REPO_POETRY_SITE:-poetry-site}
+      GITHUB_REPO_NEWS_SITE: ${GITHUB_REPO_NEWS_SITE:-family-news}
+      GITHUB_REPO_BUDGET_SITE: ${GITHUB_REPO_BUDGET_SITE:-family-budget}
+      GITHUB_REPO_REMINDERS_APP: ${GITHUB_REPO_REMINDERS_APP:-family-reminders}
+      GITHUB_REPO_FAMILY_ARCHIVE: ${GITHUB_REPO_FAMILY_ARCHIVE:-family_archive}
       # Backup storage backend (local FS volume by default; switch to "s3" to
       # share family-archive's Hetzner Object Storage under a reserved prefix).
       BACKUP_STORAGE_BACKEND: ${ADMIN_ROUTINE_BACKUP_BACKEND:-local}

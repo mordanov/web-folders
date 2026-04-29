@@ -390,8 +390,12 @@ services:
       MAX_FILE_SIZE_BYTES: ${ARCHIVE_MAX_FILE_SIZE_BYTES:-21474836480}
       CHUNK_SIZE_BYTES: ${ARCHIVE_CHUNK_SIZE_BYTES:-8388608}
       TRASH_RETENTION_DAYS: ${ARCHIVE_TRASH_RETENTION_DAYS:-30}
+      THUMBNAIL_DIR: ${ARCHIVE_THUMBNAIL_DIR:-/app/data/thumbnails}
+      PREWARM_THUMBNAIL_CONCURRENCY: ${ARCHIVE_PREWARM_THUMBNAIL_CONCURRENCY:-4}
       ALLOWED_ORIGINS: ${ARCHIVE_ALLOWED_ORIGINS:-https://${ARCHIVE_PRIMARY_DOMAIN:-archive.mainpage.local}}
       LOG_LEVEL: ${ARCHIVE_LOG_LEVEL:-INFO}
+    volumes:
+      - archive_thumbnails_data:/app/data/thumbnails
     expose:
       - "8000"
     depends_on:
@@ -415,5 +419,6 @@ volumes:
   news_photos_data:
   budget_uploads_data:
   admin_routine_backups_data:
+  archive_thumbnails_data:
   certbot_certs:
   certbot_www:

@@ -352,6 +352,7 @@ services:
       - poetry_uploads_data:/mnt/poetry_uploads
       - news_photos_data:/mnt/news_photos
       - budget_uploads_data:/mnt/budget_uploads
+      - archive_thumbnails_data:/mnt/archive_thumbnails
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - ./ci-repos.yaml:/etc/admin-routine/ci-repos.yaml:ro
     expose:

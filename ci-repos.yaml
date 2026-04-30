@@ -10,9 +10,6 @@ repos:
   - repo: family-kitchen-recipes
     label: "🍳 Recipes"
 
-  - repo: poetry-site
-    label: "📝 Poetry"
-
   - repo: family-news
     label: "📰 News"
 

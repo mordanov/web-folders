@@ -24,7 +24,7 @@ server {
     }
 
     location / {
-        set $recipes_frontend http://recipes-frontend:80;
+        set $recipes_frontend http://recipes-frontend:3000;
         proxy_pass $recipes_frontend;
         include /etc/nginx/snippets/proxy-common.conf;
         proxy_intercept_errors on;

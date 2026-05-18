@@ -1,0 +1,47 @@
+server {
+    listen 443 ssl;
+    listen [::]:443 ssl;
+    server_name ${AUTH_SERVER_NAMES};
+
+    ssl_certificate /etc/letsencrypt/live/${AUTH_PRIMARY_DOMAIN}/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/${AUTH_PRIMARY_DOMAIN}/privkey.pem;
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_ciphers HIGH:!aNULL:!MD5;
+    ssl_session_cache shared:SSL:10m;
+    ssl_session_timeout 1d;
+
+    # Auth API (login, callback, refresh, logout, JWKS)
+    location /auth/ {
+        set $auth_backend http://auth-backend:8000;
+        proxy_pass $auth_backend;
+        include /etc/nginx/snippets/proxy-common.conf;
+        proxy_read_timeout 30s;
+    }
+
+    location /.well-known/ {
+        set $auth_backend http://auth-backend:8000;
+        proxy_pass $auth_backend;
+        include /etc/nginx/snippets/proxy-common.conf;
+        access_log off;
+    }
+
+    location /admin/api/ {
+        set $auth_backend http://auth-backend:8000;
+        proxy_pass $auth_backend;
+        include /etc/nginx/snippets/proxy-common.conf;
+        proxy_read_timeout 30s;
+    }
+
+    location /health {
+        set $auth_backend http://auth-backend:8000;
+        proxy_pass $auth_backend;
+        include /etc/nginx/snippets/proxy-common.conf;
+        access_log off;
+    }
+
+    location / {
+        set $auth_frontend http://auth-frontend:80;
+        proxy_pass $auth_frontend;
+        include /etc/nginx/snippets/proxy-common.conf;
+    }
+}

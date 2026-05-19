@@ -493,6 +493,8 @@ services:
   servinga-prometheus:
     image: prom/prometheus:v2.51.0
     restart: unless-stopped
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     volumes:
       - ../servinga-monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
       - servinga_prometheus_data:/prometheus

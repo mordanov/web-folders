@@ -34,5 +34,5 @@ repos:
   - repo: auth-service
     label: "🔐 Auth Service"
 
-  - repo: servinga-dashboard
+  - repo: servinga-monitoring
     label: "📡 Servinga Dashboard"

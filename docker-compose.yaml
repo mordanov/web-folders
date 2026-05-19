@@ -501,6 +501,7 @@ services:
       - "--config.file=/etc/prometheus/prometheus.yml"
       - "--storage.tsdb.path=/prometheus"
       - "--storage.tsdb.retention.time=30d"
+      - "--web.listen-address=0.0.0.0:9090"
       - "--web.enable-lifecycle"
 
   servinga-backend:
@@ -511,6 +512,8 @@ services:
       - "host.docker.internal:host-gateway"
     environment:
       PROMETHEUS_URL: http://host.docker.internal:9090
+      NO_PROXY: localhost,127.0.0.1,host.docker.internal
+      no_proxy: localhost,127.0.0.1,host.docker.internal
       DATABASE_URL: postgresql+asyncpg://${SERVINGA_POSTGRES_USER:-servinga_user}:${SERVINGA_POSTGRES_PASSWORD:-change-me-servinga-db}@recipes-db:5432/${SERVINGA_POSTGRES_DB:-servinga}
     expose:
       - "8000"

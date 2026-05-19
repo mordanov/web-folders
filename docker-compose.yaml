@@ -493,8 +493,7 @@ services:
   servinga-prometheus:
     image: prom/prometheus:v2.51.0
     restart: unless-stopped
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
+    network_mode: host
     volumes:
       - ../servinga-monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
       - servinga_prometheus_data:/prometheus
@@ -508,8 +507,10 @@ services:
     build:
       context: ../servinga-monitoring/backend
     restart: unless-stopped
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     environment:
-      PROMETHEUS_URL: http://servinga-prometheus:9090
+      PROMETHEUS_URL: http://host.docker.internal:9090
       DATABASE_URL: postgresql+asyncpg://${SERVINGA_POSTGRES_USER:-servinga_user}:${SERVINGA_POSTGRES_PASSWORD:-change-me-servinga-db}@recipes-db:5432/${SERVINGA_POSTGRES_DB:-servinga}
     expose:
       - "8000"

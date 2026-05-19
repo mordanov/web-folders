@@ -494,7 +494,7 @@ services:
     image: prom/prometheus:v2.51.0
     restart: unless-stopped
     volumes:
-      - ../servinga-dashboard/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ../servinga-monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
       - servinga_prometheus_data:/prometheus
     command:
       - "--config.file=/etc/prometheus/prometheus.yml"
@@ -504,7 +504,7 @@ services:
 
   servinga-backend:
     build:
-      context: ../servinga-dashboard/backend
+      context: ../servinga-monitoring/backend
     restart: unless-stopped
     environment:
       PROMETHEUS_URL: http://servinga-prometheus:9090
@@ -521,7 +521,7 @@ services:
 
   servinga-frontend:
     build:
-      context: ../servinga-dashboard/frontend
+      context: ../servinga-monitoring/frontend
     restart: unless-stopped
     expose:
       - "80"

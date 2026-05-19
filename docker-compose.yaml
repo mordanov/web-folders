@@ -24,6 +24,9 @@ services:
       AUTH_POSTGRES_DB: ${AUTH_POSTGRES_DB:-auth}
       AUTH_POSTGRES_USER: ${AUTH_POSTGRES_USER:-auth_user}
       AUTH_POSTGRES_PASSWORD: ${AUTH_POSTGRES_PASSWORD:-change-me-auth-db}
+      SERVINGA_POSTGRES_DB: ${SERVINGA_POSTGRES_DB:-servinga}
+      SERVINGA_POSTGRES_USER: ${SERVINGA_POSTGRES_USER:-servinga_user}
+      SERVINGA_POSTGRES_PASSWORD: ${SERVINGA_POSTGRES_PASSWORD:-change-me-servinga-db}
     volumes:
       - recipes_postgres_data:/var/lib/postgresql/data
       - ./postgres-init:/docker-entrypoint-initdb.d:ro
@@ -58,6 +61,9 @@ services:
       AUTH_POSTGRES_DB: ${AUTH_POSTGRES_DB:-auth}
       AUTH_POSTGRES_USER: ${AUTH_POSTGRES_USER:-auth_user}
       AUTH_POSTGRES_PASSWORD: ${AUTH_POSTGRES_PASSWORD:-change-me-auth-db}
+      SERVINGA_POSTGRES_DB: ${SERVINGA_POSTGRES_DB:-servinga}
+      SERVINGA_POSTGRES_USER: ${SERVINGA_POSTGRES_USER:-servinga_user}
+      SERVINGA_POSTGRES_PASSWORD: ${SERVINGA_POSTGRES_PASSWORD:-change-me-servinga-db}
     volumes:
       - ./scripts/sync-app-db-users.sh:/usr/local/bin/sync-app-db-users.sh:ro
       - ./sites.yaml:/etc/web-folders/sites.yaml:ro
@@ -194,6 +200,8 @@ services:
       ARCHIVE_SERVER_NAMES: ${ARCHIVE_SERVER_NAMES:-archive.mainpage.local}
       AUTH_PRIMARY_DOMAIN: ${AUTH_PRIMARY_DOMAIN:-auth.mainpage.local}
       AUTH_SERVER_NAMES: ${AUTH_SERVER_NAMES:-auth.mainpage.local}
+      SERVINGA_PRIMARY_DOMAIN: ${SERVINGA_PRIMARY_DOMAIN:-servinga.mainpage.local}
+      SERVINGA_SERVER_NAMES: ${SERVINGA_SERVER_NAMES:-servinga.mainpage.local}
       NGINX_CERT_POLL_INTERVAL: ${NGINX_CERT_POLL_INTERVAL:-300}
     volumes:
       - ../poetry-site/frontend/templates/index.html:/srv/poetry-site/index.html:ro
@@ -218,6 +226,8 @@ services:
       - archive-frontend
       - auth-backend
       - auth-frontend
+      - servinga-backend
+      - servinga-frontend
 
   certbot:
     image: certbot/certbot:latest
@@ -480,6 +490,42 @@ services:
     expose:
       - "80"
 
+  servinga-prometheus:
+    image: prom/prometheus:v2.51.0
+    restart: unless-stopped
+    volumes:
+      - ../servinga-dashboard/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - servinga_prometheus_data:/prometheus
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.path=/prometheus"
+      - "--storage.tsdb.retention.time=30d"
+      - "--web.enable-lifecycle"
+
+  servinga-backend:
+    build:
+      context: ../servinga-dashboard/backend
+    restart: unless-stopped
+    environment:
+      PROMETHEUS_URL: http://servinga-prometheus:9090
+      DATABASE_URL: postgresql+asyncpg://${SERVINGA_POSTGRES_USER:-servinga_user}:${SERVINGA_POSTGRES_PASSWORD:-change-me-servinga-db}@recipes-db:5432/${SERVINGA_POSTGRES_DB:-servinga}
+    expose:
+      - "8000"
+    depends_on:
+      recipes-db:
+        condition: service_healthy
+      db-password-sync:
+        condition: service_completed_successfully
+      servinga-prometheus:
+        condition: service_started
+
+  servinga-frontend:
+    build:
+      context: ../servinga-dashboard/frontend
+    restart: unless-stopped
+    expose:
+      - "80"
+
 volumes:
   recipes_postgres_data:
   recipes_uploads_data:
@@ -490,5 +536,6 @@ volumes:
   admin_routine_backups_data:
   archive_thumbnails_data:
   auth_redis_data:
+  servinga_prometheus_data:
   certbot_certs:
   certbot_www:

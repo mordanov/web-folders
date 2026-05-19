@@ -1,0 +1,25 @@
+server {
+    listen 443 ssl;
+    listen [::]:443 ssl;
+    server_name ${SERVINGA_SERVER_NAMES};
+
+    ssl_certificate /etc/letsencrypt/live/${SERVINGA_PRIMARY_DOMAIN}/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/${SERVINGA_PRIMARY_DOMAIN}/privkey.pem;
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_ciphers HIGH:!aNULL:!MD5;
+    ssl_session_cache shared:SSL:10m;
+    ssl_session_timeout 1d;
+
+    location /api/ {
+        set $servinga_backend http://servinga-backend:8000;
+        proxy_pass $servinga_backend;
+        include /etc/nginx/snippets/proxy-common.conf;
+        proxy_read_timeout 30s;
+    }
+
+    location / {
+        set $servinga_frontend http://servinga-frontend:80;
+        proxy_pass $servinga_frontend;
+        include /etc/nginx/snippets/proxy-common.conf;
+    }
+}

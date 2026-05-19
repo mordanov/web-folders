@@ -1,0 +1,23 @@
+server {
+    listen 80;
+    listen [::]:80;
+    server_name ${SERVINGA_SERVER_NAMES};
+
+    # ACME challenge for certbot
+    location /.well-known/acme-challenge/ {
+        root /var/www/certbot;
+    }
+
+    location /api/ {
+        set $servinga_backend http://servinga-backend:8000;
+        proxy_pass $servinga_backend;
+        include /etc/nginx/snippets/proxy-common.conf;
+        proxy_read_timeout 30s;
+    }
+
+    location / {
+        set $servinga_frontend http://servinga-frontend:80;
+        proxy_pass $servinga_frontend;
+        include /etc/nginx/snippets/proxy-common.conf;
+    }
+}

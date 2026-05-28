@@ -363,6 +363,9 @@ services:
       ARCHIVE_POSTGRES_DB: ${ARCHIVE_POSTGRES_DB:-archive}
       ARCHIVE_POSTGRES_USER: ${ARCHIVE_POSTGRES_USER:-archive_user}
       ARCHIVE_POSTGRES_PASSWORD: ${ARCHIVE_POSTGRES_PASSWORD:-change-me-archive-db}
+      PORTUGUESE_EXPENSES_POSTGRES_DB: ${PORTUGUESE_EXPENSES_POSTGRES_DB:-portuguese_expenses}
+      PORTUGUESE_EXPENSES_POSTGRES_USER: ${PORTUGUESE_EXPENSES_POSTGRES_USER:-portuguese_expenses_user}
+      PORTUGUESE_EXPENSES_POSTGRES_PASSWORD: ${PORTUGUESE_EXPENSES_POSTGRES_PASSWORD:-change-me-portuguese-expenses-db}
       GITHUB_TOKEN: ${GITHUB_TOKEN:-}
       GITHUB_OWNER: ${GITHUB_OWNER:-}
       # Backup storage backend (local FS volume by default; switch to "s3" to
@@ -383,6 +386,7 @@ services:
       - news_photos_data:/mnt/news_photos
       - budget_uploads_data:/mnt/budget_uploads
       - archive_thumbnails_data:/mnt/archive_thumbnails
+      - portuguese_expenses_uploads_data:/mnt/portuguese_expenses_uploads
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - ./ci-repos.yaml:/etc/admin-routine/ci-repos.yaml:ro
     expose:

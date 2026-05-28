@@ -36,3 +36,6 @@ repos:
 
   - repo: servinga-monitoring
     label: "📡 Servinga Dashboard"
+
+  - repo: portuguese-expenses
+    label: "🇵🇹 Portugal drunken sailors"

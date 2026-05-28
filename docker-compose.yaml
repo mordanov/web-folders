@@ -406,6 +406,8 @@ services:
   admin-routine-frontend:
     build:
       context: ../family-admin-routine/frontend
+      args:
+        VITE_AUTH_URL: https://${AUTH_PRIMARY_DOMAIN:-auth.mainpage.local}
     restart: unless-stopped
     expose:
       - "80"
@@ -454,6 +456,8 @@ services:
   archive-frontend:
     build:
       context: ../family-archive/frontend
+      args:
+        VITE_AUTH_URL: https://${AUTH_PRIMARY_DOMAIN:-auth.mainpage.local}
     restart: unless-stopped
     expose:
       - "80"

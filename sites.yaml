@@ -152,3 +152,16 @@ sites:
     health_path: /api/health
     compose_services: [servinga-backend, servinga-frontend]
 
+  - id: portuguese-expenses
+    priority: 110
+    cert_label: portuguese-expenses
+    domain:
+      primary_var: PORTUGUESE_EXPENSES_PRIMARY_DOMAIN
+      server_names_var: PORTUGUESE_EXPENSES_SERVER_NAMES
+    db:
+      db_var: PORTUGUESE_EXPENSES_POSTGRES_DB
+      user_var: PORTUGUESE_EXPENSES_POSTGRES_USER
+      password_var: PORTUGUESE_EXPENSES_POSTGRES_PASSWORD
+    health_path: /health
+    compose_services: [portuguese-expenses-backend, portuguese-expenses-frontend]
+

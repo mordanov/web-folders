@@ -27,6 +27,9 @@ services:
       SERVINGA_POSTGRES_DB: ${SERVINGA_POSTGRES_DB:-servinga}
       SERVINGA_POSTGRES_USER: ${SERVINGA_POSTGRES_USER:-servinga_user}
       SERVINGA_POSTGRES_PASSWORD: ${SERVINGA_POSTGRES_PASSWORD:-change-me-servinga-db}
+      PORTUGUESE_EXPENSES_POSTGRES_DB: ${PORTUGUESE_EXPENSES_POSTGRES_DB:-portuguese_expenses}
+      PORTUGUESE_EXPENSES_POSTGRES_USER: ${PORTUGUESE_EXPENSES_POSTGRES_USER:-portuguese_expenses_user}
+      PORTUGUESE_EXPENSES_POSTGRES_PASSWORD: ${PORTUGUESE_EXPENSES_POSTGRES_PASSWORD:-change-me-portuguese-expenses-db}
     volumes:
       - recipes_postgres_data:/var/lib/postgresql/data
       - ./postgres-init:/docker-entrypoint-initdb.d:ro
@@ -64,6 +67,9 @@ services:
       SERVINGA_POSTGRES_DB: ${SERVINGA_POSTGRES_DB:-servinga}
       SERVINGA_POSTGRES_USER: ${SERVINGA_POSTGRES_USER:-servinga_user}
       SERVINGA_POSTGRES_PASSWORD: ${SERVINGA_POSTGRES_PASSWORD:-change-me-servinga-db}
+      PORTUGUESE_EXPENSES_POSTGRES_DB: ${PORTUGUESE_EXPENSES_POSTGRES_DB:-portuguese_expenses}
+      PORTUGUESE_EXPENSES_POSTGRES_USER: ${PORTUGUESE_EXPENSES_POSTGRES_USER:-portuguese_expenses_user}
+      PORTUGUESE_EXPENSES_POSTGRES_PASSWORD: ${PORTUGUESE_EXPENSES_POSTGRES_PASSWORD:-change-me-portuguese-expenses-db}
     volumes:
       - ./scripts/sync-app-db-users.sh:/usr/local/bin/sync-app-db-users.sh:ro
       - ./sites.yaml:/etc/web-folders/sites.yaml:ro
@@ -202,6 +208,8 @@ services:
       AUTH_SERVER_NAMES: ${AUTH_SERVER_NAMES:-auth.mainpage.local}
       SERVINGA_PRIMARY_DOMAIN: ${SERVINGA_PRIMARY_DOMAIN:-servinga.mainpage.local}
       SERVINGA_SERVER_NAMES: ${SERVINGA_SERVER_NAMES:-servinga.mainpage.local}
+      PORTUGUESE_EXPENSES_PRIMARY_DOMAIN: ${PORTUGUESE_EXPENSES_PRIMARY_DOMAIN:-portugal2026.mainpage.local}
+      PORTUGUESE_EXPENSES_SERVER_NAMES: ${PORTUGUESE_EXPENSES_SERVER_NAMES:-portugal2026.mainpage.local}
       NGINX_CERT_POLL_INTERVAL: ${NGINX_CERT_POLL_INTERVAL:-300}
     volumes:
       - ../poetry-site/frontend/templates/index.html:/srv/poetry-site/index.html:ro
@@ -228,6 +236,8 @@ services:
       - auth-frontend
       - servinga-backend
       - servinga-frontend
+      - portuguese-expenses-backend
+      - portuguese-expenses-frontend
 
   certbot:
     image: certbot/certbot:latest
@@ -533,6 +543,43 @@ services:
     expose:
       - "80"
 
+  portuguese-expenses-backend:
+    build:
+      context: ../portuguese-expenses/backend
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql+asyncpg://${PORTUGUESE_EXPENSES_POSTGRES_USER:-portuguese_expenses_user}:${PORTUGUESE_EXPENSES_POSTGRES_PASSWORD:-change-me-portuguese-expenses-db}@recipes-db:5432/${PORTUGUESE_EXPENSES_POSTGRES_DB:-portuguese_expenses}
+      JWT_PRIVATE_KEY: ${PORTUGUESE_EXPENSES_JWT_PRIVATE_KEY:?PORTUGUESE_EXPENSES_JWT_PRIVATE_KEY is required}
+      JWT_PUBLIC_KEY: ${PORTUGUESE_EXPENSES_JWT_PUBLIC_KEY:?PORTUGUESE_EXPENSES_JWT_PUBLIC_KEY is required}
+      JWT_ALGORITHM: ${PORTUGUESE_EXPENSES_JWT_ALGORITHM:-RS256}
+      JWT_EXPIRE_MINUTES: ${PORTUGUESE_EXPENSES_JWT_EXPIRE_MINUTES:-480}
+      APP_USER_1_USERNAME: ${PORTUGUESE_EXPENSES_APP_USER_1_USERNAME:?PORTUGUESE_EXPENSES_APP_USER_1_USERNAME is required}
+      APP_USER_1_PASSWORD: ${PORTUGUESE_EXPENSES_APP_USER_1_PASSWORD:?PORTUGUESE_EXPENSES_APP_USER_1_PASSWORD is required}
+      APP_USER_2_USERNAME: ${PORTUGUESE_EXPENSES_APP_USER_2_USERNAME:?PORTUGUESE_EXPENSES_APP_USER_2_USERNAME is required}
+      APP_USER_2_PASSWORD: ${PORTUGUESE_EXPENSES_APP_USER_2_PASSWORD:?PORTUGUESE_EXPENSES_APP_USER_2_PASSWORD is required}
+      OPENAI_API_KEY: ${PORTUGUESE_EXPENSES_OPENAI_API_KEY:?PORTUGUESE_EXPENSES_OPENAI_API_KEY is required}
+      UPLOAD_DIR: /app/uploads
+      MAX_UPLOAD_SIZE_MB: ${PORTUGUESE_EXPENSES_MAX_UPLOAD_SIZE_MB:-10}
+      FRONTEND_URL: ${PORTUGUESE_EXPENSES_FRONTEND_URL:-https://${PORTUGUESE_EXPENSES_PRIMARY_DOMAIN:-portugal2026.mainpage.local}}
+    volumes:
+      - portuguese_expenses_uploads_data:/app/uploads
+    expose:
+      - "8000"
+    depends_on:
+      recipes-db:
+        condition: service_healthy
+      db-password-sync:
+        condition: service_completed_successfully
+
+  portuguese-expenses-frontend:
+    build:
+      context: ../portuguese-expenses/frontend
+      args:
+        VITE_API_BASE_URL: ${PORTUGUESE_EXPENSES_VITE_API_BASE_URL:-https://${PORTUGUESE_EXPENSES_PRIMARY_DOMAIN:-portugal2026.mainpage.local}}
+    restart: unless-stopped
+    expose:
+      - "80"
+
 volumes:
   recipes_postgres_data:
   recipes_uploads_data:
@@ -544,5 +591,6 @@ volumes:
   archive_thumbnails_data:
   auth_redis_data:
   servinga_prometheus_data:
+  portuguese_expenses_uploads_data:
   certbot_certs:
   certbot_www:

@@ -1,0 +1,48 @@
+server {
+    listen 443 ssl;
+    listen [::]:443 ssl;
+    server_name ${PORTUGUESE_EXPENSES_SERVER_NAMES};
+
+    ssl_certificate /etc/letsencrypt/live/${PORTUGUESE_EXPENSES_PRIMARY_DOMAIN}/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/${PORTUGUESE_EXPENSES_PRIMARY_DOMAIN}/privkey.pem;
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_ciphers HIGH:!aNULL:!MD5;
+    ssl_session_cache shared:SSL:10m;
+    ssl_session_timeout 1d;
+
+    client_max_body_size 20M;
+
+    location /auth/ {
+        set $portuguese_expenses_backend http://portuguese-expenses-backend:8000;
+        proxy_pass $portuguese_expenses_backend;
+        include /etc/nginx/snippets/proxy-common.conf;
+        proxy_read_timeout 120s;
+    }
+
+    location /tickets/ {
+        set $portuguese_expenses_backend http://portuguese-expenses-backend:8000;
+        proxy_pass $portuguese_expenses_backend;
+        include /etc/nginx/snippets/proxy-common.conf;
+        proxy_read_timeout 120s;
+    }
+
+    location ~ ^/(members|categories|items|balances|offset-rules|reports)(/|$) {
+        set $portuguese_expenses_backend http://portuguese-expenses-backend:8000;
+        proxy_pass $portuguese_expenses_backend;
+        include /etc/nginx/snippets/proxy-common.conf;
+        proxy_read_timeout 120s;
+    }
+
+    location /health {
+        set $portuguese_expenses_backend http://portuguese-expenses-backend:8000;
+        proxy_pass $portuguese_expenses_backend;
+        include /etc/nginx/snippets/proxy-common.conf;
+        access_log off;
+    }
+
+    location / {
+        set $portuguese_expenses_frontend http://portuguese-expenses-frontend:80;
+        proxy_pass $portuguese_expenses_frontend;
+        include /etc/nginx/snippets/proxy-common.conf;
+    }
+}

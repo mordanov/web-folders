@@ -366,6 +366,12 @@ services:
       PORTUGUESE_EXPENSES_POSTGRES_DB: ${PORTUGUESE_EXPENSES_POSTGRES_DB:-portuguese_expenses}
       PORTUGUESE_EXPENSES_POSTGRES_USER: ${PORTUGUESE_EXPENSES_POSTGRES_USER:-portuguese_expenses_user}
       PORTUGUESE_EXPENSES_POSTGRES_PASSWORD: ${PORTUGUESE_EXPENSES_POSTGRES_PASSWORD:-change-me-portuguese-expenses-db}
+      AUTH_POSTGRES_DB: ${AUTH_POSTGRES_DB:-auth}
+      AUTH_POSTGRES_USER: ${AUTH_POSTGRES_USER:-auth_user}
+      AUTH_POSTGRES_PASSWORD: ${AUTH_POSTGRES_PASSWORD:-change-me-auth-db}
+      SERVINGA_POSTGRES_DB: ${SERVINGA_POSTGRES_DB:-servinga}
+      SERVINGA_POSTGRES_USER: ${SERVINGA_POSTGRES_USER:-servinga_user}
+      SERVINGA_POSTGRES_PASSWORD: ${SERVINGA_POSTGRES_PASSWORD:-change-me-servinga-db}
       GITHUB_TOKEN: ${GITHUB_TOKEN:-}
       GITHUB_OWNER: ${GITHUB_OWNER:-}
       # Backup storage backend (local FS volume by default; switch to "s3" to
@@ -386,6 +392,8 @@ services:
       - news_photos_data:/mnt/news_photos
       - budget_uploads_data:/mnt/budget_uploads
       - archive_thumbnails_data:/mnt/archive_thumbnails
+      - auth_redis_data:/mnt/auth_redis_data
+      - servinga_prometheus_data:/mnt/servinga_prometheus_data
       - portuguese_expenses_uploads_data:/mnt/portuguese_expenses_uploads
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - ./ci-repos.yaml:/etc/admin-routine/ci-repos.yaml:ro

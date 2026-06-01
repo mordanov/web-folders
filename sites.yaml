@@ -128,7 +128,7 @@ sites:
 
   - id: auth
     priority: 90
-    cert_label: auth-service
+    cert_label: auth-service-2
     domain:
       primary_var: AUTH_PRIMARY_DOMAIN
       server_names_var: AUTH_SERVER_NAMES

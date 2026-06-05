@@ -1,0 +1,21 @@
+server {
+    listen 80;
+    listen [::]:80;
+    server_name ${TICKET_MANAGER_SERVER_NAMES};
+
+    client_max_body_size 50M;
+
+    location /api/ {
+        set $ticket_manager_backend http://ticket-manager-backend:8000;
+        proxy_pass $ticket_manager_backend;
+        include /etc/nginx/snippets/proxy-common.conf;
+        proxy_read_timeout 120s;
+    }
+
+    location / {
+        set $ticket_manager_frontend http://ticket-manager-frontend:80;
+        proxy_pass $ticket_manager_frontend;
+        include /etc/nginx/snippets/proxy-common.conf;
+    }
+}
+

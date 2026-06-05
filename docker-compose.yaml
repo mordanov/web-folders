@@ -30,6 +30,9 @@ services:
       PORTUGUESE_EXPENSES_POSTGRES_DB: ${PORTUGUESE_EXPENSES_POSTGRES_DB:-portuguese_expenses}
       PORTUGUESE_EXPENSES_POSTGRES_USER: ${PORTUGUESE_EXPENSES_POSTGRES_USER:-portuguese_expenses_user}
       PORTUGUESE_EXPENSES_POSTGRES_PASSWORD: ${PORTUGUESE_EXPENSES_POSTGRES_PASSWORD:-change-me-portuguese-expenses-db}
+      TICKET_MANAGER_POSTGRES_DB: ${TICKET_MANAGER_POSTGRES_DB:-ticket_manager}
+      TICKET_MANAGER_POSTGRES_USER: ${TICKET_MANAGER_POSTGRES_USER:-ticket_manager_user}
+      TICKET_MANAGER_POSTGRES_PASSWORD: ${TICKET_MANAGER_POSTGRES_PASSWORD:-change-me-ticket-manager-db}
     volumes:
       - recipes_postgres_data:/var/lib/postgresql/data
       - ./postgres-init:/docker-entrypoint-initdb.d:ro
@@ -70,6 +73,9 @@ services:
       PORTUGUESE_EXPENSES_POSTGRES_DB: ${PORTUGUESE_EXPENSES_POSTGRES_DB:-portuguese_expenses}
       PORTUGUESE_EXPENSES_POSTGRES_USER: ${PORTUGUESE_EXPENSES_POSTGRES_USER:-portuguese_expenses_user}
       PORTUGUESE_EXPENSES_POSTGRES_PASSWORD: ${PORTUGUESE_EXPENSES_POSTGRES_PASSWORD:-change-me-portuguese-expenses-db}
+      TICKET_MANAGER_POSTGRES_DB: ${TICKET_MANAGER_POSTGRES_DB:-ticket_manager}
+      TICKET_MANAGER_POSTGRES_USER: ${TICKET_MANAGER_POSTGRES_USER:-ticket_manager_user}
+      TICKET_MANAGER_POSTGRES_PASSWORD: ${TICKET_MANAGER_POSTGRES_PASSWORD:-change-me-ticket-manager-db}
     volumes:
       - ./scripts/sync-app-db-users.sh:/usr/local/bin/sync-app-db-users.sh:ro
       - ./sites.yaml:/etc/web-folders/sites.yaml:ro
@@ -210,6 +216,8 @@ services:
       SERVINGA_SERVER_NAMES: ${SERVINGA_SERVER_NAMES:-servinga.mainpage.local}
       PORTUGUESE_EXPENSES_PRIMARY_DOMAIN: ${PORTUGUESE_EXPENSES_PRIMARY_DOMAIN:-portugal2026.mainpage.local}
       PORTUGUESE_EXPENSES_SERVER_NAMES: ${PORTUGUESE_EXPENSES_SERVER_NAMES:-portugal2026.mainpage.local}
+      TICKET_MANAGER_PRIMARY_DOMAIN: ${TICKET_MANAGER_PRIMARY_DOMAIN:-ticket-manager.dark-factory.mainpage.local}
+      TICKET_MANAGER_SERVER_NAMES: ${TICKET_MANAGER_SERVER_NAMES:-ticket-manager.dark-factory.mainpage.local}
       NGINX_CERT_POLL_INTERVAL: ${NGINX_CERT_POLL_INTERVAL:-300}
     volumes:
       - ../poetry-site/frontend/templates/index.html:/srv/poetry-site/index.html:ro
@@ -238,6 +246,8 @@ services:
       - servinga-frontend
       - portuguese-expenses-backend
       - portuguese-expenses-frontend
+      - ticket-manager-backend
+      - ticket-manager-frontend
 
   certbot:
     image: certbot/certbot:latest
@@ -576,6 +586,33 @@ services:
       context: ../portuguese-expenses/frontend
       args:
         VITE_API_BASE_URL: ${PORTUGUESE_EXPENSES_VITE_API_BASE_URL:-https://${PORTUGUESE_EXPENSES_PRIMARY_DOMAIN:-portugal2026.mainpage.local}}
+    restart: unless-stopped
+    expose:
+      - "80"
+
+  ticket-manager-backend:
+    build:
+      context: ../dark-factory/ticket-manager/backend
+    restart: unless-stopped
+    deploy:
+      replicas: ${TICKET_MANAGER_REPLICAS:-2}
+    environment:
+      DATABASE_URL: postgresql+asyncpg://${TICKET_MANAGER_POSTGRES_USER:-ticket_manager_user}:${TICKET_MANAGER_POSTGRES_PASSWORD:-change-me-ticket-manager-db}@recipes-db:5432/${TICKET_MANAGER_POSTGRES_DB:-ticket_manager}
+    expose:
+      - "8000"
+    command: >
+      sh -c "alembic upgrade head && uvicorn src.main:app --host 0.0.0.0 --port 8000"
+    depends_on:
+      recipes-db:
+        condition: service_healthy
+      db-password-sync:
+        condition: service_completed_successfully
+
+  ticket-manager-frontend:
+    build:
+      context: ../dark-factory/ticket-manager/frontend
+      args:
+        VITE_API_BASE_URL: ${TICKET_MANAGER_VITE_API_BASE_URL:-https://${TICKET_MANAGER_PRIMARY_DOMAIN:-ticket-manager.dark-factory.mainpage.local}}
     restart: unless-stopped
     expose:
       - "80"

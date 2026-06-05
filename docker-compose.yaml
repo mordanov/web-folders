@@ -598,10 +598,11 @@ services:
       replicas: ${TICKET_MANAGER_REPLICAS:-2}
     environment:
       DATABASE_URL: postgresql+asyncpg://${TICKET_MANAGER_POSTGRES_USER:-ticket_manager_user}:${TICKET_MANAGER_POSTGRES_PASSWORD:-change-me-ticket-manager-db}@recipes-db:5432/${TICKET_MANAGER_POSTGRES_DB:-ticket_manager}
+      SECRET_KEY: ${TICKET_MANAGER_SECRET_KEY:?TICKET_MANAGER_SECRET_KEY is required}
+      REFRESH_TOKEN_SECRET: ${TICKET_MANAGER_REFRESH_TOKEN_SECRET:?TICKET_MANAGER_REFRESH_TOKEN_SECRET is required}
+      FRONTEND_URL: ${TICKET_MANAGER_FRONTEND_URL:-https://${TICKET_MANAGER_PRIMARY_DOMAIN:-ticket-manager.dark-factory.mainpage.local}}
     expose:
       - "8000"
-    command: >
-      sh -c "alembic upgrade head && uvicorn src.main:app --host 0.0.0.0 --port 8000"
     depends_on:
       recipes-db:
         condition: service_healthy

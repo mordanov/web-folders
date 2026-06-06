@@ -634,7 +634,7 @@ services:
 
   home-resources-backend:
     build:
-      context: ../home-resource-consumption/backend
+      context: ../home-resources/backend
     restart: unless-stopped
     environment:
       DATABASE_URL: postgresql+asyncpg://${HOME_RESOURCES_POSTGRES_USER:-home_resources_user}:${HOME_RESOURCES_POSTGRES_PASSWORD:-change-me-home-resources-db}@recipes-db:5432/${HOME_RESOURCES_POSTGRES_DB:-home_resources}
@@ -662,7 +662,7 @@ services:
 
   home-resources-frontend:
     build:
-      context: ../home-resource-consumption/frontend
+      context: ../home-resources/frontend
     restart: unless-stopped
     expose:
       - "3000"

@@ -177,3 +177,17 @@ sites:
       password_var: TICKET_MANAGER_POSTGRES_PASSWORD
     health_path: /
     compose_services: [ticket-manager-backend, ticket-manager-frontend]
+
+  - id: home-resources
+    priority: 130
+    cert_label: home-resource-consumption
+    domain:
+      primary_var: HOME_RESOURCES_PRIMARY_DOMAIN
+      server_names_var: HOME_RESOURCES_SERVER_NAMES
+    db:
+      db_var: HOME_RESOURCES_POSTGRES_DB
+      user_var: HOME_RESOURCES_POSTGRES_USER
+      password_var: HOME_RESOURCES_POSTGRES_PASSWORD
+    health_path: /api/v1/health
+    compose_services: [home-resources-backend, home-resources-frontend]
+

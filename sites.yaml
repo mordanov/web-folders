@@ -191,3 +191,11 @@ sites:
     health_path: /api/v1/health
     compose_services: [home-resources-backend, home-resources-frontend]
 
+  - id: pgview
+    priority: 135
+    cert_label: pgview
+    domain:
+      primary_var: PGVIEW_PRIMARY_DOMAIN
+      server_names_var: PGVIEW_SERVER_NAMES
+    compose_services: [pgview]
+

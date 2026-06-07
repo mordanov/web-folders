@@ -226,6 +226,8 @@ services:
       TICKET_MANAGER_SERVER_NAMES: ${TICKET_MANAGER_SERVER_NAMES:-ticket-manager.dark-factory.mainpage.local}
       HOME_RESOURCES_PRIMARY_DOMAIN: ${HOME_RESOURCES_PRIMARY_DOMAIN:-home-resources.mainpage.local}
       HOME_RESOURCES_SERVER_NAMES: ${HOME_RESOURCES_SERVER_NAMES:-home-resources.mainpage.local}
+      PGVIEW_PRIMARY_DOMAIN: ${PGVIEW_PRIMARY_DOMAIN:-pgview.admin.mainpage.local}
+      PGVIEW_SERVER_NAMES: ${PGVIEW_SERVER_NAMES:-pgview.admin.mainpage.local}
       NGINX_CERT_POLL_INTERVAL: ${NGINX_CERT_POLL_INTERVAL:-300}
     volumes:
       - ../poetry-site/frontend/templates/index.html:/srv/poetry-site/index.html:ro
@@ -258,6 +260,7 @@ services:
       - ticket-manager-frontend
       - home-resources-backend
       - home-resources-frontend
+      - pgview
 
   certbot:
     image: certbot/certbot:latest
@@ -426,6 +429,8 @@ services:
   admin-routine-frontend:
     build:
       context: ../family-admin-routine/frontend
+      args:
+        VITE_PGVIEW_URL: https://${PGVIEW_PRIMARY_DOMAIN:-pgview.admin.mainpage.local}
     restart: unless-stopped
     expose:
       - "80"
@@ -666,6 +671,17 @@ services:
     restart: unless-stopped
     expose:
       - "3000"
+
+  pgview:
+    image: sosedoff/pgweb
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql://${RECIPES_POSTGRES_USER:-recipes_user}:${RECIPES_POSTGRES_PASSWORD:-change-me-recipes-db}@recipes-db:5432/${RECIPES_POSTGRES_DB:-recipes}?sslmode=disable
+    expose:
+      - "8081"
+    depends_on:
+      recipes-db:
+        condition: service_healthy
 
 volumes:
   recipes_postgres_data:

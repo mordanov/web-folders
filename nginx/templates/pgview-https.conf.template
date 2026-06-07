@@ -1,0 +1,18 @@
+server {
+    listen 443 ssl;
+    listen [::]:443 ssl;
+    server_name ${PGVIEW_SERVER_NAMES};
+
+    ssl_certificate /etc/letsencrypt/live/${PGVIEW_PRIMARY_DOMAIN}/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/${PGVIEW_PRIMARY_DOMAIN}/privkey.pem;
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_ciphers HIGH:!aNULL:!MD5;
+    ssl_session_cache shared:SSL:10m;
+    ssl_session_timeout 1d;
+
+    location / {
+        set $pgview http://pgview:8081;
+        proxy_pass $pgview;
+        include /etc/nginx/snippets/proxy-common.conf;
+    }
+}

@@ -1,0 +1,16 @@
+server {
+    listen 80;
+    listen [::]:80;
+    server_name ${PGVIEW_SERVER_NAMES};
+
+    # ACME challenge for certbot
+    location /.well-known/acme-challenge/ {
+        root /var/www/certbot;
+    }
+
+    location / {
+        set $pgview http://pgview:8081;
+        proxy_pass $pgview;
+        include /etc/nginx/snippets/proxy-common.conf;
+    }
+}

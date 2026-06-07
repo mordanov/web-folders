@@ -675,8 +675,6 @@ services:
   pgview:
     image: sosedoff/pgweb
     restart: unless-stopped
-    environment:
-      DATABASE_URL: postgresql://${RECIPES_POSTGRES_USER:-recipes_user}:${RECIPES_POSTGRES_PASSWORD:-change-me-recipes-db}@recipes-db:5432/${RECIPES_POSTGRES_DB:-recipes}?sslmode=disable
     expose:
       - "8081"
     depends_on:

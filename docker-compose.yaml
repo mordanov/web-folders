@@ -681,6 +681,17 @@ services:
       recipes-db:
         condition: service_healthy
 
+  verdecora-bot:
+    build:
+      context: ../verdecora-bot
+    restart: unless-stopped
+    environment:
+      TELEGRAM_TOKEN: ${VERDECORA_TELEGRAM_TOKEN:?VERDECORA_TELEGRAM_TOKEN is required}
+      CHAT_ID: ${VERDECORA_CHAT_ID:?VERDECORA_CHAT_ID is required}
+      CHECK_INTERVAL: ${VERDECORA_CHECK_INTERVAL:-300}
+    volumes:
+      - verdecora_bot_data:/data
+
 volumes:
   recipes_postgres_data:
   recipes_uploads_data:
@@ -696,3 +707,4 @@ volumes:
   home_resources_uploads_data:
   certbot_certs:
   certbot_www:
+  verdecora_bot_data:

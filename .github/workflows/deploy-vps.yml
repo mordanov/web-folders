@@ -37,6 +37,8 @@ jobs:
           PORTUGUESE_EXPENSES_APP_USER_2_USERNAME="${PORTUGUESE_EXPENSES_APP_USER_2_USERNAME:-placeholder-user2}" \
           PORTUGUESE_EXPENSES_APP_USER_2_PASSWORD="${PORTUGUESE_EXPENSES_APP_USER_2_PASSWORD:-placeholder-pass2}" \
           PORTUGUESE_EXPENSES_OPENAI_API_KEY="${PORTUGUESE_EXPENSES_OPENAI_API_KEY:-placeholder-openai-key}" \
+          VERDECORA_TELEGRAM_TOKEN="${VERDECORA_TELEGRAM_TOKEN:-placeholder-telegram-token}" \
+          VERDECORA_CHAT_ID="${VERDECORA_CHAT_ID:-placeholder-chat-id}" \
           docker compose -f docker-compose.yaml config > /dev/null
 
   deploy:

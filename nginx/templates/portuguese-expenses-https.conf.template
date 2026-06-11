@@ -12,32 +12,12 @@ server {
 
     client_max_body_size 20M;
 
-    location /auth/ {
+    location /api/ {
         set $portuguese_expenses_backend http://portuguese-expenses-backend:8000;
+        rewrite ^/api/(.*)$ /$1 break;
         proxy_pass $portuguese_expenses_backend;
         include /etc/nginx/snippets/proxy-common.conf;
         proxy_read_timeout 120s;
-    }
-
-    location /tickets/ {
-        set $portuguese_expenses_backend http://portuguese-expenses-backend:8000;
-        proxy_pass $portuguese_expenses_backend;
-        include /etc/nginx/snippets/proxy-common.conf;
-        proxy_read_timeout 120s;
-    }
-
-    location ~ ^/(members|categories|items|balances|offset-rules|reports)(/|$) {
-        set $portuguese_expenses_backend http://portuguese-expenses-backend:8000;
-        proxy_pass $portuguese_expenses_backend;
-        include /etc/nginx/snippets/proxy-common.conf;
-        proxy_read_timeout 120s;
-    }
-
-    location /health {
-        set $portuguese_expenses_backend http://portuguese-expenses-backend:8000;
-        proxy_pass $portuguese_expenses_backend;
-        include /etc/nginx/snippets/proxy-common.conf;
-        access_log off;
     }
 
     location / {

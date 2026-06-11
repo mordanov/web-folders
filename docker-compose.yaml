@@ -600,7 +600,7 @@ services:
     build:
       context: ../portuguese-expenses/frontend
       args:
-        VITE_API_BASE_URL: ${PORTUGUESE_EXPENSES_VITE_API_BASE_URL:-https://${PORTUGUESE_EXPENSES_PRIMARY_DOMAIN:-portugal2026.mainpage.local}}
+        VITE_API_BASE_URL: ${PORTUGUESE_EXPENSES_VITE_API_BASE_URL:-https://${PORTUGUESE_EXPENSES_PRIMARY_DOMAIN:-portugal2026.mainpage.local}/api}
     restart: unless-stopped
     expose:
       - "80"

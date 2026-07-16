@@ -31,9 +31,6 @@ repos:
   - repo: poetry-site
     label: "🪶 Lev Gorev Poetry"
 
-  - repo: auth-service-2
-    label: "🔐 Auth Service"
-
   - repo: servinga-monitoring
     label: "📡 Servinga Dashboard"
 

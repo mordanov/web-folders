@@ -126,19 +126,6 @@ sites:
     health_path: /health
     compose_services: [archive-backend, archive-frontend]
 
-  - id: auth
-    priority: 90
-    cert_label: auth-service-2
-    domain:
-      primary_var: AUTH_PRIMARY_DOMAIN
-      server_names_var: AUTH_SERVER_NAMES
-    db:
-      db_var: AUTH_POSTGRES_DB
-      user_var: AUTH_POSTGRES_USER
-      password_var: AUTH_POSTGRES_PASSWORD
-    health_path: /health
-    compose_services: [auth-backend, auth-frontend]
-
   - id: servinga
     priority: 100
     cert_label: servinga-dashboard

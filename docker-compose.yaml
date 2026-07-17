@@ -568,6 +568,7 @@ services:
       JWT_SECRET: ${GOOGLE_TIMELINE_JWT_SECRET:-change-me-google-timeline-secret}
       APP_USERNAME: ${GOOGLE_TIMELINE_APP_USERNAME:-admin}
       APP_PASSWORD: ${GOOGLE_TIMELINE_APP_PASSWORD:-change-me-google-timeline-password}
+      CORS_ORIGINS: ${GOOGLE_TIMELINE_CORS_ORIGINS:-http://localhost:3000}
     expose:
       - "8000"
     depends_on:

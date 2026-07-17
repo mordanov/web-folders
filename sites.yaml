@@ -152,6 +152,19 @@ sites:
     health_path: /health
     compose_services: [portuguese-expenses-backend, portuguese-expenses-frontend]
 
+  - id: ticket-manager
+    priority: 120
+    cert_label: ticket-manager
+    domain:
+      primary_var: TICKET_MANAGER_PRIMARY_DOMAIN
+      server_names_var: TICKET_MANAGER_SERVER_NAMES
+    db:
+      db_var: TICKET_MANAGER_POSTGRES_DB
+      user_var: TICKET_MANAGER_POSTGRES_USER
+      password_var: TICKET_MANAGER_POSTGRES_PASSWORD
+    health_path: /
+    compose_services: [ticket-manager-backend, ticket-manager-frontend]
+
   - id: home-resources
     priority: 130
     cert_label: home-resource-consumption

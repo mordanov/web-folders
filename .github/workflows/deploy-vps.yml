@@ -27,7 +27,6 @@ jobs:
           ARCHIVE_S3_BUCKET="${ARCHIVE_S3_BUCKET:-placeholder-archive-bucket}" \
           ARCHIVE_S3_ACCESS_KEY="${ARCHIVE_S3_ACCESS_KEY:-placeholder-access-key}" \
           ARCHIVE_S3_SECRET_KEY="${ARCHIVE_S3_SECRET_KEY:-placeholder-secret-key}" \
-          AUTH_SECRET_KEY="${AUTH_SECRET_KEY:-placeholder-auth-secret-key}" \
           TICKET_MANAGER_SECRET_KEY="${TICKET_MANAGER_SECRET_KEY:-placeholder-ticket-manager-secret}" \
           TICKET_MANAGER_REFRESH_TOKEN_SECRET="${TICKET_MANAGER_REFRESH_TOKEN_SECRET:-placeholder-ticket-manager-refresh-secret}" \
           PORTUGUESE_EXPENSES_JWT_PRIVATE_KEY="${PORTUGUESE_EXPENSES_JWT_PRIVATE_KEY:-placeholder-jwt-private-key}" \

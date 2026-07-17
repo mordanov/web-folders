@@ -120,8 +120,9 @@ main() {
   local infra_services=(recipes-db nginx)
   local infra_only_up=(certbot)  # not built by us
 
-  echo "Building backend/frontend/nginx images..."
-  compose build "${app_services[@]}" "${infra_services[@]}"
+  echo "Pulling pre-built images and building local images (nginx)..."
+  compose pull --ignore-buildable "${app_services[@]}"
+  compose build "${infra_services[@]}"
 
   echo "Starting stack..."
   compose up -d --remove-orphans \

@@ -236,6 +236,9 @@ jobs:
         with:
           node-version: "20"
 
+      - name: Install dependencies
+        run: npm install
+
       - name: Run tests
         run: npm test'
 

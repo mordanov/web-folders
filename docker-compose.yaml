@@ -21,9 +21,6 @@ services:
       ARCHIVE_POSTGRES_DB: ${ARCHIVE_POSTGRES_DB:-archive}
       ARCHIVE_POSTGRES_USER: ${ARCHIVE_POSTGRES_USER:-archive_user}
       ARCHIVE_POSTGRES_PASSWORD: ${ARCHIVE_POSTGRES_PASSWORD:-change-me-archive-db}
-      AUTH_POSTGRES_DB: ${AUTH_POSTGRES_DB:-auth}
-      AUTH_POSTGRES_USER: ${AUTH_POSTGRES_USER:-auth_user}
-      AUTH_POSTGRES_PASSWORD: ${AUTH_POSTGRES_PASSWORD:-change-me-auth-db}
       SERVINGA_POSTGRES_DB: ${SERVINGA_POSTGRES_DB:-servinga}
       SERVINGA_POSTGRES_USER: ${SERVINGA_POSTGRES_USER:-servinga_user}
       SERVINGA_POSTGRES_PASSWORD: ${SERVINGA_POSTGRES_PASSWORD:-change-me-servinga-db}
@@ -67,9 +64,6 @@ services:
       ARCHIVE_POSTGRES_DB: ${ARCHIVE_POSTGRES_DB:-archive}
       ARCHIVE_POSTGRES_USER: ${ARCHIVE_POSTGRES_USER:-archive_user}
       ARCHIVE_POSTGRES_PASSWORD: ${ARCHIVE_POSTGRES_PASSWORD:-change-me-archive-db}
-      AUTH_POSTGRES_DB: ${AUTH_POSTGRES_DB:-auth}
-      AUTH_POSTGRES_USER: ${AUTH_POSTGRES_USER:-auth_user}
-      AUTH_POSTGRES_PASSWORD: ${AUTH_POSTGRES_PASSWORD:-change-me-auth-db}
       SERVINGA_POSTGRES_DB: ${SERVINGA_POSTGRES_DB:-servinga}
       SERVINGA_POSTGRES_USER: ${SERVINGA_POSTGRES_USER:-servinga_user}
       SERVINGA_POSTGRES_PASSWORD: ${SERVINGA_POSTGRES_PASSWORD:-change-me-servinga-db}
@@ -91,8 +85,7 @@ services:
         condition: service_healthy
 
   recipes-backend:
-    build:
-      context: ../family-kitchen-recipes/backend
+    image: ghcr.io/mordanov/recipes-backend:latest
     restart: unless-stopped
     environment:
       DATABASE_URL: postgresql+asyncpg://${RECIPES_POSTGRES_USER:-recipes_user}:${RECIPES_POSTGRES_PASSWORD:-change-me-recipes-db}@recipes-db:5432/${RECIPES_POSTGRES_DB:-recipes}
@@ -114,8 +107,7 @@ services:
         condition: service_healthy
 
   recipes-frontend:
-    build:
-      context: ../family-kitchen-recipes/frontend
+    image: ghcr.io/mordanov/recipes-frontend:latest
     restart: unless-stopped
     environment:
       BACKEND_ORIGIN: http://recipes-backend:8000
@@ -123,8 +115,7 @@ services:
       - "3000"
 
   poetry-backend:
-    build:
-      context: ../poetry-site/backend
+    image: ghcr.io/mordanov/poetry-backend:latest
     restart: unless-stopped
     environment:
       DATABASE_URL: postgresql://${POETRY_POSTGRES_USER:-poetry_user}:${POETRY_POSTGRES_PASSWORD:-change-me-poetry-db}@recipes-db:5432/${POETRY_POSTGRES_DB:-poetry}
@@ -144,8 +135,7 @@ services:
         condition: service_completed_successfully
 
   news-backend:
-    build:
-      context: ../news-site/backend
+    image: ghcr.io/mordanov/news-backend:latest
     restart: unless-stopped
     environment:
       DATABASE_URL: postgresql://${NEWS_POSTGRES_USER:-news_user}:${NEWS_POSTGRES_PASSWORD:-change-me-news-db}@recipes-db:5432/${NEWS_POSTGRES_DB:-news}
@@ -167,8 +157,7 @@ services:
         condition: service_completed_successfully
 
   news-frontend:
-    build:
-      context: ../news-site/frontend
+    image: ghcr.io/mordanov/news-frontend:latest
     restart: unless-stopped
     expose:
       - "80"
@@ -216,8 +205,6 @@ services:
       ADMIN_ROUTINE_SERVER_NAMES: ${ADMIN_ROUTINE_SERVER_NAMES:-admin.mainpage.local}
       ARCHIVE_PRIMARY_DOMAIN: ${ARCHIVE_PRIMARY_DOMAIN:-archive.mainpage.local}
       ARCHIVE_SERVER_NAMES: ${ARCHIVE_SERVER_NAMES:-archive.mainpage.local}
-      AUTH_PRIMARY_DOMAIN: ${AUTH_PRIMARY_DOMAIN:-auth.mainpage.local}
-      AUTH_SERVER_NAMES: ${AUTH_SERVER_NAMES:-auth.mainpage.local}
       SERVINGA_PRIMARY_DOMAIN: ${SERVINGA_PRIMARY_DOMAIN:-servinga.mainpage.local}
       SERVINGA_SERVER_NAMES: ${SERVINGA_SERVER_NAMES:-servinga.mainpage.local}
       PORTUGUESE_EXPENSES_PRIMARY_DOMAIN: ${PORTUGUESE_EXPENSES_PRIMARY_DOMAIN:-portugal2026.mainpage.local}
@@ -250,8 +237,6 @@ services:
       - admin-routine-frontend
       - archive-backend
       - archive-frontend
-      - auth-backend
-      - auth-frontend
       - servinga-backend
       - servinga-frontend
       - portuguese-expenses-backend
@@ -282,8 +267,7 @@ services:
       - nginx
 
   budget-backend:
-    build:
-      context: ../family-budget/backend
+    image: ghcr.io/mordanov/budget-backend:latest
     restart: unless-stopped
     environment:
       DATABASE_URL: postgresql+asyncpg://${BUDGET_POSTGRES_USER:-budget_user}:${BUDGET_POSTGRES_PASSWORD:-change-me-budget-db}@recipes-db:5432/${BUDGET_POSTGRES_DB:-budget}
@@ -311,20 +295,13 @@ services:
         condition: service_healthy
 
   budget-frontend:
-    build:
-      context: ../family-budget/frontend
-      args:
-        VITE_API_URL: /api/v1
-        VITE_KITCHEN_API_URL: ${BUDGET_KITCHEN_API_URL:-}
-        VITE_KITCHEN_SERVICE_USER: ${BUDGET_KITCHEN_SERVICE_USER:-}
-        VITE_KITCHEN_SERVICE_PASSWORD: ${BUDGET_KITCHEN_SERVICE_PASSWORD:-}
+    image: ghcr.io/mordanov/budget-frontend:latest
     restart: unless-stopped
     expose:
       - "80"
 
   reminders-backend:
-    build:
-      context: ../reminders-app/backend
+    image: ghcr.io/mordanov/reminders-backend:latest
     restart: unless-stopped
     environment:
       DATABASE_URL: postgresql+asyncpg://${REMINDERS_POSTGRES_USER:-reminders_user}:${REMINDERS_POSTGRES_PASSWORD:-change-me-reminders-db}@recipes-db:5432/${REMINDERS_POSTGRES_DB:-reminders}
@@ -352,15 +329,13 @@ services:
         condition: service_completed_successfully
 
   reminders-frontend:
-    build:
-      context: ../reminders-app/frontend
+    image: ghcr.io/mordanov/reminders-frontend:latest
     restart: unless-stopped
     expose:
       - "80"
 
   admin-routine-backend:
-    build:
-      context: ../family-admin-routine/backend
+    image: ghcr.io/mordanov/admin-routine-backend:latest
     restart: unless-stopped
     environment:
       SECRET_KEY: ${ADMIN_ROUTINE_SECRET_KEY:-change-me-admin-routine-secret}
@@ -389,9 +364,6 @@ services:
       PORTUGUESE_EXPENSES_POSTGRES_DB: ${PORTUGUESE_EXPENSES_POSTGRES_DB:-portuguese_expenses}
       PORTUGUESE_EXPENSES_POSTGRES_USER: ${PORTUGUESE_EXPENSES_POSTGRES_USER:-portuguese_expenses_user}
       PORTUGUESE_EXPENSES_POSTGRES_PASSWORD: ${PORTUGUESE_EXPENSES_POSTGRES_PASSWORD:-change-me-portuguese-expenses-db}
-      AUTH_POSTGRES_DB: ${AUTH_POSTGRES_DB:-auth}
-      AUTH_POSTGRES_USER: ${AUTH_POSTGRES_USER:-auth_user}
-      AUTH_POSTGRES_PASSWORD: ${AUTH_POSTGRES_PASSWORD:-change-me-auth-db}
       SERVINGA_POSTGRES_DB: ${SERVINGA_POSTGRES_DB:-servinga}
       SERVINGA_POSTGRES_USER: ${SERVINGA_POSTGRES_USER:-servinga_user}
       SERVINGA_POSTGRES_PASSWORD: ${SERVINGA_POSTGRES_PASSWORD:-change-me-servinga-db}
@@ -427,17 +399,13 @@ services:
         condition: service_healthy
 
   admin-routine-frontend:
-    build:
-      context: ../family-admin-routine/frontend
-      args:
-        VITE_PGVIEW_URL: https://${PGVIEW_PRIMARY_DOMAIN:-pgview.admin.mainpage.local}
+    image: ghcr.io/mordanov/admin-routine-frontend:latest
     restart: unless-stopped
     expose:
       - "80"
 
   archive-backend:
-    build:
-      context: ../family-archive/backend
+    image: ghcr.io/mordanov/archive-backend:latest
     restart: unless-stopped
     deploy:
       replicas: ${ARCHIVE_REPLICAS:-2}
@@ -477,53 +445,11 @@ services:
         condition: service_completed_successfully
 
   archive-frontend:
-    build:
-      context: ../family-archive/frontend
-      args:
-        VITE_AUTH_URL: https://${AUTH_PRIMARY_DOMAIN:-auth.mainpage.local}
+    image: ghcr.io/mordanov/archive-frontend:latest
     restart: unless-stopped
     expose:
       - "80"
 
-
-  auth-backend:
-    build:
-      context: ../auth-service-2/backend
-    restart: unless-stopped
-    environment:
-      DATABASE_URL: postgresql+asyncpg://${AUTH_POSTGRES_USER:-auth_user}:${AUTH_POSTGRES_PASSWORD:-change-me-auth-db}@recipes-db:5432/${AUTH_POSTGRES_DB:-auth}
-      SECRET_KEY: ${AUTH_SECRET_KEY:?AUTH_SECRET_KEY is required}
-      TOKEN_TTL_HOURS: ${AUTH_TOKEN_TTL_HOURS:-24}
-      AUTH_APP_URL: https://${AUTH_PRIMARY_DOMAIN:-auth.mainpage.local}
-      COOKIE_DOMAIN: ${AUTH_COOKIE_DOMAIN:-.mainpage.com}
-      ENVIRONMENT: ${AUTH_ENVIRONMENT:-production}
-      ALLOWED_ORIGINS: ${AUTH_ALLOWED_ORIGINS:-}
-      ADMIN_USERNAME: ${AUTH_ADMIN_USERNAME:-}
-      ADMIN_PASSWORD: ${AUTH_ADMIN_PASSWORD:-}
-      USER1_USERNAME: ${AUTH_USER1_USERNAME:-}
-      USER1_PASSWORD: ${AUTH_USER1_PASSWORD:-}
-      USER2_USERNAME: ${AUTH_USER2_USERNAME:-}
-      USER2_PASSWORD: ${AUTH_USER2_PASSWORD:-}
-      GOOGLE_CLIENT_ID: ${AUTH_GOOGLE_CLIENT_ID:-}
-      GOOGLE_CLIENT_SECRET: ${AUTH_GOOGLE_CLIENT_SECRET:-}
-      GOOGLE_REDIRECT_URI: ${AUTH_GOOGLE_REDIRECT_URI:-}
-      GITHUB_CLIENT_ID: ${AUTH_GITHUB_CLIENT_ID:-}
-      GITHUB_CLIENT_SECRET: ${AUTH_GITHUB_CLIENT_SECRET:-}
-      GITHUB_REDIRECT_URI: ${AUTH_GITHUB_REDIRECT_URI:-}
-    expose:
-      - "8000"
-    depends_on:
-      recipes-db:
-        condition: service_healthy
-      db-password-sync:
-        condition: service_completed_successfully
-
-  auth-frontend:
-    build:
-      context: ../auth-service-2/frontend
-    restart: unless-stopped
-    expose:
-      - "80"
 
   servinga-prometheus:
     image: prom/prometheus:v2.51.0
@@ -540,8 +466,7 @@ services:
       - "--web.enable-lifecycle"
 
   servinga-backend:
-    build:
-      context: ../servinga-monitoring/backend
+    image: ghcr.io/mordanov/servinga-backend:latest
     restart: unless-stopped
     extra_hosts:
       - "host.docker.internal:host-gateway"
@@ -562,15 +487,13 @@ services:
         condition: service_started
 
   servinga-frontend:
-    build:
-      context: ../servinga-monitoring/frontend
+    image: ghcr.io/mordanov/servinga-frontend:latest
     restart: unless-stopped
     expose:
       - "80"
 
   portuguese-expenses-backend:
-    build:
-      context: ../portuguese-expenses/backend
+    image: ghcr.io/mordanov/portuguese-expenses-backend:latest
     restart: unless-stopped
     environment:
       DATABASE_URL: postgresql+asyncpg://${PORTUGUESE_EXPENSES_POSTGRES_USER:-portuguese_expenses_user}:${PORTUGUESE_EXPENSES_POSTGRES_PASSWORD:-change-me-portuguese-expenses-db}@recipes-db:5432/${PORTUGUESE_EXPENSES_POSTGRES_DB:-portuguese_expenses}
@@ -597,17 +520,13 @@ services:
         condition: service_completed_successfully
 
   portuguese-expenses-frontend:
-    build:
-      context: ../portuguese-expenses/frontend
-      args:
-        VITE_API_BASE_URL: ${PORTUGUESE_EXPENSES_VITE_API_BASE_URL:-https://${PORTUGUESE_EXPENSES_PRIMARY_DOMAIN:-portugal2026.mainpage.local}/api}
+    image: ghcr.io/mordanov/portuguese-expenses-frontend:latest
     restart: unless-stopped
     expose:
       - "80"
 
   ticket-manager-backend:
-    build:
-      context: ../dark-factory/ticket-manager/backend
+    image: ghcr.io/mordanov/ticket-manager-backend:latest
     restart: unless-stopped
     deploy:
       replicas: ${TICKET_MANAGER_REPLICAS:-2}
@@ -629,17 +548,13 @@ services:
         condition: service_completed_successfully
 
   ticket-manager-frontend:
-    build:
-      context: ../dark-factory/ticket-manager/frontend
-      args:
-        VITE_API_BASE_URL: ${TICKET_MANAGER_VITE_API_BASE_URL:-https://${TICKET_MANAGER_PRIMARY_DOMAIN:-ticket-manager.dark-factory.mainpage.local}}
+    image: ghcr.io/mordanov/ticket-manager-frontend:latest
     restart: unless-stopped
     expose:
       - "80"
 
   home-resources-backend:
-    build:
-      context: ../home-resources/backend
+    image: ghcr.io/mordanov/home-resources-backend:latest
     restart: unless-stopped
     environment:
       DATABASE_URL: postgresql+asyncpg://${HOME_RESOURCES_POSTGRES_USER:-home_resources_user}:${HOME_RESOURCES_POSTGRES_PASSWORD:-change-me-home-resources-db}@recipes-db:5432/${HOME_RESOURCES_POSTGRES_DB:-home_resources}
@@ -666,8 +581,7 @@ services:
         condition: service_completed_successfully
 
   home-resources-frontend:
-    build:
-      context: ../home-resources/frontend
+    image: ghcr.io/mordanov/home-resources-frontend:latest
     restart: unless-stopped
     expose:
       - "3000"
@@ -682,8 +596,7 @@ services:
         condition: service_healthy
 
   verdecora-bot:
-    build:
-      context: ../verdecora-bot
+    image: ghcr.io/mordanov/verdecora-bot:latest
     restart: unless-stopped
     environment:
       TELEGRAM_TOKEN: ${VERDECORA_TELEGRAM_TOKEN:?VERDECORA_TELEGRAM_TOKEN is required}

@@ -1,15 +1,19 @@
 #!/usr/bin/env bash
 # scripts/deploy-google-timeline.sh
 #
-# Run on the VPS to do a full first-time (or recovery) deployment of
-# google-timeline services: pulls images, starts containers, runs migrations.
+# Manual first-time deployment of google-timeline services on the VPS.
+# Pulls images directly (bypassing pull_policy: never in docker-compose.yaml),
+# creates the DB role/database if needed, and starts the containers.
 #
 # Prerequisites:
 #   - docker login ghcr.io already done (see ci-workflow-templates/README.md)
-#   - .env in the web-folders directory has GOOGLE_TIMELINE_* vars set
+#   - .env has GOOGLE_TIMELINE_* vars set
 #
 # Usage (from web-folders directory):
 #   bash scripts/deploy-google-timeline.sh
+#
+# After this script succeeds, CI deployments take over automatically —
+# no further changes needed.
 set -euo pipefail
 
 WEB_FOLDERS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -24,41 +28,35 @@ compose() {
   docker compose --env-file "$ENV_FILE" -f docker-compose.yaml "$@"
 }
 
-echo "=== google-timeline deployment ==="
+echo "=== google-timeline manual deployment ==="
 
-# 1. Remove pull_policy: never override so images are actually pulled.
-#    The sed is a no-op if already removed.
+# 1. Pull images directly — bypasses pull_policy: never in compose file.
 echo ""
-echo "--- Pulling images ---"
+echo "--- Pulling images from ghcr.io ---"
 docker pull ghcr.io/mordanov/google-timeline-backend:latest
 docker pull ghcr.io/mordanov/google-timeline-importer:latest
 docker pull ghcr.io/mordanov/google-timeline-frontend:latest
+echo "Images pulled successfully."
 
-# 2. Remove pull_policy: never from docker-compose.yaml now that images exist.
-if grep -q "pull_policy: never" docker-compose.yaml; then
-  echo ""
-  echo "--- Removing pull_policy: never from docker-compose.yaml ---"
-  # Remove the three pull_policy lines (one per google-timeline service)
-  sed -i '/^  google-timeline-/,/^  [^ ]/{/pull_policy: never/d}' docker-compose.yaml
-  echo "Done. Committing the change..."
-  git add docker-compose.yaml
-  git commit -m "fix: remove pull_policy: never now that google-timeline images are published"
-  git push
-fi
-
-# 3. Ensure the DB role and database exist.
+# 2. Ensure postgres is up.
 echo ""
-echo "--- Ensuring database and role ---"
+echo "--- Waiting for PostgreSQL ---"
 compose up -d recipes-db
-echo "Waiting for PostgreSQL..."
-until compose exec -T recipes-db pg_isready \
+until compose exec -T recipes-db \
+    pg_isready \
     -U "${RECIPES_POSTGRES_USER:-recipes_user}" \
     -d "${RECIPES_POSTGRES_DB:-recipes}" >/dev/null 2>&1; do
   sleep 2
 done
+echo "PostgreSQL ready."
 
-PGPASSWORD="${RECIPES_POSTGRES_PASSWORD:-change-me-recipes-db}" \
-compose exec -T recipes-db \
+# 3. Create DB role and database if they don't exist.
+echo ""
+echo "--- Ensuring database role and database ---"
+PGPASSWORD="${RECIPES_POSTGRES_PASSWORD}" \
+compose exec -T \
+  -e PGPASSWORD="${RECIPES_POSTGRES_PASSWORD}" \
+  recipes-db \
   psql -U "${RECIPES_POSTGRES_USER:-recipes_user}" \
        -d "${RECIPES_POSTGRES_DB:-recipes}" <<SQL
 DO \$\$
@@ -80,19 +78,25 @@ WHERE NOT EXISTS (
   SELECT FROM pg_database WHERE datname = '${GOOGLE_TIMELINE_POSTGRES_DB:-google_timeline}'
 )\gexec
 SQL
+echo "Database ready."
 
-# 4. Start services.
+# 4. Start the three services using the locally cached images.
 echo ""
-echo "--- Starting google-timeline services ---"
+echo "--- Starting services ---"
 compose up -d --no-deps \
   google-timeline-backend \
   google-timeline-importer \
   google-timeline-frontend
 
+# 5. Reload nginx so the new vhost is picked up.
 echo ""
 echo "--- Reloading nginx ---"
 compose exec -T nginx nginx -s reload || true
 
 echo ""
-echo "Done. Services running:"
+echo "--- Status ---"
 compose ps google-timeline-backend google-timeline-importer google-timeline-frontend
+
+echo ""
+echo "Done."
+echo "Once verified, CI deployments (GitHub Actions) will handle future updates automatically."

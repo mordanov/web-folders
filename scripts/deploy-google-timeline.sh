@@ -21,7 +21,11 @@ cd "$WEB_FOLDERS_DIR"
 
 ENV_FILE="${ENV_FILE:-$WEB_FOLDERS_DIR/.env}"
 if [ -f "$ENV_FILE" ]; then
-  set -a; . "$ENV_FILE"; set +a
+  set -a
+  set +u
+  . "$ENV_FILE"
+  set -u
+  set +a
 fi
 
 compose() {

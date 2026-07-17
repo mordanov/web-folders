@@ -560,6 +560,7 @@ services:
 
   google-timeline-backend:
     image: ghcr.io/mordanov/google-timeline-backend:latest
+    pull_policy: never
     restart: unless-stopped
     environment:
       DATABASE_URL: postgresql+asyncpg://${GOOGLE_TIMELINE_POSTGRES_USER:-google_timeline_user}:${GOOGLE_TIMELINE_POSTGRES_PASSWORD:-change-me-google-timeline-db}@recipes-db:5432/${GOOGLE_TIMELINE_POSTGRES_DB:-google_timeline}
@@ -579,6 +580,7 @@ services:
 
   google-timeline-frontend:
     image: ghcr.io/mordanov/google-timeline-frontend:latest
+    pull_policy: never
     restart: unless-stopped
     expose:
       - "80"

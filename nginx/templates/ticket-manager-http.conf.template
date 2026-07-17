@@ -3,8 +3,7 @@ server {
     listen [::]:80;
     server_name ${TICKET_MANAGER_SERVER_NAMES};
 
-    client_max_body_size 50M;
-
+    # ACME challenge for certbot
     location /.well-known/acme-challenge/ {
         root /var/www/certbot;
     }
@@ -22,4 +21,3 @@ server {
         include /etc/nginx/snippets/proxy-common.conf;
     }
 }
-

@@ -27,12 +27,12 @@ services:
       PORTUGUESE_EXPENSES_POSTGRES_DB: ${PORTUGUESE_EXPENSES_POSTGRES_DB:-portuguese_expenses}
       PORTUGUESE_EXPENSES_POSTGRES_USER: ${PORTUGUESE_EXPENSES_POSTGRES_USER:-portuguese_expenses_user}
       PORTUGUESE_EXPENSES_POSTGRES_PASSWORD: ${PORTUGUESE_EXPENSES_POSTGRES_PASSWORD:-change-me-portuguese-expenses-db}
-      TICKET_MANAGER_POSTGRES_DB: ${TICKET_MANAGER_POSTGRES_DB:-ticket_manager}
-      TICKET_MANAGER_POSTGRES_USER: ${TICKET_MANAGER_POSTGRES_USER:-ticket_manager_user}
-      TICKET_MANAGER_POSTGRES_PASSWORD: ${TICKET_MANAGER_POSTGRES_PASSWORD:-change-me-ticket-manager-db}
       HOME_RESOURCES_POSTGRES_DB: ${HOME_RESOURCES_POSTGRES_DB:-home_resources}
       HOME_RESOURCES_POSTGRES_USER: ${HOME_RESOURCES_POSTGRES_USER:-home_resources_user}
       HOME_RESOURCES_POSTGRES_PASSWORD: ${HOME_RESOURCES_POSTGRES_PASSWORD:-change-me-home-resources-db}
+      GOOGLE_TIMELINE_POSTGRES_DB: ${GOOGLE_TIMELINE_POSTGRES_DB:-google_timeline}
+      GOOGLE_TIMELINE_POSTGRES_USER: ${GOOGLE_TIMELINE_POSTGRES_USER:-google_timeline_user}
+      GOOGLE_TIMELINE_POSTGRES_PASSWORD: ${GOOGLE_TIMELINE_POSTGRES_PASSWORD:-change-me-google-timeline-db}
     volumes:
       - recipes_postgres_data:/var/lib/postgresql/data
       - ./postgres-init:/docker-entrypoint-initdb.d:ro
@@ -70,12 +70,12 @@ services:
       PORTUGUESE_EXPENSES_POSTGRES_DB: ${PORTUGUESE_EXPENSES_POSTGRES_DB:-portuguese_expenses}
       PORTUGUESE_EXPENSES_POSTGRES_USER: ${PORTUGUESE_EXPENSES_POSTGRES_USER:-portuguese_expenses_user}
       PORTUGUESE_EXPENSES_POSTGRES_PASSWORD: ${PORTUGUESE_EXPENSES_POSTGRES_PASSWORD:-change-me-portuguese-expenses-db}
-      TICKET_MANAGER_POSTGRES_DB: ${TICKET_MANAGER_POSTGRES_DB:-ticket_manager}
-      TICKET_MANAGER_POSTGRES_USER: ${TICKET_MANAGER_POSTGRES_USER:-ticket_manager_user}
-      TICKET_MANAGER_POSTGRES_PASSWORD: ${TICKET_MANAGER_POSTGRES_PASSWORD:-change-me-ticket-manager-db}
       HOME_RESOURCES_POSTGRES_DB: ${HOME_RESOURCES_POSTGRES_DB:-home_resources}
       HOME_RESOURCES_POSTGRES_USER: ${HOME_RESOURCES_POSTGRES_USER:-home_resources_user}
       HOME_RESOURCES_POSTGRES_PASSWORD: ${HOME_RESOURCES_POSTGRES_PASSWORD:-change-me-home-resources-db}
+      GOOGLE_TIMELINE_POSTGRES_DB: ${GOOGLE_TIMELINE_POSTGRES_DB:-google_timeline}
+      GOOGLE_TIMELINE_POSTGRES_USER: ${GOOGLE_TIMELINE_POSTGRES_USER:-google_timeline_user}
+      GOOGLE_TIMELINE_POSTGRES_PASSWORD: ${GOOGLE_TIMELINE_POSTGRES_PASSWORD:-change-me-google-timeline-db}
     volumes:
       - ./scripts/sync-app-db-users.sh:/usr/local/bin/sync-app-db-users.sh:ro
       - ./sites.yaml:/etc/web-folders/sites.yaml:ro
@@ -209,12 +209,12 @@ services:
       SERVINGA_SERVER_NAMES: ${SERVINGA_SERVER_NAMES:-servinga.mainpage.local}
       PORTUGUESE_EXPENSES_PRIMARY_DOMAIN: ${PORTUGUESE_EXPENSES_PRIMARY_DOMAIN:-portugal2026.mainpage.local}
       PORTUGUESE_EXPENSES_SERVER_NAMES: ${PORTUGUESE_EXPENSES_SERVER_NAMES:-portugal2026.mainpage.local}
-      TICKET_MANAGER_PRIMARY_DOMAIN: ${TICKET_MANAGER_PRIMARY_DOMAIN:-ticket-manager.dark-factory.mainpage.local}
-      TICKET_MANAGER_SERVER_NAMES: ${TICKET_MANAGER_SERVER_NAMES:-ticket-manager.dark-factory.mainpage.local}
       HOME_RESOURCES_PRIMARY_DOMAIN: ${HOME_RESOURCES_PRIMARY_DOMAIN:-home-resources.mainpage.local}
       HOME_RESOURCES_SERVER_NAMES: ${HOME_RESOURCES_SERVER_NAMES:-home-resources.mainpage.local}
       PGVIEW_PRIMARY_DOMAIN: ${PGVIEW_PRIMARY_DOMAIN:-pgview.admin.mainpage.local}
       PGVIEW_SERVER_NAMES: ${PGVIEW_SERVER_NAMES:-pgview.admin.mainpage.local}
+      GOOGLE_TIMELINE_PRIMARY_DOMAIN: ${GOOGLE_TIMELINE_PRIMARY_DOMAIN:-timeline.mainpage.com}
+      GOOGLE_TIMELINE_SERVER_NAMES: ${GOOGLE_TIMELINE_SERVER_NAMES:-timeline.mainpage.com}
       NGINX_CERT_POLL_INTERVAL: ${NGINX_CERT_POLL_INTERVAL:-300}
     volumes:
       - ../poetry-site/frontend/templates/index.html:/srv/poetry-site/index.html:ro
@@ -241,11 +241,11 @@ services:
       - servinga-frontend
       - portuguese-expenses-backend
       - portuguese-expenses-frontend
-      - ticket-manager-backend
-      - ticket-manager-frontend
       - home-resources-backend
       - home-resources-frontend
       - pgview
+      - google-timeline-backend
+      - google-timeline-frontend
 
   certbot:
     image: certbot/certbot:latest
@@ -525,34 +525,6 @@ services:
     expose:
       - "80"
 
-  ticket-manager-backend:
-    image: ghcr.io/mordanov/ticket-manager-backend:latest
-    restart: unless-stopped
-    deploy:
-      replicas: ${TICKET_MANAGER_REPLICAS:-2}
-    environment:
-      DATABASE_URL: postgresql+asyncpg://${TICKET_MANAGER_POSTGRES_USER:-ticket_manager_user}:${TICKET_MANAGER_POSTGRES_PASSWORD:-change-me-ticket-manager-db}@recipes-db:5432/${TICKET_MANAGER_POSTGRES_DB:-ticket_manager}
-      SECRET_KEY: ${TICKET_MANAGER_SECRET_KEY:?TICKET_MANAGER_SECRET_KEY is required}
-      REFRESH_TOKEN_SECRET: ${TICKET_MANAGER_REFRESH_TOKEN_SECRET:?TICKET_MANAGER_REFRESH_TOKEN_SECRET is required}
-      FRONTEND_URL: ${TICKET_MANAGER_FRONTEND_URL:-https://${TICKET_MANAGER_PRIMARY_DOMAIN:-ticket-manager.dark-factory.mainpage.local}}
-      DEFAULT_ADMIN_EMAIL: ${TICKET_MANAGER_DEFAULT_ADMIN_EMAIL:-}
-      DEFAULT_ADMIN_PASSWORD: ${TICKET_MANAGER_DEFAULT_ADMIN_PASSWORD:-}
-      DEFAULT_USER_EMAIL: ${TICKET_MANAGER_DEFAULT_USER_EMAIL:-}
-      DEFAULT_USER_PASSWORD: ${TICKET_MANAGER_DEFAULT_USER_PASSWORD:-}
-    expose:
-      - "8000"
-    depends_on:
-      recipes-db:
-        condition: service_healthy
-      db-password-sync:
-        condition: service_completed_successfully
-
-  ticket-manager-frontend:
-    image: ghcr.io/mordanov/ticket-manager-frontend:latest
-    restart: unless-stopped
-    expose:
-      - "80"
-
   home-resources-backend:
     image: ghcr.io/mordanov/home-resources-backend:latest
     restart: unless-stopped
@@ -585,6 +557,31 @@ services:
     restart: unless-stopped
     expose:
       - "3000"
+
+  google-timeline-backend:
+    image: ghcr.io/mordanov/google-timeline-backend:latest
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql+asyncpg://${GOOGLE_TIMELINE_POSTGRES_USER:-google_timeline_user}:${GOOGLE_TIMELINE_POSTGRES_PASSWORD:-change-me-google-timeline-db}@recipes-db:5432/${GOOGLE_TIMELINE_POSTGRES_DB:-google_timeline}
+      JWT_SECRET: ${GOOGLE_TIMELINE_JWT_SECRET:-change-me-google-timeline-secret}
+      APP_USERNAME: ${GOOGLE_TIMELINE_APP_USERNAME:-admin}
+      APP_PASSWORD: ${GOOGLE_TIMELINE_APP_PASSWORD:-change-me-google-timeline-password}
+      GOOGLE_SERVICE_ACCOUNT_JSON: ${GOOGLE_TIMELINE_SERVICE_ACCOUNT_JSON:-}
+      GOOGLE_DRIVE_FOLDER_ID: ${GOOGLE_TIMELINE_DRIVE_FOLDER_ID:-}
+      SYNC_INTERVAL_SECONDS: ${GOOGLE_TIMELINE_SYNC_INTERVAL_SECONDS:-900}
+    expose:
+      - "8000"
+    depends_on:
+      recipes-db:
+        condition: service_healthy
+      db-password-sync:
+        condition: service_completed_successfully
+
+  google-timeline-frontend:
+    image: ghcr.io/mordanov/google-timeline-frontend:latest
+    restart: unless-stopped
+    expose:
+      - "80"
 
   pgview:
     image: sosedoff/pgweb

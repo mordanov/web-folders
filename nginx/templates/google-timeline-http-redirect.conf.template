@@ -1,6 +1,6 @@
 server {
     listen 80;
-    server_name ${TICKET_MANAGER_SERVER_NAMES};
+    server_name ${GOOGLE_TIMELINE_SERVER_NAMES};
 
     # ACME challenge for certbot
     location /.well-known/acme-challenge/ {

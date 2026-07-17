@@ -36,3 +36,6 @@ repos:
 
   - repo: portuguese-expenses
     label: "🇵🇹 Portugal drunken sailors"
+
+  - repo: google-timeline-web-app
+    label: "🗺️ Google Timeline"

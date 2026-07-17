@@ -10,16 +10,10 @@ server {
 
     location /api/ {
         set $google_timeline_backend http://google-timeline-backend:8000;
+        rewrite ^/api/(.*)$ /$1 break;
         proxy_pass $google_timeline_backend;
         include /etc/nginx/snippets/proxy-common.conf;
         proxy_read_timeout 120s;
-    }
-
-    location /api/health {
-        set $google_timeline_backend http://google-timeline-backend:8000;
-        proxy_pass $google_timeline_backend;
-        include /etc/nginx/snippets/proxy-common.conf;
-        access_log off;
     }
 
     location / {

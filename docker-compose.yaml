@@ -70,9 +70,6 @@ services:
       PORTUGUESE_EXPENSES_POSTGRES_DB: ${PORTUGUESE_EXPENSES_POSTGRES_DB:-portuguese_expenses}
       PORTUGUESE_EXPENSES_POSTGRES_USER: ${PORTUGUESE_EXPENSES_POSTGRES_USER:-portuguese_expenses_user}
       PORTUGUESE_EXPENSES_POSTGRES_PASSWORD: ${PORTUGUESE_EXPENSES_POSTGRES_PASSWORD:-change-me-portuguese-expenses-db}
-      TICKET_MANAGER_POSTGRES_DB: ${TICKET_MANAGER_POSTGRES_DB:-ticket_manager}
-      TICKET_MANAGER_POSTGRES_USER: ${TICKET_MANAGER_POSTGRES_USER:-ticket_manager_user}
-      TICKET_MANAGER_POSTGRES_PASSWORD: ${TICKET_MANAGER_POSTGRES_PASSWORD:-change-me-ticket-manager-db}
       HOME_RESOURCES_POSTGRES_DB: ${HOME_RESOURCES_POSTGRES_DB:-home_resources}
       HOME_RESOURCES_POSTGRES_USER: ${HOME_RESOURCES_POSTGRES_USER:-home_resources_user}
       HOME_RESOURCES_POSTGRES_PASSWORD: ${HOME_RESOURCES_POSTGRES_PASSWORD:-change-me-home-resources-db}
@@ -212,8 +209,6 @@ services:
       SERVINGA_SERVER_NAMES: ${SERVINGA_SERVER_NAMES:-servinga.mainpage.local}
       PORTUGUESE_EXPENSES_PRIMARY_DOMAIN: ${PORTUGUESE_EXPENSES_PRIMARY_DOMAIN:-portugal2026.mainpage.local}
       PORTUGUESE_EXPENSES_SERVER_NAMES: ${PORTUGUESE_EXPENSES_SERVER_NAMES:-portugal2026.mainpage.local}
-      TICKET_MANAGER_PRIMARY_DOMAIN: ${TICKET_MANAGER_PRIMARY_DOMAIN:-ticket-manager.dark-factory.mainpage.local}
-      TICKET_MANAGER_SERVER_NAMES: ${TICKET_MANAGER_SERVER_NAMES:-ticket-manager.dark-factory.mainpage.local}
       HOME_RESOURCES_PRIMARY_DOMAIN: ${HOME_RESOURCES_PRIMARY_DOMAIN:-home-resources.mainpage.local}
       HOME_RESOURCES_SERVER_NAMES: ${HOME_RESOURCES_SERVER_NAMES:-home-resources.mainpage.local}
       PGVIEW_PRIMARY_DOMAIN: ${PGVIEW_PRIMARY_DOMAIN:-pgview.admin.mainpage.local}
@@ -246,8 +241,6 @@ services:
       - servinga-frontend
       - portuguese-expenses-backend
       - portuguese-expenses-frontend
-      - ticket-manager-backend
-      - ticket-manager-frontend
       - home-resources-backend
       - home-resources-frontend
       - pgview
@@ -528,34 +521,6 @@ services:
 
   portuguese-expenses-frontend:
     image: ghcr.io/mordanov/portuguese-expenses-frontend:latest
-    restart: unless-stopped
-    expose:
-      - "80"
-
-  ticket-manager-backend:
-    image: ghcr.io/mordanov/ticket-manager-backend:latest
-    restart: unless-stopped
-    deploy:
-      replicas: ${TICKET_MANAGER_REPLICAS:-2}
-    environment:
-      DATABASE_URL: postgresql+asyncpg://${TICKET_MANAGER_POSTGRES_USER:-ticket_manager_user}:${TICKET_MANAGER_POSTGRES_PASSWORD:-change-me-ticket-manager-db}@recipes-db:5432/${TICKET_MANAGER_POSTGRES_DB:-ticket_manager}
-      SECRET_KEY: ${TICKET_MANAGER_SECRET_KEY:?TICKET_MANAGER_SECRET_KEY is required}
-      REFRESH_TOKEN_SECRET: ${TICKET_MANAGER_REFRESH_TOKEN_SECRET:?TICKET_MANAGER_REFRESH_TOKEN_SECRET is required}
-      FRONTEND_URL: ${TICKET_MANAGER_FRONTEND_URL:-https://${TICKET_MANAGER_PRIMARY_DOMAIN:-ticket-manager.dark-factory.mainpage.local}}
-      DEFAULT_ADMIN_EMAIL: ${TICKET_MANAGER_DEFAULT_ADMIN_EMAIL:-}
-      DEFAULT_ADMIN_PASSWORD: ${TICKET_MANAGER_DEFAULT_ADMIN_PASSWORD:-}
-      DEFAULT_USER_EMAIL: ${TICKET_MANAGER_DEFAULT_USER_EMAIL:-}
-      DEFAULT_USER_PASSWORD: ${TICKET_MANAGER_DEFAULT_USER_PASSWORD:-}
-    expose:
-      - "8000"
-    depends_on:
-      recipes-db:
-        condition: service_healthy
-      db-password-sync:
-        condition: service_completed_successfully
-
-  ticket-manager-frontend:
-    image: ghcr.io/mordanov/ticket-manager-frontend:latest
     restart: unless-stopped
     expose:
       - "80"

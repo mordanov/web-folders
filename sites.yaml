@@ -175,7 +175,8 @@ sites:
       db_var: GOOGLE_TIMELINE_POSTGRES_DB
       user_var: GOOGLE_TIMELINE_POSTGRES_USER
       password_var: GOOGLE_TIMELINE_POSTGRES_PASSWORD
-    compose_services: [google-timeline-backend, google-timeline-frontend]
+    health_path: /api/health
+    compose_services: [google-timeline-backend, google-timeline-importer, google-timeline-frontend]
 
   - id: pgview
     priority: 135

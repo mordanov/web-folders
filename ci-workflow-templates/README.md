@@ -54,6 +54,7 @@ Repeat for each repo. Secrets `VPS_HOST`, `VPS_USER`, `VPS_SSH_KEY` are already 
 | `portuguese-expenses` | `portuguese-expenses.yml` | portuguese-expenses-backend, portuguese-expenses-frontend |
 | `home-resources` | `home-resources.yml` | home-resources-backend, home-resources-frontend |
 | `verdecora-bot` | `verdecora-bot.yml` | verdecora-bot |
+| `google-timeline-web-app` | `google-timeline.yml` | google-timeline-backend, google-timeline-importer, google-timeline-frontend |
 
 `dark-factory` (ticket-manager) is excluded — being offboarded.
 
@@ -67,6 +68,7 @@ These frontends have VITE_ build args. They are set as **repository variables** 
 - `family-budget`: `BUDGET_KITCHEN_API_URL`, `BUDGET_KITCHEN_SERVICE_USER`; secret: `BUDGET_KITCHEN_SERVICE_PASSWORD`
 - `family-admin-routine`: `VITE_PGVIEW_URL`
 - `portuguese-expenses`: `PORTUGUESE_EXPENSES_VITE_API_BASE_URL`
+- `google-timeline-web-app`: secret: `GOOGLE_TIMELINE_MAPS_API_KEY`
 
 Set variables at: **Repo → Settings → Secrets and variables → Actions → Variables tab**
 

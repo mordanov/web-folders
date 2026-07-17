@@ -245,6 +245,7 @@ services:
       - home-resources-frontend
       - pgview
       - google-timeline-backend
+      - google-timeline-importer
       - google-timeline-frontend
 
   certbot:
@@ -567,11 +568,23 @@ services:
       JWT_SECRET: ${GOOGLE_TIMELINE_JWT_SECRET:-change-me-google-timeline-secret}
       APP_USERNAME: ${GOOGLE_TIMELINE_APP_USERNAME:-admin}
       APP_PASSWORD: ${GOOGLE_TIMELINE_APP_PASSWORD:-change-me-google-timeline-password}
+    expose:
+      - "8000"
+    depends_on:
+      recipes-db:
+        condition: service_healthy
+      db-password-sync:
+        condition: service_completed_successfully
+
+  google-timeline-importer:
+    image: ghcr.io/mordanov/google-timeline-importer:latest
+    pull_policy: never
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql+asyncpg://${GOOGLE_TIMELINE_POSTGRES_USER:-google_timeline_user}:${GOOGLE_TIMELINE_POSTGRES_PASSWORD:-change-me-google-timeline-db}@recipes-db:5432/${GOOGLE_TIMELINE_POSTGRES_DB:-google_timeline}
       GOOGLE_SERVICE_ACCOUNT_JSON: ${GOOGLE_TIMELINE_SERVICE_ACCOUNT_JSON:-}
       GOOGLE_DRIVE_FOLDER_ID: ${GOOGLE_TIMELINE_DRIVE_FOLDER_ID:-}
       SYNC_INTERVAL_SECONDS: ${GOOGLE_TIMELINE_SYNC_INTERVAL_SECONDS:-900}
-    expose:
-      - "8000"
     depends_on:
       recipes-db:
         condition: service_healthy

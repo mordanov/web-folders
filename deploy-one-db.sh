@@ -117,7 +117,7 @@ main() {
   # Build list of services to (build|up). Append the always-on infra services.
   local app_services=()
   while IFS= read -r s; do app_services+=("$s"); done < <(collect_app_services)
-  local infra_services=(recipes-db nginx)
+  local infra_services=(recipes-db nginx mainpage-landing)
   local infra_only_up=(certbot)  # not built by us
 
   echo "Pulling pre-built images and building local images (nginx)..."

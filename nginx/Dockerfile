@@ -2,7 +2,7 @@ FROM nginx:1.27-alpine
 
 # gettext: envsubst (template rendering)
 # yq:      manifest-driven config generation (sites.yaml)
-RUN apk add --no-cache gettext yq
+RUN apk add --no-cache gettext yq openssl
 
 COPY nginx.conf /etc/nginx/nginx.conf
 COPY snippets /etc/nginx/snippets

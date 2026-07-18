@@ -130,6 +130,14 @@ watch_certs() {
   done
 }
 
+# --- generate .htpasswd for pgview if credentials are set -------------------
+
+HTPASSWD_FILE=/etc/nginx/pgview.htpasswd
+if [ -n "${PGVIEW_USER:-}" ] && [ -n "${PGVIEW_PASSWORD:-}" ]; then
+  hash=$(openssl passwd -apr1 "$PGVIEW_PASSWORD")
+  printf '%s:%s\n' "$PGVIEW_USER" "$hash" > "$HTPASSWD_FILE"
+fi
+
 render_configs
 nginx -t
 watch_certs &

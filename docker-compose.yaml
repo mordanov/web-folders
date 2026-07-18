@@ -599,8 +599,6 @@ services:
   pgview:
     image: sosedoff/pgweb
     restart: unless-stopped
-    command: ["pgweb", "--bind=0.0.0.0", "--listen=8081", "--sessions=false",
-              "--auth-user=${PGVIEW_USER:-admin}", "--auth-pass=${PGVIEW_PASSWORD:?PGVIEW_PASSWORD is required}"]
     expose:
       - "8081"
     depends_on:

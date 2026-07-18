@@ -76,3 +76,9 @@ Soft 3D render style, slightly clay-like and puffy. Rounded square icon shape wi
 ### miveralta_servinga.png — Телеметрия серверов
 
 Soft 3D render style, slightly clay-like and puffy. Rounded square icon shape with a medium purple background (#7c5cbf). A server rack unit in the center with two small LED indicator dots on the front panel. An upward-trending line chart overlaps the upper-right of the server, suggesting performance metrics. All objects are light lavender/white with soft purple shadows and gentle highlights. Warm ambient lighting from the top-left. No text, no labels.
+
+---
+
+### miveralta_travelsearch.png — Поиск отелей и перелётов
+
+Soft 3D render style, slightly clay-like and puffy. Rounded square icon shape with a medium purple background (#7c5cbf). A large magnifying glass in the center — inside its lens are a small airplane silhouette above and a bed/hotel icon below, suggesting a search for flights and hotels. A small location pin badge sits in the lower-right corner. All objects are light lavender/white with soft purple shadows and gentle highlights. Warm ambient lighting from the top-left. No text, no labels.

@@ -27,8 +27,6 @@ jobs:
           ARCHIVE_S3_BUCKET="${ARCHIVE_S3_BUCKET:-placeholder-archive-bucket}" \
           ARCHIVE_S3_ACCESS_KEY="${ARCHIVE_S3_ACCESS_KEY:-placeholder-access-key}" \
           ARCHIVE_S3_SECRET_KEY="${ARCHIVE_S3_SECRET_KEY:-placeholder-secret-key}" \
-          TICKET_MANAGER_SECRET_KEY="${TICKET_MANAGER_SECRET_KEY:-placeholder-ticket-manager-secret}" \
-          TICKET_MANAGER_REFRESH_TOKEN_SECRET="${TICKET_MANAGER_REFRESH_TOKEN_SECRET:-placeholder-ticket-manager-refresh-secret}" \
           PORTUGUESE_EXPENSES_JWT_PRIVATE_KEY="${PORTUGUESE_EXPENSES_JWT_PRIVATE_KEY:-placeholder-jwt-private-key}" \
           PORTUGUESE_EXPENSES_JWT_PUBLIC_KEY="${PORTUGUESE_EXPENSES_JWT_PUBLIC_KEY:-placeholder-jwt-public-key}" \
           PORTUGUESE_EXPENSES_APP_USER_1_USERNAME="${PORTUGUESE_EXPENSES_APP_USER_1_USERNAME:-placeholder-user1}" \
@@ -113,8 +111,10 @@ jobs:
             exit 1
           fi
 
-          # Ensure the landing gets recreated even if compose considers it up-to-date.
-          docker compose -f docker-compose.yaml up -d --force-recreate mainpage-landing
+          # Rebuild and restart locally-built services (nginx, mainpage-landing).
+          # --build ensures any changes to Dockerfiles or build context are applied.
+          docker compose -f docker-compose.yaml build nginx mainpage-landing
+          docker compose -f docker-compose.yaml up -d --force-recreate nginx mainpage-landing
 
           docker compose -f docker-compose.yaml exec -T nginx nginx -t || true
           docker compose -f docker-compose.yaml exec -T nginx nginx -s reload || true

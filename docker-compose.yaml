@@ -213,6 +213,8 @@ services:
       HOME_RESOURCES_SERVER_NAMES: ${HOME_RESOURCES_SERVER_NAMES:-home-resources.mainpage.local}
       PGVIEW_PRIMARY_DOMAIN: ${PGVIEW_PRIMARY_DOMAIN:-pgview.admin.mainpage.local}
       PGVIEW_SERVER_NAMES: ${PGVIEW_SERVER_NAMES:-pgview.admin.mainpage.local}
+      PGVIEW_USER: ${PGVIEW_USER:-admin}
+      PGVIEW_PASSWORD: ${PGVIEW_PASSWORD:-change-me-pgview-password}
       GOOGLE_TIMELINE_PRIMARY_DOMAIN: ${GOOGLE_TIMELINE_PRIMARY_DOMAIN:-timeline.mainpage.com}
       GOOGLE_TIMELINE_SERVER_NAMES: ${GOOGLE_TIMELINE_SERVER_NAMES:-timeline.mainpage.com}
       NGINX_CERT_POLL_INTERVAL: ${NGINX_CERT_POLL_INTERVAL:-300}

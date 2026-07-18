@@ -45,24 +45,17 @@ configure_link() {
   eval "export ${link_key}_LINK_TABINDEX=\"$tabindex\""
 }
 
-configure_link "RECIPES" "recipes" "${MAINPAGE_ENABLE_RECIPES:-1}"
-configure_link "REMINDERS" "reminders" "${MAINPAGE_ENABLE_REMINDERS:-1}"
-configure_link "FAMILYPHOTO" "archive" "${MAINPAGE_ENABLE_FAMILYPHOTO:-1}"
-configure_link "HOME" "home" "${MAINPAGE_ENABLE_HOME:-1}"
-
-
-configure_link "NEWS" "news" "${MAINPAGE_ENABLE_NEWS:-1}"
-if is_enabled "${MAINPAGE_ENABLE_NEWS:-1}"; then
-  NEWS_LINK_TITLE="&#1054;&#1090;&#1082;&#1088;&#1099;&#1090;&#1100; &#1083;&#1077;&#1085;&#1090;&#1091; &#1085;&#1086;&#1074;&#1086;&#1089;&#1090;&#1077;&#1081;"
-fi
-
-# --- budget-site link ---
-configure_link "BUDGET" "budget" "${MAINPAGE_ENABLE_BUDGET:-1}"
-if is_enabled "${MAINPAGE_ENABLE_BUDGET:-1}"; then
-  BUDGET_LINK_TITLE="Открыть бюджет семьи"
-else
-  BUDGET_LINK_TITLE="Скоро (бюджет)"
-fi
+configure_link "RECIPES"       "recipes"        "${MAINPAGE_ENABLE_RECIPES:-1}"
+configure_link "REMINDERS"     "reminders"      "${MAINPAGE_ENABLE_REMINDERS:-1}"
+configure_link "FAMILYPHOTO"   "archive"        "${MAINPAGE_ENABLE_FAMILYPHOTO:-1}"
+configure_link "HOME"          "home"           "${MAINPAGE_ENABLE_HOME:-1}"
+configure_link "NEWS"          "news"           "${MAINPAGE_ENABLE_NEWS:-1}"
+configure_link "BUDGET"        "budget"         "${MAINPAGE_ENABLE_BUDGET:-1}"
+configure_link "ADMIN"         "admin"          "${MAINPAGE_ENABLE_ADMIN:-1}"
+configure_link "TIMELINE"      "timeline"       "${MAINPAGE_ENABLE_TIMELINE:-1}"
+configure_link "HOMERESOURCES" "home-resources" "${MAINPAGE_ENABLE_HOMERESOURCES:-1}"
+configure_link "EXPENSES"      "portugal2026"   "${MAINPAGE_ENABLE_EXPENSES:-1}"
+configure_link "SERVINGA"      "servinga"       "${MAINPAGE_ENABLE_SERVINGA:-1}"
 
 escape_sed() {
   printf '%s' "$1" | sed 's/[\\&|]/\\&/g'
@@ -102,6 +95,31 @@ sed \
   -e "s|__BUDGET_LINK_TITLE__|$(escape_sed "$BUDGET_LINK_TITLE")|g" \
   -e "s|__BUDGET_LINK_ARIA_DISABLED__|$(escape_sed "$BUDGET_LINK_ARIA_DISABLED")|g" \
   -e "s|__BUDGET_LINK_TABINDEX__|$(escape_sed "$BUDGET_LINK_TABINDEX")|g" \
+  -e "s|__ADMIN_LINK_HREF__|$(escape_sed "$ADMIN_LINK_HREF")|g" \
+  -e "s|__ADMIN_LINK_CLASS__|$(escape_sed "$ADMIN_LINK_CLASS")|g" \
+  -e "s|__ADMIN_LINK_TITLE__|$(escape_sed "$ADMIN_LINK_TITLE")|g" \
+  -e "s|__ADMIN_LINK_ARIA_DISABLED__|$(escape_sed "$ADMIN_LINK_ARIA_DISABLED")|g" \
+  -e "s|__ADMIN_LINK_TABINDEX__|$(escape_sed "$ADMIN_LINK_TABINDEX")|g" \
+  -e "s|__TIMELINE_LINK_HREF__|$(escape_sed "$TIMELINE_LINK_HREF")|g" \
+  -e "s|__TIMELINE_LINK_CLASS__|$(escape_sed "$TIMELINE_LINK_CLASS")|g" \
+  -e "s|__TIMELINE_LINK_TITLE__|$(escape_sed "$TIMELINE_LINK_TITLE")|g" \
+  -e "s|__TIMELINE_LINK_ARIA_DISABLED__|$(escape_sed "$TIMELINE_LINK_ARIA_DISABLED")|g" \
+  -e "s|__TIMELINE_LINK_TABINDEX__|$(escape_sed "$TIMELINE_LINK_TABINDEX")|g" \
+  -e "s|__HOMERESOURCES_LINK_HREF__|$(escape_sed "$HOMERESOURCES_LINK_HREF")|g" \
+  -e "s|__HOMERESOURCES_LINK_CLASS__|$(escape_sed "$HOMERESOURCES_LINK_CLASS")|g" \
+  -e "s|__HOMERESOURCES_LINK_TITLE__|$(escape_sed "$HOMERESOURCES_LINK_TITLE")|g" \
+  -e "s|__HOMERESOURCES_LINK_ARIA_DISABLED__|$(escape_sed "$HOMERESOURCES_LINK_ARIA_DISABLED")|g" \
+  -e "s|__HOMERESOURCES_LINK_TABINDEX__|$(escape_sed "$HOMERESOURCES_LINK_TABINDEX")|g" \
+  -e "s|__EXPENSES_LINK_HREF__|$(escape_sed "$EXPENSES_LINK_HREF")|g" \
+  -e "s|__EXPENSES_LINK_CLASS__|$(escape_sed "$EXPENSES_LINK_CLASS")|g" \
+  -e "s|__EXPENSES_LINK_TITLE__|$(escape_sed "$EXPENSES_LINK_TITLE")|g" \
+  -e "s|__EXPENSES_LINK_ARIA_DISABLED__|$(escape_sed "$EXPENSES_LINK_ARIA_DISABLED")|g" \
+  -e "s|__EXPENSES_LINK_TABINDEX__|$(escape_sed "$EXPENSES_LINK_TABINDEX")|g" \
+  -e "s|__SERVINGA_LINK_HREF__|$(escape_sed "$SERVINGA_LINK_HREF")|g" \
+  -e "s|__SERVINGA_LINK_CLASS__|$(escape_sed "$SERVINGA_LINK_CLASS")|g" \
+  -e "s|__SERVINGA_LINK_TITLE__|$(escape_sed "$SERVINGA_LINK_TITLE")|g" \
+  -e "s|__SERVINGA_LINK_ARIA_DISABLED__|$(escape_sed "$SERVINGA_LINK_ARIA_DISABLED")|g" \
+  -e "s|__SERVINGA_LINK_TABINDEX__|$(escape_sed "$SERVINGA_LINK_TABINDEX")|g" \
   /usr/share/nginx/html/index.html.template > /tmp/index.html
 mv /tmp/index.html /usr/share/nginx/html/index.html
 

@@ -63,7 +63,7 @@
     }
 
     .container {
-      width: min(760px, 100%);
+      width: min(920px, 100%);
       text-align: center;
     }
 
@@ -76,7 +76,7 @@
 
     .grid {
       display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
+      grid-template-columns: repeat(4, minmax(0, 1fr));
       gap: 16px;
     }
 
@@ -111,7 +111,7 @@
     }
 
     .tile span {
-      font-size: 1rem;
+      font-size: 0.9rem;
       font-weight: 600;
       color: var(--muted);
     }
@@ -155,18 +155,24 @@
 
     @media (max-width: 900px) {
       .grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
+        grid-template-columns: repeat(3, minmax(0, 1fr));
       }
     }
 
     @media (max-width: 640px) {
       .grid {
-        grid-template-columns: 1fr;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
       }
 
       .lang-switcher {
         top: 10px;
         right: 10px;
+      }
+    }
+
+    @media (max-width: 400px) {
+      .grid {
+        grid-template-columns: 1fr;
       }
     }
   </style>
@@ -209,6 +215,26 @@
         <img src="/icons/miveralta_budget.png" alt="Бюджет семьи" data-i18n-alt="budgetLabel">
         <span data-i18n-text="budgetLabel">Бюджет семьи</span>
       </a>
+      <a class="tile __ADMIN_LINK_CLASS__" href="__ADMIN_LINK_HREF__" title="__ADMIN_LINK_TITLE__" data-i18n-enabled-title="adminTooltip" aria-disabled="__ADMIN_LINK_ARIA_DISABLED__" tabindex="__ADMIN_LINK_TABINDEX__">
+        <img src="/icons/miveralta_admin.png" alt="Консоль администратора" data-i18n-alt="adminLabel">
+        <span data-i18n-text="adminLabel">Консоль администратора</span>
+      </a>
+      <a class="tile __TIMELINE_LINK_CLASS__" href="__TIMELINE_LINK_HREF__" title="__TIMELINE_LINK_TITLE__" data-i18n-enabled-title="timelineTooltip" aria-disabled="__TIMELINE_LINK_ARIA_DISABLED__" tabindex="__TIMELINE_LINK_TABINDEX__">
+        <img src="/icons/miveralta_timeline.png" alt="История перемещений" data-i18n-alt="timelineLabel">
+        <span data-i18n-text="timelineLabel">История перемещений</span>
+      </a>
+      <a class="tile __HOMERESOURCES_LINK_CLASS__" href="__HOMERESOURCES_LINK_HREF__" title="__HOMERESOURCES_LINK_TITLE__" data-i18n-enabled-title="homeResourcesTooltip" aria-disabled="__HOMERESOURCES_LINK_ARIA_DISABLED__" tabindex="__HOMERESOURCES_LINK_TABINDEX__">
+        <img src="/icons/miveralta_homeresources.png" alt="Потребление ресурсов" data-i18n-alt="homeResourcesLabel">
+        <span data-i18n-text="homeResourcesLabel">Потребление ресурсов</span>
+      </a>
+      <a class="tile __EXPENSES_LINK_CLASS__" href="__EXPENSES_LINK_HREF__" title="__EXPENSES_LINK_TITLE__" data-i18n-enabled-title="expensesTooltip" aria-disabled="__EXPENSES_LINK_ARIA_DISABLED__" tabindex="__EXPENSES_LINK_TABINDEX__">
+        <img src="/icons/miveralta_expenses.png" alt="Расходы в путешествиях" data-i18n-alt="expensesLabel">
+        <span data-i18n-text="expensesLabel">Расходы в путешествиях</span>
+      </a>
+      <a class="tile __SERVINGA_LINK_CLASS__" href="__SERVINGA_LINK_HREF__" title="__SERVINGA_LINK_TITLE__" data-i18n-enabled-title="servingaTooltip" aria-disabled="__SERVINGA_LINK_ARIA_DISABLED__" tabindex="__SERVINGA_LINK_TABINDEX__">
+        <img src="/icons/miveralta_servinga.png" alt="Телеметрия серверов" data-i18n-alt="servingaLabel">
+        <span data-i18n-text="servingaLabel">Телеметрия серверов</span>
+      </a>
     </div>
   </main>
 
@@ -232,6 +258,16 @@
         newsTooltip: "Открыть ленту новостей",
         budgetLabel: "Бюджет семьи",
         budgetTooltip: "Открыть бюджет семьи",
+        adminLabel: "Консоль администратора",
+        adminTooltip: "Открыть консоль администратора",
+        timelineLabel: "История перемещений",
+        timelineTooltip: "Открыть историю перемещений",
+        homeResourcesLabel: "Потребление ресурсов",
+        homeResourcesTooltip: "Открыть потребление ресурсов",
+        expensesLabel: "Расходы в путешествиях",
+        expensesTooltip: "Открыть расходы в путешествиях",
+        servingaLabel: "Телеметрия серверов",
+        servingaTooltip: "Открыть телеметрию серверов",
         soonLabel: "Скоро"
       },
       en: {
@@ -252,6 +288,16 @@
         newsTooltip: "Open news feed",
         budgetLabel: "Family Budget",
         budgetTooltip: "Open family budget",
+        adminLabel: "Admin Console",
+        adminTooltip: "Open admin console",
+        timelineLabel: "Location History",
+        timelineTooltip: "Open location history",
+        homeResourcesLabel: "Resource Usage",
+        homeResourcesTooltip: "Open resource usage",
+        expensesLabel: "Travel Expenses",
+        expensesTooltip: "Open travel expenses",
+        servingaLabel: "Server Telemetry",
+        servingaTooltip: "Open server telemetry",
         soonLabel: "Coming soon"
       },
       fr: {
@@ -272,6 +318,16 @@
         newsTooltip: "Ouvrir le fil d'actualites",
         budgetLabel: "Budget familial",
         budgetTooltip: "Ouvrir le budget familial",
+        adminLabel: "Console d'administration",
+        adminTooltip: "Ouvrir la console d'administration",
+        timelineLabel: "Historique des deplacements",
+        timelineTooltip: "Ouvrir l'historique des deplacements",
+        homeResourcesLabel: "Consommation des ressources",
+        homeResourcesTooltip: "Ouvrir la consommation des ressources",
+        expensesLabel: "Depenses de voyage",
+        expensesTooltip: "Ouvrir les depenses de voyage",
+        servingaLabel: "Telemetrie des serveurs",
+        servingaTooltip: "Ouvrir la telemetrie des serveurs",
         soonLabel: "Bientot"
       },
       es: {
@@ -292,6 +348,16 @@
         newsTooltip: "Abrir noticias",
         budgetLabel: "Presupuesto familiar",
         budgetTooltip: "Abrir presupuesto familiar",
+        adminLabel: "Consola de administracion",
+        adminTooltip: "Abrir consola de administracion",
+        timelineLabel: "Historial de ubicaciones",
+        timelineTooltip: "Abrir historial de ubicaciones",
+        homeResourcesLabel: "Consumo de recursos",
+        homeResourcesTooltip: "Abrir consumo de recursos",
+        expensesLabel: "Gastos de viaje",
+        expensesTooltip: "Abrir gastos de viaje",
+        servingaLabel: "Telemetria de servidores",
+        servingaTooltip: "Abrir telemetria de servidores",
         soonLabel: "Proximamente"
       }
     };
@@ -376,4 +442,3 @@
   </script>
 </body>
 </html>
-

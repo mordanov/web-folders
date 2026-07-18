@@ -591,6 +591,8 @@ services:
         condition: service_healthy
       db-password-sync:
         condition: service_completed_successfully
+      google-timeline-backend:
+        condition: service_started
 
   google-timeline-frontend:
     image: ghcr.io/mordanov/google-timeline-frontend:latest

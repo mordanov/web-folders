@@ -55,7 +55,7 @@ configure_link "ADMIN"         "admin"          "${MAINPAGE_ENABLE_ADMIN:-1}"
 configure_link "TIMELINE"      "timeline"       "${MAINPAGE_ENABLE_TIMELINE:-1}"
 configure_link "HOMERESOURCES" "home-resources" "${MAINPAGE_ENABLE_HOMERESOURCES:-1}"
 configure_link "EXPENSES"      "portugal2026"   "${MAINPAGE_ENABLE_EXPENSES:-1}"
-configure_link "SERVINGA"      "servinga"       "${MAINPAGE_ENABLE_SERVINGA:-1}"
+configure_link "SERVINGA"      "monitoring"     "${MAINPAGE_ENABLE_SERVINGA:-1}"
 
 escape_sed() {
   printf '%s' "$1" | sed 's/[\\&|]/\\&/g'

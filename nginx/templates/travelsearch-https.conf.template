@@ -1,0 +1,31 @@
+server {
+    listen 443 ssl;
+    listen [::]:443 ssl;
+    server_name ${TRAVELSEARCH_SERVER_NAMES};
+
+    ssl_certificate /etc/letsencrypt/live/${TRAVELSEARCH_PRIMARY_DOMAIN}/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/${TRAVELSEARCH_PRIMARY_DOMAIN}/privkey.pem;
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_ciphers HIGH:!aNULL:!MD5;
+    ssl_session_cache shared:SSL:10m;
+    ssl_session_timeout 1d;
+
+    location /api/ {
+        set $travelsearch_backend http://travelsearch-backend:8000;
+        proxy_pass $travelsearch_backend;
+        include /etc/nginx/snippets/proxy-common.conf;
+        proxy_read_timeout 200s;
+    }
+
+    location /telegram/webhook {
+        set $travelsearch_backend http://travelsearch-backend:8000;
+        proxy_pass $travelsearch_backend/api/v1/telegram/webhook;
+        include /etc/nginx/snippets/proxy-common.conf;
+    }
+
+    location / {
+        set $travelsearch_frontend http://travelsearch-frontend:80;
+        proxy_pass $travelsearch_frontend;
+        include /etc/nginx/snippets/proxy-common.conf;
+    }
+}

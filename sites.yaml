@@ -178,6 +178,19 @@ sites:
     health_path: /api/health
     compose_services: [google-timeline-backend, google-timeline-importer, google-timeline-frontend]
 
+  - id: travelsearch
+    priority: 150
+    cert_label: travelsearch
+    domain:
+      primary_var: TRAVELSEARCH_PRIMARY_DOMAIN
+      server_names_var: TRAVELSEARCH_SERVER_NAMES
+    db:
+      db_var: TRAVELSEARCH_POSTGRES_DB
+      user_var: TRAVELSEARCH_POSTGRES_USER
+      password_var: TRAVELSEARCH_POSTGRES_PASSWORD
+    health_path: /api/v1/health
+    compose_services: [travelsearch-backend, travelsearch-worker, travelsearch-frontend]
+
   - id: pgview
     priority: 135
     cert_label: pgview

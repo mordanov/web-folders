@@ -33,6 +33,9 @@ services:
       GOOGLE_TIMELINE_POSTGRES_DB: ${GOOGLE_TIMELINE_POSTGRES_DB:-google_timeline}
       GOOGLE_TIMELINE_POSTGRES_USER: ${GOOGLE_TIMELINE_POSTGRES_USER:-google_timeline_user}
       GOOGLE_TIMELINE_POSTGRES_PASSWORD: ${GOOGLE_TIMELINE_POSTGRES_PASSWORD:-change-me-google-timeline-db}
+      TRAVELSEARCH_POSTGRES_DB: ${TRAVELSEARCH_POSTGRES_DB:-travelsearch}
+      TRAVELSEARCH_POSTGRES_USER: ${TRAVELSEARCH_POSTGRES_USER:-travelsearch_user}
+      TRAVELSEARCH_POSTGRES_PASSWORD: ${TRAVELSEARCH_POSTGRES_PASSWORD:-change-me-travelsearch-db}
     volumes:
       - recipes_postgres_data:/var/lib/postgresql/data
       - ./postgres-init:/docker-entrypoint-initdb.d:ro
@@ -76,6 +79,9 @@ services:
       GOOGLE_TIMELINE_POSTGRES_DB: ${GOOGLE_TIMELINE_POSTGRES_DB:-google_timeline}
       GOOGLE_TIMELINE_POSTGRES_USER: ${GOOGLE_TIMELINE_POSTGRES_USER:-google_timeline_user}
       GOOGLE_TIMELINE_POSTGRES_PASSWORD: ${GOOGLE_TIMELINE_POSTGRES_PASSWORD:-change-me-google-timeline-db}
+      TRAVELSEARCH_POSTGRES_DB: ${TRAVELSEARCH_POSTGRES_DB:-travelsearch}
+      TRAVELSEARCH_POSTGRES_USER: ${TRAVELSEARCH_POSTGRES_USER:-travelsearch_user}
+      TRAVELSEARCH_POSTGRES_PASSWORD: ${TRAVELSEARCH_POSTGRES_PASSWORD:-change-me-travelsearch-db}
     volumes:
       - ./scripts/sync-app-db-users.sh:/usr/local/bin/sync-app-db-users.sh:ro
       - ./sites.yaml:/etc/web-folders/sites.yaml:ro
@@ -224,6 +230,8 @@ services:
       PGVIEW_PASSWORD: ${PGVIEW_PASSWORD:-change-me-pgview-password}
       GOOGLE_TIMELINE_PRIMARY_DOMAIN: ${GOOGLE_TIMELINE_PRIMARY_DOMAIN:-timeline.mainpage.com}
       GOOGLE_TIMELINE_SERVER_NAMES: ${GOOGLE_TIMELINE_SERVER_NAMES:-timeline.mainpage.com}
+      TRAVELSEARCH_PRIMARY_DOMAIN: ${TRAVELSEARCH_PRIMARY_DOMAIN:-travelsearch.mainpage.com}
+      TRAVELSEARCH_SERVER_NAMES: ${TRAVELSEARCH_SERVER_NAMES:-travelsearch.mainpage.com}
       NGINX_CERT_POLL_INTERVAL: ${NGINX_CERT_POLL_INTERVAL:-300}
     volumes:
       - ../poetry-site/frontend/templates/index.html:/srv/poetry-site/index.html:ro
@@ -256,6 +264,9 @@ services:
       - google-timeline-backend
       - google-timeline-importer
       - google-timeline-frontend
+      - travelsearch-backend
+      - travelsearch-worker
+      - travelsearch-frontend
 
   certbot:
     image: certbot/certbot:latest
@@ -604,6 +615,79 @@ services:
 
   google-timeline-frontend:
     image: ghcr.io/mordanov/google-timeline-frontend:latest
+    restart: unless-stopped
+    expose:
+      - "80"
+
+  travelsearch-redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    command: redis-server --save "" --appendonly no
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 5s
+
+  travelsearch-backend:
+    image: ghcr.io/mordanov/travelsearch-backend:latest
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql+asyncpg://${TRAVELSEARCH_POSTGRES_USER:-travelsearch_user}:${TRAVELSEARCH_POSTGRES_PASSWORD:-change-me-travelsearch-db}@recipes-db:5432/${TRAVELSEARCH_POSTGRES_DB:-travelsearch}
+      REDIS_URL: redis://travelsearch-redis:6379/0
+      JWT_SECRET: ${TRAVELSEARCH_JWT_SECRET:?TRAVELSEARCH_JWT_SECRET is required}
+      JWT_ALGORITHM: ${TRAVELSEARCH_JWT_ALGORITHM:-HS256}
+      JWT_ACCESS_TOKEN_EXPIRE_MINUTES: ${TRAVELSEARCH_JWT_ACCESS_TOKEN_EXPIRE_MINUTES:-15}
+      JWT_REFRESH_TOKEN_EXPIRE_DAYS: ${TRAVELSEARCH_JWT_REFRESH_TOKEN_EXPIRE_DAYS:-30}
+      TELEGRAM_BOT_TOKEN: ${TRAVELSEARCH_TELEGRAM_BOT_TOKEN:-}
+      TELEGRAM_WEBHOOK_SECRET: ${TRAVELSEARCH_TELEGRAM_WEBHOOK_SECRET:-}
+      PROXY_PROVIDER_HOST: ${TRAVELSEARCH_PROXY_PROVIDER_HOST:-}
+      PROXY_PROVIDER_USER: ${TRAVELSEARCH_PROXY_PROVIDER_USER:-}
+      PROXY_PROVIDER_PASS: ${TRAVELSEARCH_PROXY_PROVIDER_PASS:-}
+      CORS_ORIGINS: ${TRAVELSEARCH_CORS_ORIGINS:-https://${TRAVELSEARCH_PRIMARY_DOMAIN:-travelsearch.mainpage.com}}
+      ENABLE_RAW_SNAPSHOT: ${TRAVELSEARCH_ENABLE_RAW_SNAPSHOT:-false}
+      APP_ENV: ${TRAVELSEARCH_APP_ENV:-production}
+    expose:
+      - "8000"
+    depends_on:
+      recipes-db:
+        condition: service_healthy
+      db-password-sync:
+        condition: service_completed_successfully
+      travelsearch-redis:
+        condition: service_healthy
+
+  travelsearch-worker:
+    image: ghcr.io/mordanov/travelsearch-backend:latest
+    restart: unless-stopped
+    command: ["python", "-m", "arq", "app.workers.scheduler.WorkerSettings"]
+    environment:
+      DATABASE_URL: postgresql+asyncpg://${TRAVELSEARCH_POSTGRES_USER:-travelsearch_user}:${TRAVELSEARCH_POSTGRES_PASSWORD:-change-me-travelsearch-db}@recipes-db:5432/${TRAVELSEARCH_POSTGRES_DB:-travelsearch}
+      REDIS_URL: redis://travelsearch-redis:6379/0
+      JWT_SECRET: ${TRAVELSEARCH_JWT_SECRET:?TRAVELSEARCH_JWT_SECRET is required}
+      JWT_ALGORITHM: ${TRAVELSEARCH_JWT_ALGORITHM:-HS256}
+      JWT_ACCESS_TOKEN_EXPIRE_MINUTES: ${TRAVELSEARCH_JWT_ACCESS_TOKEN_EXPIRE_MINUTES:-15}
+      JWT_REFRESH_TOKEN_EXPIRE_DAYS: ${TRAVELSEARCH_JWT_REFRESH_TOKEN_EXPIRE_DAYS:-30}
+      TELEGRAM_BOT_TOKEN: ${TRAVELSEARCH_TELEGRAM_BOT_TOKEN:-}
+      TELEGRAM_WEBHOOK_SECRET: ${TRAVELSEARCH_TELEGRAM_WEBHOOK_SECRET:-}
+      PROXY_PROVIDER_HOST: ${TRAVELSEARCH_PROXY_PROVIDER_HOST:-}
+      PROXY_PROVIDER_USER: ${TRAVELSEARCH_PROXY_PROVIDER_USER:-}
+      PROXY_PROVIDER_PASS: ${TRAVELSEARCH_PROXY_PROVIDER_PASS:-}
+      ENABLE_RAW_SNAPSHOT: ${TRAVELSEARCH_ENABLE_RAW_SNAPSHOT:-false}
+      APP_ENV: ${TRAVELSEARCH_APP_ENV:-production}
+    depends_on:
+      recipes-db:
+        condition: service_healthy
+      db-password-sync:
+        condition: service_completed_successfully
+      travelsearch-redis:
+        condition: service_healthy
+      travelsearch-backend:
+        condition: service_started
+
+  travelsearch-frontend:
+    image: ghcr.io/mordanov/travelsearch-frontend:latest
     restart: unless-stopped
     expose:
       - "80"

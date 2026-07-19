@@ -55,6 +55,7 @@ Repeat for each repo. Secrets `VPS_HOST`, `VPS_USER`, `VPS_SSH_KEY` are already 
 | `home-resources` | `home-resources.yml` | home-resources-backend, home-resources-frontend |
 | `verdecora-bot` | `verdecora-bot.yml` | verdecora-bot |
 | `google-timeline-web-app` | `google-timeline.yml` | google-timeline-backend, google-timeline-importer, google-timeline-frontend |
+| `travelsearch` | `travelsearch.yml` | travelsearch-backend, travelsearch-worker, travelsearch-frontend |
 
 `dark-factory` (ticket-manager) is excluded — being offboarded.
 

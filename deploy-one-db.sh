@@ -121,7 +121,7 @@ main() {
   local infra_only_up=(certbot)  # not built by us
 
   echo "Pulling pre-built images and building local images (nginx)..."
-  compose pull --ignore-buildable "${app_services[@]}"
+  compose pull --ignore-buildable --ignore-pull-failures "${app_services[@]}"
   compose build "${infra_services[@]}"
 
   echo "Starting stack..."

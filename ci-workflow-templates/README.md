@@ -54,6 +54,7 @@ Repeat for each repo. Secrets `VPS_HOST`, `VPS_USER`, `VPS_SSH_KEY` are already 
 | `portuguese-expenses` | `portuguese-expenses.yml` | portuguese-expenses-backend, portuguese-expenses-frontend |
 | `home-resources` | `home-resources.yml` | home-resources-backend, home-resources-frontend |
 | `verdecora-bot` | `verdecora-bot.yml` | verdecora-bot |
+| `fuel-weather-bot` | `fuel-weather-bot.yml` | fuel-weather-bot |
 | `google-timeline-web-app` | `google-timeline.yml` | google-timeline-backend, google-timeline-importer, google-timeline-frontend |
 | `travelsearch` | `travelsearch.yml` | travelsearch-backend, travelsearch-worker, travelsearch-frontend |
 

@@ -36,6 +36,9 @@ services:
       TRAVELSEARCH_POSTGRES_DB: ${TRAVELSEARCH_POSTGRES_DB:-travelsearch}
       TRAVELSEARCH_POSTGRES_USER: ${TRAVELSEARCH_POSTGRES_USER:-travelsearch_user}
       TRAVELSEARCH_POSTGRES_PASSWORD: ${TRAVELSEARCH_POSTGRES_PASSWORD:-change-me-travelsearch-db}
+      FUEL_WEATHER_BOT_POSTGRES_DB: ${FUEL_WEATHER_BOT_POSTGRES_DB:-fuel_weather_bot}
+      FUEL_WEATHER_BOT_POSTGRES_USER: ${FUEL_WEATHER_BOT_POSTGRES_USER:-fuel_weather_bot_user}
+      FUEL_WEATHER_BOT_POSTGRES_PASSWORD: ${FUEL_WEATHER_BOT_POSTGRES_PASSWORD:-change-me-fuel-weather-bot-db}
     volumes:
       - recipes_postgres_data:/var/lib/postgresql/data
       - ./postgres-init:/docker-entrypoint-initdb.d:ro
@@ -82,6 +85,9 @@ services:
       TRAVELSEARCH_POSTGRES_DB: ${TRAVELSEARCH_POSTGRES_DB:-travelsearch}
       TRAVELSEARCH_POSTGRES_USER: ${TRAVELSEARCH_POSTGRES_USER:-travelsearch_user}
       TRAVELSEARCH_POSTGRES_PASSWORD: ${TRAVELSEARCH_POSTGRES_PASSWORD:-change-me-travelsearch-db}
+      FUEL_WEATHER_BOT_POSTGRES_DB: ${FUEL_WEATHER_BOT_POSTGRES_DB:-fuel_weather_bot}
+      FUEL_WEATHER_BOT_POSTGRES_USER: ${FUEL_WEATHER_BOT_POSTGRES_USER:-fuel_weather_bot_user}
+      FUEL_WEATHER_BOT_POSTGRES_PASSWORD: ${FUEL_WEATHER_BOT_POSTGRES_PASSWORD:-change-me-fuel-weather-bot-db}
     volumes:
       - ./scripts/sync-app-db-users.sh:/usr/local/bin/sync-app-db-users.sh:ro
       - ./sites.yaml:/etc/web-folders/sites.yaml:ro
@@ -267,6 +273,7 @@ services:
       - travelsearch-backend
       - travelsearch-worker
       - travelsearch-frontend
+      - fuel-weather-bot
 
   certbot:
     image: certbot/certbot:latest
@@ -693,6 +700,24 @@ services:
     restart: unless-stopped
     expose:
       - "80"
+
+  fuel-weather-bot:
+    image: ghcr.io/mordanov/fuel-weather-bot:latest
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql://${FUEL_WEATHER_BOT_POSTGRES_USER:-fuel_weather_bot_user}:${FUEL_WEATHER_BOT_POSTGRES_PASSWORD:-change-me-fuel-weather-bot-db}@recipes-db:5432/${FUEL_WEATHER_BOT_POSTGRES_DB:-fuel_weather_bot}
+      TELEGRAM_BOT_TOKEN: ${FUEL_WEATHER_BOT_TELEGRAM_BOT_TOKEN:?FUEL_WEATHER_BOT_TELEGRAM_BOT_TOKEN is required}
+      PROVINCE_CODE: ${FUEL_WEATHER_BOT_PROVINCE_CODE:-29}
+      MUNICIPIO_NAME: ${FUEL_WEATHER_BOT_MUNICIPIO_NAME:-Malaga}
+      SEND_HOUR: ${FUEL_WEATHER_BOT_SEND_HOUR:-7}
+      SEND_MINUTE: ${FUEL_WEATHER_BOT_SEND_MINUTE:-0}
+      DEFAULT_LAT: ${FUEL_WEATHER_BOT_DEFAULT_LAT:-36.7213}
+      DEFAULT_LON: ${FUEL_WEATHER_BOT_DEFAULT_LON:--4.4214}
+    depends_on:
+      recipes-db:
+        condition: service_healthy
+      db-password-sync:
+        condition: service_completed_successfully
 
   pgview:
     image: sosedoff/pgweb

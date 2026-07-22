@@ -36,6 +36,7 @@ jobs:
           PORTUGUESE_EXPENSES_OPENAI_API_KEY="${PORTUGUESE_EXPENSES_OPENAI_API_KEY:-placeholder-openai-key}" \
           VERDECORA_TELEGRAM_TOKEN="${VERDECORA_TELEGRAM_TOKEN:-placeholder-telegram-token}" \
           VERDECORA_CHAT_ID="${VERDECORA_CHAT_ID:-placeholder-chat-id}" \
+          FUEL_WEATHER_BOT_TELEGRAM_BOT_TOKEN="${FUEL_WEATHER_BOT_TELEGRAM_BOT_TOKEN:-placeholder-fuel-weather-bot-token}" \
           GOOGLE_TIMELINE_JWT_SECRET="${GOOGLE_TIMELINE_JWT_SECRET:-placeholder-google-timeline-jwt-secret}" \
           TRAVELSEARCH_JWT_SECRET="${TRAVELSEARCH_JWT_SECRET:-placeholder-travelsearch-jwt-secret}" \
           docker compose -f docker-compose.yaml config > /dev/null

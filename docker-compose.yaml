@@ -437,6 +437,9 @@ services:
     restart: unless-stopped
     deploy:
       replicas: ${ARCHIVE_REPLICAS:-2}
+      resources:
+        limits:
+          memory: ${ARCHIVE_MEMORY_LIMIT:-1400m}
     environment:
       DATABASE_URL: postgresql+asyncpg://${ARCHIVE_POSTGRES_USER:-archive_user}:${ARCHIVE_POSTGRES_PASSWORD:-change-me-archive-db}@recipes-db:5432/${ARCHIVE_POSTGRES_DB:-archive}
       SECRET_KEY: ${ARCHIVE_SECRET_KEY:-change-me-archive-secret}
@@ -457,7 +460,7 @@ services:
       CHUNK_SIZE_BYTES: ${ARCHIVE_CHUNK_SIZE_BYTES:-8388608}
       TRASH_RETENTION_DAYS: ${ARCHIVE_TRASH_RETENTION_DAYS:-30}
       THUMBNAIL_DIR: ${ARCHIVE_THUMBNAIL_DIR:-/app/data/thumbnails}
-      THUMBNAIL_WORKER_COUNT: ${ARCHIVE_THUMBNAIL_WORKER_COUNT:-2}
+      THUMBNAIL_WORKER_COUNT: ${ARCHIVE_THUMBNAIL_WORKER_COUNT:-1}
       DB_POOL_SIZE: ${ARCHIVE_DB_POOL_SIZE:-10}
       DB_POOL_OVERFLOW: ${ARCHIVE_DB_POOL_OVERFLOW:-10}
       ALLOWED_ORIGINS: ${ARCHIVE_ALLOWED_ORIGINS:-https://${ARCHIVE_PRIMARY_DOMAIN:-archive.mainpage.local}}

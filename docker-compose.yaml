@@ -39,6 +39,9 @@ services:
       FUEL_WEATHER_BOT_POSTGRES_DB: ${FUEL_WEATHER_BOT_POSTGRES_DB:-fuel_weather_bot}
       FUEL_WEATHER_BOT_POSTGRES_USER: ${FUEL_WEATHER_BOT_POSTGRES_USER:-fuel_weather_bot_user}
       FUEL_WEATHER_BOT_POSTGRES_PASSWORD: ${FUEL_WEATHER_BOT_POSTGRES_PASSWORD:-change-me-fuel-weather-bot-db}
+      DOC_FORGE_POSTGRES_DB: ${DOC_FORGE_POSTGRES_DB:-doc_forge}
+      DOC_FORGE_POSTGRES_USER: ${DOC_FORGE_POSTGRES_USER:-doc_forge_user}
+      DOC_FORGE_POSTGRES_PASSWORD: ${DOC_FORGE_POSTGRES_PASSWORD:-change-me-doc-forge-db}
     volumes:
       - recipes_postgres_data:/var/lib/postgresql/data
       - ./postgres-init:/docker-entrypoint-initdb.d:ro
@@ -88,6 +91,9 @@ services:
       FUEL_WEATHER_BOT_POSTGRES_DB: ${FUEL_WEATHER_BOT_POSTGRES_DB:-fuel_weather_bot}
       FUEL_WEATHER_BOT_POSTGRES_USER: ${FUEL_WEATHER_BOT_POSTGRES_USER:-fuel_weather_bot_user}
       FUEL_WEATHER_BOT_POSTGRES_PASSWORD: ${FUEL_WEATHER_BOT_POSTGRES_PASSWORD:-change-me-fuel-weather-bot-db}
+      DOC_FORGE_POSTGRES_DB: ${DOC_FORGE_POSTGRES_DB:-doc_forge}
+      DOC_FORGE_POSTGRES_USER: ${DOC_FORGE_POSTGRES_USER:-doc_forge_user}
+      DOC_FORGE_POSTGRES_PASSWORD: ${DOC_FORGE_POSTGRES_PASSWORD:-change-me-doc-forge-db}
     volumes:
       - ./scripts/sync-app-db-users.sh:/usr/local/bin/sync-app-db-users.sh:ro
       - ./sites.yaml:/etc/web-folders/sites.yaml:ro
@@ -712,6 +718,7 @@ services:
     image: ghcr.io/mordanov/doc-forge-backend:latest
     restart: unless-stopped
     environment:
+      DATABASE_URL: postgresql://${DOC_FORGE_POSTGRES_USER:-doc_forge_user}:${DOC_FORGE_POSTGRES_PASSWORD:-change-me-doc-forge-db}@recipes-db:5432/${DOC_FORGE_POSTGRES_DB:-doc_forge}
       DOCFORGE_USERNAME: ${DOC_FORGE_USERNAME:-admin}
       DOCFORGE_PASSWORD: ${DOC_FORGE_PASSWORD:?DOC_FORGE_PASSWORD is required}
       DOCFORGE_SECRET_KEY: ${DOC_FORGE_SECRET_KEY:?DOC_FORGE_SECRET_KEY is required}
@@ -724,6 +731,11 @@ services:
       - doc_forge_uploads:/app/.docforge/uploads
       - doc_forge_cache:/app/.docforge/cache
       - doc_forge_output:/app/output
+    depends_on:
+      recipes-db:
+        condition: service_healthy
+      db-password-sync:
+        condition: service_completed_successfully
 
   doc-forge-frontend:
     image: ghcr.io/mordanov/doc-forge-frontend:latest

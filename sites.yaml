@@ -197,6 +197,10 @@ sites:
     domain:
       primary_var: DOC_FORGE_PRIMARY_DOMAIN
       server_names_var: DOC_FORGE_SERVER_NAMES
+    db:
+      db_var: DOC_FORGE_POSTGRES_DB
+      user_var: DOC_FORGE_POSTGRES_USER
+      password_var: DOC_FORGE_POSTGRES_PASSWORD
     health_path: /system/health
     compose_services: [doc-forge-backend, doc-forge-frontend]
 

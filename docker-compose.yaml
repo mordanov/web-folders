@@ -238,6 +238,8 @@ services:
       GOOGLE_TIMELINE_SERVER_NAMES: ${GOOGLE_TIMELINE_SERVER_NAMES:-timeline.mainpage.com}
       TRAVELSEARCH_PRIMARY_DOMAIN: ${TRAVELSEARCH_PRIMARY_DOMAIN:-travelsearch.mainpage.com}
       TRAVELSEARCH_SERVER_NAMES: ${TRAVELSEARCH_SERVER_NAMES:-travelsearch.mainpage.com}
+      DOC_FORGE_PRIMARY_DOMAIN: ${DOC_FORGE_PRIMARY_DOMAIN:-docforge.mainpage.com}
+      DOC_FORGE_SERVER_NAMES: ${DOC_FORGE_SERVER_NAMES:-docforge.mainpage.com}
       NGINX_CERT_POLL_INTERVAL: ${NGINX_CERT_POLL_INTERVAL:-300}
     volumes:
       - ../poetry-site/frontend/templates/index.html:/srv/poetry-site/index.html:ro
@@ -273,6 +275,8 @@ services:
       - travelsearch-backend
       - travelsearch-worker
       - travelsearch-frontend
+      - doc-forge-backend
+      - doc-forge-frontend
       - fuel-weather-bot
 
   certbot:
@@ -704,6 +708,30 @@ services:
     expose:
       - "80"
 
+  doc-forge-backend:
+    image: ghcr.io/mordanov/doc-forge-backend:latest
+    restart: unless-stopped
+    environment:
+      DOCFORGE_USERNAME: ${DOC_FORGE_USERNAME:-admin}
+      DOCFORGE_PASSWORD: ${DOC_FORGE_PASSWORD:?DOC_FORGE_PASSWORD is required}
+      DOCFORGE_SECRET_KEY: ${DOC_FORGE_SECRET_KEY:?DOC_FORGE_SECRET_KEY is required}
+      OPENAI_API_KEY: ${DOC_FORGE_OPENAI_API_KEY:-}
+      UNSPLASH_ACCESS_KEY: ${DOC_FORGE_UNSPLASH_ACCESS_KEY:-}
+      PEXELS_API_KEY: ${DOC_FORGE_PEXELS_API_KEY:-}
+    expose:
+      - "8000"
+    volumes:
+      - doc_forge_uploads:/app/.docforge/uploads
+      - doc_forge_cache:/app/.docforge/cache
+      - doc_forge_output:/app/output
+    restart: unless-stopped
+
+  doc-forge-frontend:
+    image: ghcr.io/mordanov/doc-forge-frontend:latest
+    restart: unless-stopped
+    expose:
+      - "80"
+
   fuel-weather-bot:
     image: ghcr.io/mordanov/fuel-weather-bot:latest
     restart: unless-stopped
@@ -757,3 +785,6 @@ volumes:
   certbot_certs:
   certbot_www:
   verdecora_bot_data:
+  doc_forge_uploads:
+  doc_forge_cache:
+  doc_forge_output:

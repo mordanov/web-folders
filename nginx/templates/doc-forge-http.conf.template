@@ -1,0 +1,24 @@
+server {
+    listen 80;
+    listen [::]:80;
+    server_name ${DOC_FORGE_SERVER_NAMES};
+
+    # ACME challenge for certbot
+    location /.well-known/acme-challenge/ {
+        root /var/www/certbot;
+    }
+
+    location /api/ {
+        set $doc_forge_backend http://doc-forge-backend:8000;
+        rewrite ^/api/(.*)$ /$1 break;
+        proxy_pass $doc_forge_backend;
+        include /etc/nginx/snippets/proxy-common.conf;
+        proxy_read_timeout 300s;
+    }
+
+    location / {
+        set $doc_forge_frontend http://doc-forge-frontend:80;
+        proxy_pass $doc_forge_frontend;
+        include /etc/nginx/snippets/proxy-common.conf;
+    }
+}

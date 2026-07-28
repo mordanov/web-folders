@@ -191,6 +191,15 @@ sites:
     health_path: /api/v1/health
     compose_services: [travelsearch-backend, travelsearch-worker, travelsearch-frontend]
 
+  - id: doc-forge
+    priority: 160
+    cert_label: doc-forge
+    domain:
+      primary_var: DOC_FORGE_PRIMARY_DOMAIN
+      server_names_var: DOC_FORGE_SERVER_NAMES
+    health_path: /system/health
+    compose_services: [doc-forge-backend, doc-forge-frontend]
+
   - id: pgview
     priority: 135
     cert_label: pgview

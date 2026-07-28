@@ -39,6 +39,8 @@ jobs:
           FUEL_WEATHER_BOT_TELEGRAM_BOT_TOKEN="${FUEL_WEATHER_BOT_TELEGRAM_BOT_TOKEN:-placeholder-fuel-weather-bot-token}" \
           GOOGLE_TIMELINE_JWT_SECRET="${GOOGLE_TIMELINE_JWT_SECRET:-placeholder-google-timeline-jwt-secret}" \
           TRAVELSEARCH_JWT_SECRET="${TRAVELSEARCH_JWT_SECRET:-placeholder-travelsearch-jwt-secret}" \
+          DOC_FORGE_PASSWORD="${DOC_FORGE_PASSWORD:-placeholder-doc-forge-password}" \
+          DOC_FORGE_SECRET_KEY="${DOC_FORGE_SECRET_KEY:-placeholder-doc-forge-secret-key}" \
           docker compose -f docker-compose.yaml config > /dev/null
 
   deploy:

@@ -724,7 +724,6 @@ services:
       - doc_forge_uploads:/app/.docforge/uploads
       - doc_forge_cache:/app/.docforge/cache
       - doc_forge_output:/app/output
-    restart: unless-stopped
 
   doc-forge-frontend:
     image: ghcr.io/mordanov/doc-forge-frontend:latest

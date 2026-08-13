@@ -56,7 +56,6 @@ Repeat for each repo. Secrets `VPS_HOST`, `VPS_USER`, `VPS_SSH_KEY` are already 
 | `verdecora-bot` | `verdecora-bot.yml` | verdecora-bot |
 | `fuel-weather-bot` | `fuel-weather-bot.yml` | fuel-weather-bot |
 | `google-timeline-web-app` | `google-timeline.yml` | google-timeline-backend, google-timeline-importer, google-timeline-frontend |
-| `travelsearch` | `travelsearch.yml` | travelsearch-backend, travelsearch-worker, travelsearch-frontend |
 | `doc-forge` | `doc-forge.yml` | doc-forge-backend, doc-forge-frontend |
 
 `dark-factory` (ticket-manager) is excluded — being offboarded.

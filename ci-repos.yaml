@@ -39,3 +39,6 @@ repos:
 
   - repo: google-timeline-web-app
     label: "🗺️ Google Timeline"
+
+  - repo: anxious_news_bot
+    label: "🗞️ Anxious News Bot"

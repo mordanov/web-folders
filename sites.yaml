@@ -23,6 +23,10 @@
 #   compose_services      optional. Used by deploy-one-db.sh to build/start services
 #                         and by deploy-vps.yml debug_dump (logs are dumped via
 #                         `docker compose ps --services`, this is informational only)
+#
+# Long-running workers without an HTTP/domain surface belong under `workers`.
+# They participate in DB provisioning and Compose deployment, but are intentionally
+# excluded from nginx, certificate, and HTTP health-check loops.
 
 sites:
   - id: recipes
@@ -199,3 +203,17 @@ sites:
       server_names_var: PGVIEW_SERVER_NAMES
     compose_services: [pgview]
 
+workers:
+  - id: fuel-weather-bot
+    db:
+      db_var: FUEL_WEATHER_BOT_POSTGRES_DB
+      user_var: FUEL_WEATHER_BOT_POSTGRES_USER
+      password_var: FUEL_WEATHER_BOT_POSTGRES_PASSWORD
+    compose_services: [fuel-weather-bot]
+
+  - id: anxious-news-bot
+    db:
+      db_var: ANXIOUS_NEWS_BOT_POSTGRES_DB
+      user_var: ANXIOUS_NEWS_BOT_POSTGRES_USER
+      password_var: ANXIOUS_NEWS_BOT_POSTGRES_PASSWORD
+    compose_services: [anxious-news-bot]

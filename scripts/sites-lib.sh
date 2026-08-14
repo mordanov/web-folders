@@ -46,15 +46,15 @@ sites_iter() {
 sites_with_db() {
   ensure_yq
   yq -r '
-    .sites[] | select(.db) |
+    (.sites + (.workers // []))[] | select(.db) |
     [ .id, .db.db_var, .db.user_var, .db.password_var ] | @tsv
   ' "$SITES_YAML"
 }
 
-# Newline-separated unique service names across all sites.
+# Newline-separated unique service names across all sites and workers.
 sites_compose_services() {
   ensure_yq
-  yq -r '.sites[] | (.compose_services // []) | .[]' "$SITES_YAML" | awk 'NF && !seen[$0]++'
+  yq -r '(.sites + (.workers // []))[] | (.compose_services // []) | .[]' "$SITES_YAML" | awk 'NF && !seen[$0]++'
 }
 
 # TSV: id, primary_domain_value, health_path (only sites with health_path)
@@ -84,5 +84,4 @@ sites_required_env_vars() {
 
 # Bash indirect-expansion convenience: prints the value of the variable whose name is $1.
 indirect() { printf '%s' "${!1-}"; }
-
 

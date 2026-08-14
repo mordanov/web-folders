@@ -77,7 +77,7 @@ ensure_app_dbs() {
   while IFS=$'\t' read -r id db_var user_var pwd_var; do
     local app_db="${!db_var:-}" app_user="${!user_var:-}" app_pw="${!pwd_var:-}"
     if [ -z "$app_db" ] || [ -z "$app_user" ] || [ -z "$app_pw" ]; then
-      echo "WARN: site '$id' has incomplete DB vars ($db_var/$user_var/$pwd_var) -- skipping" >&2
+      echo "WARN: application '$id' has incomplete DB vars ($db_var/$user_var/$pwd_var) -- skipping" >&2
       continue
     fi
     echo "Ensuring $id role/database exist..."
@@ -142,4 +142,3 @@ main() {
 }
 
 main "$@"
-

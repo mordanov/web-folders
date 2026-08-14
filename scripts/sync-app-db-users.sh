@@ -75,17 +75,16 @@ get_env() {
 
 wait_for_pg
 
-# Loop manifest sites that declare a `db` block.
-yq -r '.sites[] | select(.db) | [.id, .db.db_var, .db.user_var, .db.password_var] | @tsv' "$SITES_YAML" \
+# Loop manifest sites and workers that declare a `db` block.
+yq -r '(.sites + (.workers // []))[] | select(.db) | [.id, .db.db_var, .db.user_var, .db.password_var] | @tsv' "$SITES_YAML" \
 | while IFS="$(printf '\t')" read -r id db_var user_var pwd_var; do
     app_db=$(get_env "$db_var")
     app_user=$(get_env "$user_var")
     app_pw=$(get_env "$pwd_var")
     if [ -z "$app_db" ] || [ -z "$app_user" ] || [ -z "$app_pw" ]; then
-      echo "WARN: site '$id' has incomplete DB env vars (${db_var}/${user_var}/${pwd_var}) -- skipping" >&2
+      echo "WARN: application '$id' has incomplete DB env vars (${db_var}/${user_var}/${pwd_var}) -- skipping" >&2
       continue
     fi
     echo "Syncing role/db for site '$id'..."
     sync_role_db "$app_user" "$app_pw" "$app_db"
   done
-

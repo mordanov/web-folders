@@ -103,8 +103,7 @@ services:
       DATABASE_URL: postgresql+asyncpg://${RECIPES_POSTGRES_USER:-recipes_user}:${RECIPES_POSTGRES_PASSWORD:-change-me-recipes-db}@recipes-db:5432/${RECIPES_POSTGRES_DB:-recipes}
       SECRET_KEY: ${RECIPES_SECRET_KEY:-change-me-recipes-secret}
       OPENAI_API_KEY: ${RECIPES_OPENAI_API_KEY:-}
-      GOOGLE_API_KEY: ${RECIPES_GOOGLE_API_KEY:-}
-      GOOGLE_CSE_ID: ${RECIPES_GOOGLE_CSE_ID:-}
+      UNSPLASH_API_KEY: ${RECIPES_UNSPLASH_API_KEY:-}
       USER1_NAME: ${RECIPES_USER1_NAME:-mama}
       USER1_PASSWORD: ${RECIPES_USER1_PASSWORD:-change-me-password1}
       USER2_NAME: ${RECIPES_USER2_NAME:-papa}

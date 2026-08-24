@@ -37,6 +37,8 @@ jobs:
           VERDECORA_TELEGRAM_TOKEN="${VERDECORA_TELEGRAM_TOKEN:-placeholder-telegram-token}" \
           VERDECORA_CHAT_ID="${VERDECORA_CHAT_ID:-placeholder-chat-id}" \
           FUEL_WEATHER_BOT_TELEGRAM_BOT_TOKEN="${FUEL_WEATHER_BOT_TELEGRAM_BOT_TOKEN:-placeholder-fuel-weather-bot-token}" \
+          FLYING_SEARCH_BOT_TELEGRAM_BOT_TOKEN="${FLYING_SEARCH_BOT_TELEGRAM_BOT_TOKEN:-placeholder-flying-search-bot-token}" \
+          FLYING_SEARCH_BOT_OPENAI_API_KEY="${FLYING_SEARCH_BOT_OPENAI_API_KEY:-placeholder-flying-search-bot-openai-key}" \
           GOOGLE_TIMELINE_JWT_SECRET="${GOOGLE_TIMELINE_JWT_SECRET:-placeholder-google-timeline-jwt-secret}" \
           TRAVELSEARCH_JWT_SECRET="${TRAVELSEARCH_JWT_SECRET:-placeholder-travelsearch-jwt-secret}" \
           DOC_FORGE_PASSWORD="${DOC_FORGE_PASSWORD:-placeholder-doc-forge-password}" \

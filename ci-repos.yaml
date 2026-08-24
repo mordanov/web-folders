@@ -39,3 +39,6 @@ repos:
 
   - repo: google-timeline-web-app
     label: "🗺️ Google Timeline"
+
+  - repo: flying-search-bot
+    label: "✈️ Flight Search Bot"

@@ -36,6 +36,9 @@ services:
       FUEL_WEATHER_BOT_POSTGRES_DB: ${FUEL_WEATHER_BOT_POSTGRES_DB:-fuel_weather_bot}
       FUEL_WEATHER_BOT_POSTGRES_USER: ${FUEL_WEATHER_BOT_POSTGRES_USER:-fuel_weather_bot_user}
       FUEL_WEATHER_BOT_POSTGRES_PASSWORD: ${FUEL_WEATHER_BOT_POSTGRES_PASSWORD:-change-me-fuel-weather-bot-db}
+      FLYING_SEARCH_BOT_POSTGRES_DB: ${FLYING_SEARCH_BOT_POSTGRES_DB:-flying_search_bot}
+      FLYING_SEARCH_BOT_POSTGRES_USER: ${FLYING_SEARCH_BOT_POSTGRES_USER:-flying_search_bot_user}
+      FLYING_SEARCH_BOT_POSTGRES_PASSWORD: ${FLYING_SEARCH_BOT_POSTGRES_PASSWORD:-change-me-flying-search-bot-db}
       DOC_FORGE_POSTGRES_DB: ${DOC_FORGE_POSTGRES_DB:-doc_forge}
       DOC_FORGE_POSTGRES_USER: ${DOC_FORGE_POSTGRES_USER:-doc_forge_user}
       DOC_FORGE_POSTGRES_PASSWORD: ${DOC_FORGE_POSTGRES_PASSWORD:-change-me-doc-forge-db}
@@ -85,6 +88,9 @@ services:
       FUEL_WEATHER_BOT_POSTGRES_DB: ${FUEL_WEATHER_BOT_POSTGRES_DB:-fuel_weather_bot}
       FUEL_WEATHER_BOT_POSTGRES_USER: ${FUEL_WEATHER_BOT_POSTGRES_USER:-fuel_weather_bot_user}
       FUEL_WEATHER_BOT_POSTGRES_PASSWORD: ${FUEL_WEATHER_BOT_POSTGRES_PASSWORD:-change-me-fuel-weather-bot-db}
+      FLYING_SEARCH_BOT_POSTGRES_DB: ${FLYING_SEARCH_BOT_POSTGRES_DB:-flying_search_bot}
+      FLYING_SEARCH_BOT_POSTGRES_USER: ${FLYING_SEARCH_BOT_POSTGRES_USER:-flying_search_bot_user}
+      FLYING_SEARCH_BOT_POSTGRES_PASSWORD: ${FLYING_SEARCH_BOT_POSTGRES_PASSWORD:-change-me-flying-search-bot-db}
       DOC_FORGE_POSTGRES_DB: ${DOC_FORGE_POSTGRES_DB:-doc_forge}
       DOC_FORGE_POSTGRES_USER: ${DOC_FORGE_POSTGRES_USER:-doc_forge_user}
       DOC_FORGE_POSTGRES_PASSWORD: ${DOC_FORGE_POSTGRES_PASSWORD:-change-me-doc-forge-db}
@@ -273,6 +279,7 @@ services:
       - doc-forge-backend
       - doc-forge-frontend
       - fuel-weather-bot
+      - flying-search-bot
 
   certbot:
     image: certbot/certbot:latest
@@ -679,6 +686,25 @@ services:
       TERREMOTO_MAXLAT: ${FUEL_WEATHER_BOT_TERREMOTO_MAXLAT:-44.0}
       TERREMOTO_MINLON: ${FUEL_WEATHER_BOT_TERREMOTO_MINLON:--19.0}
       TERREMOTO_MAXLON: ${FUEL_WEATHER_BOT_TERREMOTO_MAXLON:-5.0}
+    depends_on:
+      recipes-db:
+        condition: service_healthy
+      db-password-sync:
+        condition: service_completed_successfully
+
+  flying-search-bot:
+    image: ghcr.io/mordanov/flying-search-bot:latest
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql://${FLYING_SEARCH_BOT_POSTGRES_USER:-flying_search_bot_user}:${FLYING_SEARCH_BOT_POSTGRES_PASSWORD:-change-me-flying-search-bot-db}@recipes-db:5432/${FLYING_SEARCH_BOT_POSTGRES_DB:-flying_search_bot}
+      TELEGRAM_BOT_TOKEN: ${FLYING_SEARCH_BOT_TELEGRAM_BOT_TOKEN:?FLYING_SEARCH_BOT_TELEGRAM_BOT_TOKEN is required}
+      OPENAI_API_KEY: ${FLYING_SEARCH_BOT_OPENAI_API_KEY:?FLYING_SEARCH_BOT_OPENAI_API_KEY is required}
+      OPENAI_MODEL: ${FLYING_SEARCH_BOT_OPENAI_MODEL:-gpt-4o}
+      OPENAI_SEARCH_CONTEXT_SIZE: ${FLYING_SEARCH_BOT_OPENAI_SEARCH_CONTEXT_SIZE:-high}
+      WATCH_SEND_HOUR: ${FLYING_SEARCH_BOT_WATCH_SEND_HOUR:-9}
+      WATCH_SEND_MINUTE: ${FLYING_SEARCH_BOT_WATCH_SEND_MINUTE:-0}
+      WATCH_TIMEZONE: ${FLYING_SEARCH_BOT_WATCH_TIMEZONE:-Europe/Madrid}
+      ALLOWED_TELEGRAM_USER_IDS: ${FLYING_SEARCH_BOT_ALLOWED_TELEGRAM_USER_IDS:-}
     depends_on:
       recipes-db:
         condition: service_healthy

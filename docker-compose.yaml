@@ -244,6 +244,13 @@ services:
       GOOGLE_TIMELINE_SERVER_NAMES: ${GOOGLE_TIMELINE_SERVER_NAMES:-timeline.mainpage.com}
       DOC_FORGE_PRIMARY_DOMAIN: ${DOC_FORGE_PRIMARY_DOMAIN:-docforge.mainpage.com}
       DOC_FORGE_SERVER_NAMES: ${DOC_FORGE_SERVER_NAMES:-docforge.mainpage.com}
+      REMINDERS2_PRIMARY_DOMAIN: ${REMINDERS2_PRIMARY_DOMAIN:-reminders2.mainpage.ru}
+      REMINDERS2_SERVER_NAMES: ${REMINDERS2_SERVER_NAMES:-reminders2.mainpage.ru}
+      REMINDERS2_INTERNAL_AUTH_SECRET: ${REMINDERS2_INTERNAL_AUTH_SECRET:?REMINDERS2_INTERNAL_AUTH_SECRET is required}
+      REMINDERS2_AUTH_USER_1_USERNAME: ${REMINDERS2_AUTH_USER_1_USERNAME:?REMINDERS2_AUTH_USER_1_USERNAME is required}
+      REMINDERS2_AUTH_USER_1_PASSWORD: ${REMINDERS2_AUTH_USER_1_PASSWORD:?REMINDERS2_AUTH_USER_1_PASSWORD is required}
+      REMINDERS2_AUTH_USER_2_USERNAME: ${REMINDERS2_AUTH_USER_2_USERNAME:?REMINDERS2_AUTH_USER_2_USERNAME is required}
+      REMINDERS2_AUTH_USER_2_PASSWORD: ${REMINDERS2_AUTH_USER_2_PASSWORD:?REMINDERS2_AUTH_USER_2_PASSWORD is required}
       NGINX_CERT_POLL_INTERVAL: ${NGINX_CERT_POLL_INTERVAL:-300}
     volumes:
       - ../poetry-site/frontend/templates/index.html:/srv/poetry-site/index.html:ro
@@ -278,6 +285,8 @@ services:
       - google-timeline-frontend
       - doc-forge-backend
       - doc-forge-frontend
+      - reminders2-backend
+      - reminders2-frontend
       - fuel-weather-bot
       - flying-search-bot
 
@@ -712,6 +721,50 @@ services:
       db-password-sync:
         condition: service_completed_successfully
 
+  reminders2-db:
+    image: postgres:18-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${REMINDERS2_POSTGRES_DB:-reminders2}
+      POSTGRES_USER: ${REMINDERS2_POSTGRES_USER:-reminders2_user}
+      POSTGRES_PASSWORD: ${REMINDERS2_POSTGRES_PASSWORD:?REMINDERS2_POSTGRES_PASSWORD is required}
+    volumes:
+      - reminders2_postgres_data:/var/lib/postgresql
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}",
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+
+  reminders2-backend:
+    image: ghcr.io/mordanov/reminders2-backend:latest
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql+asyncpg://${REMINDERS2_POSTGRES_USER:-reminders2_user}:${REMINDERS2_POSTGRES_PASSWORD:?REMINDERS2_POSTGRES_PASSWORD is required}@reminders2-db:5432/${REMINDERS2_POSTGRES_DB:-reminders2}
+      APP_TIMEZONE: ${REMINDERS2_APP_TIMEZONE:-Europe/Madrid}
+      INTERNAL_AUTH_SECRET: ${REMINDERS2_INTERNAL_AUTH_SECRET:?REMINDERS2_INTERNAL_AUTH_SECRET is required}
+      AUTH_USER_1_USERNAME: ${REMINDERS2_AUTH_USER_1_USERNAME:?REMINDERS2_AUTH_USER_1_USERNAME is required}
+      AUTH_USER_1_PASSWORD: ${REMINDERS2_AUTH_USER_1_PASSWORD:?REMINDERS2_AUTH_USER_1_PASSWORD is required}
+      AUTH_USER_2_USERNAME: ${REMINDERS2_AUTH_USER_2_USERNAME:?REMINDERS2_AUTH_USER_2_USERNAME is required}
+      AUTH_USER_2_PASSWORD: ${REMINDERS2_AUTH_USER_2_PASSWORD:?REMINDERS2_AUTH_USER_2_PASSWORD is required}
+      PURGE_INTERVAL_SECONDS: ${REMINDERS2_PURGE_INTERVAL_SECONDS:-3600}
+      DELETED_RETENTION_DAYS: ${REMINDERS2_DELETED_RETENTION_DAYS:-30}
+    expose:
+      - "8000"
+    depends_on:
+      reminders2-db:
+        condition: service_healthy
+
+  reminders2-frontend:
+    image: ghcr.io/mordanov/reminders2-frontend:latest
+    restart: unless-stopped
+    expose:
+      - "80"
+
   pgview:
     image: sosedoff/pgweb
     restart: unless-stopped
@@ -750,3 +803,4 @@ volumes:
   doc_forge_uploads:
   doc_forge_cache:
   doc_forge_output:
+  reminders2_postgres_data:

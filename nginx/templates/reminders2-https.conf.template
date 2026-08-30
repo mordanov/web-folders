@@ -1,0 +1,52 @@
+server {
+    listen 443 ssl;
+    listen [::]:443 ssl;
+    server_name ${REMINDERS2_SERVER_NAMES};
+
+    ssl_certificate /etc/letsencrypt/live/${REMINDERS2_PRIMARY_DOMAIN}/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/${REMINDERS2_PRIMARY_DOMAIN}/privkey.pem;
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_ciphers HIGH:!aNULL:!MD5;
+    ssl_session_cache shared:SSL:10m;
+    ssl_session_timeout 1d;
+
+    auth_basic "Reminders";
+    auth_basic_user_file /etc/nginx/reminders2.htpasswd;
+
+    location = /openapi.json {
+        auth_basic off;
+        set $reminders2_backend http://reminders2-backend:8000;
+        proxy_pass $reminders2_backend/openapi.json;
+        include /etc/nginx/snippets/proxy-common.conf;
+        proxy_read_timeout 60s;
+    }
+
+    location /api/events {
+        set $reminders2_backend http://reminders2-backend:8000;
+        proxy_pass $reminders2_backend;
+        include /etc/nginx/snippets/proxy-common.conf;
+        proxy_http_version 1.1;
+        proxy_set_header Connection "";
+        proxy_set_header X-Authenticated-User $remote_user;
+        proxy_set_header X-Internal-Secret "${REMINDERS2_INTERNAL_AUTH_SECRET}";
+        proxy_buffering off;
+        proxy_cache off;
+        proxy_read_timeout 1h;
+        add_header X-Accel-Buffering no;
+    }
+
+    location /api/ {
+        set $reminders2_backend http://reminders2-backend:8000;
+        proxy_pass $reminders2_backend;
+        include /etc/nginx/snippets/proxy-common.conf;
+        proxy_set_header X-Authenticated-User $remote_user;
+        proxy_set_header X-Internal-Secret "${REMINDERS2_INTERNAL_AUTH_SECRET}";
+        proxy_read_timeout 60s;
+    }
+
+    location / {
+        set $reminders2_frontend http://reminders2-frontend:80;
+        proxy_pass $reminders2_frontend;
+        include /etc/nginx/snippets/proxy-common.conf;
+    }
+}

@@ -42,7 +42,10 @@ manifest_iter() {
 build_env_vars_list() {
   yq -r '
     .sites[] |
-    [ "${" + .domain.primary_var + "}", "${" + .domain.server_names_var + "}" ] | .[]
+    (
+      [ "${" + .domain.primary_var + "}", "${" + .domain.server_names_var + "}" ]
+      + ((.template_vars // []) | map("${" + . + "}"))
+    ) | .[]
   ' "$SITES_YAML" | awk '!seen[$0]++' | tr '\n' ' '
 }
 
@@ -75,6 +78,9 @@ get_env() {
 manifest_iter | while IFS="$(printf '\t')" read -r id pdom_var snames_var prio; do
   require_var "$pdom_var"
   require_var "$snames_var"
+done
+yq -r '.sites[].template_vars[]?' "$SITES_YAML" | while IFS= read -r var_name; do
+  require_var "$var_name"
 done
 
 # --- config rendering loop -----------------------------------------------
@@ -138,10 +144,23 @@ if [ -n "${PGVIEW_USER:-}" ] && [ -n "${PGVIEW_PASSWORD:-}" ]; then
   printf '%s:%s\n' "$PGVIEW_USER" "$hash" > "$HTPASSWD_FILE"
 fi
 
+REMINDERS2_HTPASSWD_FILE=/etc/nginx/reminders2.htpasswd
+if [ -n "${REMINDERS2_AUTH_USER_1_USERNAME:-}" ] \
+  && [ -n "${REMINDERS2_AUTH_USER_1_PASSWORD:-}" ] \
+  && [ -n "${REMINDERS2_AUTH_USER_2_USERNAME:-}" ] \
+  && [ -n "${REMINDERS2_AUTH_USER_2_PASSWORD:-}" ]; then
+  user1_hash=$(openssl passwd -apr1 "$REMINDERS2_AUTH_USER_1_PASSWORD")
+  user2_hash=$(openssl passwd -apr1 "$REMINDERS2_AUTH_USER_2_PASSWORD")
+  {
+    printf '%s:%s\n' "$REMINDERS2_AUTH_USER_1_USERNAME" "$user1_hash"
+    printf '%s:%s\n' "$REMINDERS2_AUTH_USER_2_USERNAME" "$user2_hash"
+  } > "$REMINDERS2_HTPASSWD_FILE"
+  chown nginx:nginx "$REMINDERS2_HTPASSWD_FILE"
+  chmod 640 "$REMINDERS2_HTPASSWD_FILE"
+fi
+
 render_configs
 nginx -t
 watch_certs &
 
 exec nginx -g 'daemon off;'
-
-

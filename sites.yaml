@@ -19,6 +19,7 @@
 #   domain.primary_var    env var holding the cert-primary domain
 #   domain.server_names_var env var holding the full server_name list
 #   db                    optional. Site owns its own DB role (created by db-password-sync)
+#   template_vars         optional. Extra secret/runtime vars rendered into nginx templates
 #   health_path           optional. If set, deploy-one-db.sh runs an HTTP health-check
 #   compose_services      optional. Used by deploy-one-db.sh to build/start services
 #                         and by deploy-vps.yml debug_dump (logs are dumped via
@@ -194,6 +195,16 @@ sites:
       password_var: DOC_FORGE_POSTGRES_PASSWORD
     health_path: /system/health
     compose_services: [doc-forge-backend, doc-forge-frontend]
+
+  - id: reminders2
+    priority: 170
+    cert_label: reminders2-app
+    domain:
+      primary_var: REMINDERS2_PRIMARY_DOMAIN
+      server_names_var: REMINDERS2_SERVER_NAMES
+    template_vars: [REMINDERS2_INTERNAL_AUTH_SECRET]
+    health_path: /openapi.json
+    compose_services: [reminders2-db, reminders2-backend, reminders2-frontend]
 
   - id: pgview
     priority: 135

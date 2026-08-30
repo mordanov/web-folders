@@ -357,10 +357,10 @@ docker compose exec certbot certbot certonly \
   -d <PRIMARY_DOMAIN>
 ```
 
-Once the cert appears at `/etc/letsencrypt/live/<PRIMARY_DOMAIN>/`, the nginx cert-poll loop (default 300 s) will automatically switch the vhost from HTTP-only to the redirect + HTTPS templates. You can force an immediate reload:
+Once the cert appears at `/etc/letsencrypt/live/<PRIMARY_DOMAIN>/`, the nginx cert-poll loop (default 300 s) will automatically switch the vhost from HTTP-only to the redirect + HTTPS templates. To activate it immediately, recreate nginx so its startup renderer sees the new certificate:
 
 ```bash
-docker compose exec nginx nginx -s reload
+docker compose up -d --force-recreate nginx
 ```
 
 ---

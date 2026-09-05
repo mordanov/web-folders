@@ -1,0 +1,25 @@
+server {
+    listen 443 ssl;
+    listen [::]:443 ssl;
+    server_name ${IDEAL_CITY_FINDER_SERVER_NAMES};
+
+    ssl_certificate /etc/letsencrypt/live/${IDEAL_CITY_FINDER_PRIMARY_DOMAIN}/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/${IDEAL_CITY_FINDER_PRIMARY_DOMAIN}/privkey.pem;
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_ciphers HIGH:!aNULL:!MD5;
+    ssl_session_cache shared:SSL:10m;
+    ssl_session_timeout 1d;
+
+    location /api/ {
+        set $ideal_city_finder_backend http://ideal-city-finder-backend:8000;
+        proxy_pass $ideal_city_finder_backend;
+        include /etc/nginx/snippets/proxy-common.conf;
+        proxy_read_timeout 120s;
+    }
+
+    location / {
+        set $ideal_city_finder_frontend http://ideal-city-finder-frontend:80;
+        proxy_pass $ideal_city_finder_frontend;
+        include /etc/nginx/snippets/proxy-common.conf;
+    }
+}

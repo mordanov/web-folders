@@ -249,6 +249,23 @@ Add the new services after the last existing application's services, before `pgv
       - "80"
 ```
 
+### 3e. Add CI validation placeholders for `:?`-required variables
+
+File: `web-folders/.github/workflows/deploy-vps.yml`
+
+The `validate-config` job runs `docker compose config` to catch syntax errors before deployment. Any env var declared with `:?` in `docker-compose.yaml` (meaning it is required and must not be empty) will fail this check unless a placeholder value is supplied in the CI step.
+
+For every `:?` variable you added in step 3c, append a placeholder line to the `Validate docker-compose` run block, immediately before the `docker compose … config` line:
+
+```yaml
+          <APP_PREFIX>_JWT_SECRET="${<APP_PREFIX>_JWT_SECRET:-placeholder-<APP_ID>-jwt-secret}" \
+          <APP_PREFIX>_SOME_API_KEY="${<APP_PREFIX>_SOME_API_KEY:-placeholder-<APP_ID>-some-api-key}" \
+```
+
+**Rule:** every `${VAR:?...}` in docker-compose.yaml needs exactly one `VAR="${VAR:-placeholder-...}" \` line in the CI `validate-config` step. Use `:?` only for values that are genuinely mandatory at runtime (secrets, API keys). Use `:-` with a safe default for optional or environment-selectable vars.
+
+---
+
 ### 3d. Add domain vars to `nginx.environment` and `nginx.depends_on`
 
 In the `nginx:` service, add to `environment:`:
@@ -424,6 +441,7 @@ docker compose exec nginx nginx -t
 - [ ] `nginx/templates/<APP_ID>-https.conf.template` — created
 - [ ] `docker-compose.yaml` — Postgres vars added to `recipes-db` and `db-password-sync`
 - [ ] `docker-compose.yaml` — service definitions added
+- [ ] `.github/workflows/deploy-vps.yml` — CI placeholder lines added for all `:?` variables
 - [ ] `docker-compose.yaml` — domain vars added to `nginx.environment`
 - [ ] `docker-compose.yaml` — services added to `nginx.depends_on`
 - [ ] `.env.example` — new block added

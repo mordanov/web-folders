@@ -49,6 +49,9 @@ jobs:
           REMINDERS2_AUTH_USER_1_PASSWORD="${REMINDERS2_AUTH_USER_1_PASSWORD:-placeholder-password1}" \
           REMINDERS2_AUTH_USER_2_USERNAME="${REMINDERS2_AUTH_USER_2_USERNAME:-placeholder-user2}" \
           REMINDERS2_AUTH_USER_2_PASSWORD="${REMINDERS2_AUTH_USER_2_PASSWORD:-placeholder-password2}" \
+          IDEAL_CITY_FINDER_JWT_SECRET_KEY="${IDEAL_CITY_FINDER_JWT_SECRET_KEY:-placeholder-ideal-city-finder-jwt-secret}" \
+          IDEAL_CITY_FINDER_OPENAI_API_KEY="${IDEAL_CITY_FINDER_OPENAI_API_KEY:-placeholder-ideal-city-finder-openai-key}" \
+          IDEAL_CITY_FINDER_GOOGLE_MAPS_API_KEY="${IDEAL_CITY_FINDER_GOOGLE_MAPS_API_KEY:-placeholder-ideal-city-finder-maps-key}" \
           docker compose -f docker-compose.yaml config > /dev/null
 
   deploy:

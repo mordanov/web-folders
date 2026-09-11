@@ -38,7 +38,7 @@ sites:
       server_names_var: RECIPES_SERVER_NAMES
     # No db block: recipes owns the postgres admin role/DB itself.
     health_path: /api/health
-    compose_services: [recipes-backend, recipes-frontend]
+    compose_services: [recipes-meilisearch, recipes-backend, recipes-frontend]
 
   - id: poetry
     priority: 20

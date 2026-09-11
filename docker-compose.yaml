@@ -108,6 +108,17 @@ services:
       recipes-db:
         condition: service_healthy
 
+  recipes-meilisearch:
+    image: getmeili/meilisearch:v1.10
+    restart: unless-stopped
+    environment:
+      MEILI_MASTER_KEY: ${RECIPES_MEILI_MASTER_KEY:-changeme-in-production}
+      MEILI_NO_ANALYTICS: "true"
+    volumes:
+      - recipes_meilisearch_data:/meili_data
+    expose:
+      - "7700"
+
   recipes-backend:
     image: ghcr.io/mordanov/recipes-backend:latest
     restart: unless-stopped
@@ -122,6 +133,8 @@ services:
       USER2_PASSWORD: ${RECIPES_USER2_PASSWORD:-change-me-password2}
       SERVICE_USER_NAME: ${RECIPES_SERVICE_USER_NAME:-kitchen_service}
       SERVICE_USER_PASSWORD: ${RECIPES_SERVICE_USER_PASSWORD:-change-me-recipes-service-password}
+      MEILISEARCH_URL: http://recipes-meilisearch:7700
+      MEILISEARCH_KEY: ${RECIPES_MEILI_MASTER_KEY:-changeme-in-production}
     volumes:
       - recipes_uploads_data:/app/uploads
       - recipes_documents_data:/app/documents
@@ -130,6 +143,8 @@ services:
     depends_on:
       recipes-db:
         condition: service_healthy
+      recipes-meilisearch:
+        condition: service_started
 
   recipes-frontend:
     image: ghcr.io/mordanov/recipes-frontend:latest
@@ -879,6 +894,7 @@ volumes:
   recipes_postgres_data:
   recipes_uploads_data:
   recipes_documents_data:
+  recipes_meilisearch_data:
   poetry_uploads_data:
   news_photos_data:
   budget_uploads_data:

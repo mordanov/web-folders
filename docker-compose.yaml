@@ -42,9 +42,6 @@ services:
       DOC_FORGE_POSTGRES_DB: ${DOC_FORGE_POSTGRES_DB:-doc_forge}
       DOC_FORGE_POSTGRES_USER: ${DOC_FORGE_POSTGRES_USER:-doc_forge_user}
       DOC_FORGE_POSTGRES_PASSWORD: ${DOC_FORGE_POSTGRES_PASSWORD:-change-me-doc-forge-db}
-      IDEAL_CITY_FINDER_POSTGRES_DB: ${IDEAL_CITY_FINDER_POSTGRES_DB:-ideal_city}
-      IDEAL_CITY_FINDER_POSTGRES_USER: ${IDEAL_CITY_FINDER_POSTGRES_USER:-ideal_city_user}
-      IDEAL_CITY_FINDER_POSTGRES_PASSWORD: ${IDEAL_CITY_FINDER_POSTGRES_PASSWORD:-change-me-ideal-city-finder-db}
     volumes:
       - recipes_postgres_data:/var/lib/postgresql/data
       - ./postgres-init:/docker-entrypoint-initdb.d:ro
@@ -97,9 +94,6 @@ services:
       DOC_FORGE_POSTGRES_DB: ${DOC_FORGE_POSTGRES_DB:-doc_forge}
       DOC_FORGE_POSTGRES_USER: ${DOC_FORGE_POSTGRES_USER:-doc_forge_user}
       DOC_FORGE_POSTGRES_PASSWORD: ${DOC_FORGE_POSTGRES_PASSWORD:-change-me-doc-forge-db}
-      IDEAL_CITY_FINDER_POSTGRES_DB: ${IDEAL_CITY_FINDER_POSTGRES_DB:-ideal_city}
-      IDEAL_CITY_FINDER_POSTGRES_USER: ${IDEAL_CITY_FINDER_POSTGRES_USER:-ideal_city_user}
-      IDEAL_CITY_FINDER_POSTGRES_PASSWORD: ${IDEAL_CITY_FINDER_POSTGRES_PASSWORD:-change-me-ideal-city-finder-db}
     volumes:
       - ./scripts/sync-app-db-users.sh:/usr/local/bin/sync-app-db-users.sh:ro
       - ./sites.yaml:/etc/web-folders/sites.yaml:ro
@@ -273,8 +267,6 @@ services:
       REMINDERS2_AUTH_USER_2_USERNAME: ${REMINDERS2_AUTH_USER_2_USERNAME:?REMINDERS2_AUTH_USER_2_USERNAME is required}
       REMINDERS2_AUTH_USER_2_PASSWORD: ${REMINDERS2_AUTH_USER_2_PASSWORD:?REMINDERS2_AUTH_USER_2_PASSWORD is required}
       NGINX_CERT_POLL_INTERVAL: ${NGINX_CERT_POLL_INTERVAL:-300}
-      IDEAL_CITY_FINDER_PRIMARY_DOMAIN: ${IDEAL_CITY_FINDER_PRIMARY_DOMAIN:-idealcity.miveralta.ru}
-      IDEAL_CITY_FINDER_SERVER_NAMES: ${IDEAL_CITY_FINDER_SERVER_NAMES:-idealcity.miveralta.ru}
     volumes:
       - ../poetry-site/frontend/templates/index.html:/srv/poetry-site/index.html:ro
       - ../poetry-site/frontend/static:/srv/poetry-site/static:ro
@@ -312,9 +304,6 @@ services:
       - reminders2-frontend
       - fuel-weather-bot
       - flying-search-bot
-      - ideal-city-finder-backend
-      - ideal-city-finder-worker
-      - ideal-city-finder-frontend
 
   certbot:
     image: certbot/certbot:latest
@@ -787,86 +776,6 @@ services:
 
   reminders2-frontend:
     image: ghcr.io/mordanov/reminders2-frontend:latest
-    restart: unless-stopped
-    expose:
-      - "80"
-
-  ideal-city-finder-redis:
-    image: redis:7-alpine
-    restart: unless-stopped
-    command: redis-server --save "" --appendonly no
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 5s
-      timeout: 3s
-      retries: 10
-      start_period: 5s
-
-  ideal-city-finder-postgis-init:
-    image: postgres:16-alpine
-    restart: "no"
-    environment:
-      PGPASSWORD: ${RECIPES_POSTGRES_PASSWORD:-change-me-recipes-db}
-      RECIPES_POSTGRES_USER: ${RECIPES_POSTGRES_USER:-recipes_user}
-      ICF_DB: ${IDEAL_CITY_FINDER_POSTGRES_DB:-ideal_city}
-    entrypoint: ["/bin/sh", "-c"]
-    command:
-      - psql -h recipes-db -p 5432 -U $$RECIPES_POSTGRES_USER -d $$ICF_DB -c "CREATE EXTENSION IF NOT EXISTS postgis;"
-    depends_on:
-      db-password-sync:
-        condition: service_completed_successfully
-
-  ideal-city-finder-backend:
-    image: ghcr.io/mordanov/ideal-city-finder-backend:latest
-    restart: unless-stopped
-    environment:
-      DATABASE_URL: postgresql+asyncpg://${IDEAL_CITY_FINDER_POSTGRES_USER:-ideal_city_user}:${IDEAL_CITY_FINDER_POSTGRES_PASSWORD:-change-me-ideal-city-finder-db}@recipes-db:5432/${IDEAL_CITY_FINDER_POSTGRES_DB:-ideal_city}
-      REDIS_URL: redis://ideal-city-finder-redis:6379/0
-      AUTH_USER_1_USERNAME: ${IDEAL_CITY_FINDER_AUTH_USER_1_USERNAME:-}
-      AUTH_USER_1_PASSWORD: ${IDEAL_CITY_FINDER_AUTH_USER_1_PASSWORD:-}
-      AUTH_USER_2_USERNAME: ${IDEAL_CITY_FINDER_AUTH_USER_2_USERNAME:-}
-      AUTH_USER_2_PASSWORD: ${IDEAL_CITY_FINDER_AUTH_USER_2_PASSWORD:-}
-      JWT_SECRET_KEY: ${IDEAL_CITY_FINDER_JWT_SECRET_KEY:?IDEAL_CITY_FINDER_JWT_SECRET_KEY is required}
-      JWT_EXPIRE_MINUTES: ${IDEAL_CITY_FINDER_JWT_EXPIRE_MINUTES:-1440}
-      OPENAI_API_KEY: ${IDEAL_CITY_FINDER_OPENAI_API_KEY:?IDEAL_CITY_FINDER_OPENAI_API_KEY is required}
-      GOOGLE_MAPS_API_KEY: ${IDEAL_CITY_FINDER_GOOGLE_MAPS_API_KEY:?IDEAL_CITY_FINDER_GOOGLE_MAPS_API_KEY is required}
-      AEMET_API_KEY: ${IDEAL_CITY_FINDER_AEMET_API_KEY:-}
-      RENT_DATA_SOURCE: ${IDEAL_CITY_FINDER_RENT_DATA_SOURCE:-idealista_index}
-    expose:
-      - "8000"
-    depends_on:
-      recipes-db:
-        condition: service_healthy
-      ideal-city-finder-postgis-init:
-        condition: service_completed_successfully
-      ideal-city-finder-redis:
-        condition: service_healthy
-
-  ideal-city-finder-worker:
-    image: ghcr.io/mordanov/ideal-city-finder-backend:latest
-    restart: unless-stopped
-    command: ["uv", "run", "arq", "app.worker.WorkerSettings"]
-    environment:
-      DATABASE_URL: postgresql+asyncpg://${IDEAL_CITY_FINDER_POSTGRES_USER:-ideal_city_user}:${IDEAL_CITY_FINDER_POSTGRES_PASSWORD:-change-me-ideal-city-finder-db}@recipes-db:5432/${IDEAL_CITY_FINDER_POSTGRES_DB:-ideal_city}
-      REDIS_URL: redis://ideal-city-finder-redis:6379/0
-      AUTH_USER_1_USERNAME: ${IDEAL_CITY_FINDER_AUTH_USER_1_USERNAME:-}
-      AUTH_USER_1_PASSWORD: ${IDEAL_CITY_FINDER_AUTH_USER_1_PASSWORD:-}
-      AUTH_USER_2_USERNAME: ${IDEAL_CITY_FINDER_AUTH_USER_2_USERNAME:-}
-      AUTH_USER_2_PASSWORD: ${IDEAL_CITY_FINDER_AUTH_USER_2_PASSWORD:-}
-      JWT_SECRET_KEY: ${IDEAL_CITY_FINDER_JWT_SECRET_KEY:?IDEAL_CITY_FINDER_JWT_SECRET_KEY is required}
-      JWT_EXPIRE_MINUTES: ${IDEAL_CITY_FINDER_JWT_EXPIRE_MINUTES:-1440}
-      OPENAI_API_KEY: ${IDEAL_CITY_FINDER_OPENAI_API_KEY:?IDEAL_CITY_FINDER_OPENAI_API_KEY is required}
-      GOOGLE_MAPS_API_KEY: ${IDEAL_CITY_FINDER_GOOGLE_MAPS_API_KEY:?IDEAL_CITY_FINDER_GOOGLE_MAPS_API_KEY is required}
-      AEMET_API_KEY: ${IDEAL_CITY_FINDER_AEMET_API_KEY:-}
-      RENT_DATA_SOURCE: ${IDEAL_CITY_FINDER_RENT_DATA_SOURCE:-idealista_index}
-    depends_on:
-      ideal-city-finder-backend:
-        condition: service_started
-      ideal-city-finder-redis:
-        condition: service_healthy
-
-  ideal-city-finder-frontend:
-    image: ghcr.io/mordanov/ideal-city-finder-frontend:latest
     restart: unless-stopped
     expose:
       - "80"

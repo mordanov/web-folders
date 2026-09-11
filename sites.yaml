@@ -206,19 +206,6 @@ sites:
     health_path: /openapi.json
     compose_services: [reminders2-db, reminders2-backend, reminders2-frontend]
 
-  - id: ideal-city-finder
-    priority: 180
-    cert_label: ideal-city-finder
-    domain:
-      primary_var: IDEAL_CITY_FINDER_PRIMARY_DOMAIN
-      server_names_var: IDEAL_CITY_FINDER_SERVER_NAMES
-    db:
-      db_var: IDEAL_CITY_FINDER_POSTGRES_DB
-      user_var: IDEAL_CITY_FINDER_POSTGRES_USER
-      password_var: IDEAL_CITY_FINDER_POSTGRES_PASSWORD
-    health_path: /api/health
-    compose_services: [ideal-city-finder-redis, ideal-city-finder-postgis-init, ideal-city-finder-backend, ideal-city-finder-worker, ideal-city-finder-frontend]
-
   - id: pgview
     priority: 135
     cert_label: pgview

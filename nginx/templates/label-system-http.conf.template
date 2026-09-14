@@ -1,0 +1,24 @@
+server {
+    listen 80;
+    listen [::]:80;
+    server_name ${LABEL_SYSTEM_SERVER_NAMES};
+
+    client_max_body_size 5M;
+
+    # ACME challenge for certbot
+    location /.well-known/acme-challenge/ {
+        root /var/www/certbot;
+    }
+
+    location /api/ {
+        set $label_system_backend http://label-system-backend:8000;
+        proxy_pass $label_system_backend/;
+        include /etc/nginx/snippets/proxy-common.conf;
+    }
+
+    location / {
+        set $label_system_frontend http://label-system-frontend:80;
+        proxy_pass $label_system_frontend;
+        include /etc/nginx/snippets/proxy-common.conf;
+    }
+}

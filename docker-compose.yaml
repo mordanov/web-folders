@@ -251,6 +251,8 @@ services:
       PORTUGUESE_EXPENSES_SERVER_NAMES: ${PORTUGUESE_EXPENSES_SERVER_NAMES:-portugal2026.mainpage.local}
       HOME_RESOURCES_PRIMARY_DOMAIN: ${HOME_RESOURCES_PRIMARY_DOMAIN:-home-resources.mainpage.local}
       HOME_RESOURCES_SERVER_NAMES: ${HOME_RESOURCES_SERVER_NAMES:-home-resources.mainpage.local}
+      LABEL_SYSTEM_PRIMARY_DOMAIN: ${LABEL_SYSTEM_PRIMARY_DOMAIN:-labels.mainpage.local}
+      LABEL_SYSTEM_SERVER_NAMES: ${LABEL_SYSTEM_SERVER_NAMES:-labels.mainpage.local}
       PGVIEW_PRIMARY_DOMAIN: ${PGVIEW_PRIMARY_DOMAIN:-pgview.admin.mainpage.local}
       PGVIEW_SERVER_NAMES: ${PGVIEW_SERVER_NAMES:-pgview.admin.mainpage.local}
       PGVIEW_USER: ${PGVIEW_USER:-admin}
@@ -294,6 +296,8 @@ services:
       - portuguese-expenses-frontend
       - home-resources-backend
       - home-resources-frontend
+      - label-system-backend
+      - label-system-frontend
       - pgview
       - google-timeline-backend
       - google-timeline-importer
@@ -586,6 +590,38 @@ services:
     expose:
       - "80"
 
+  label-system-backend:
+    image: ghcr.io/mordanov/label-system-backend:latest
+    restart: unless-stopped
+    environment:
+      DB_HOST: recipes-db
+      DB_PORT: 5432
+      DB_USER: ${LABEL_SYSTEM_POSTGRES_USER:-label_system_user}
+      DB_PASSWORD: ${LABEL_SYSTEM_POSTGRES_PASSWORD:-change-me-label-system-db}
+      DB_NAME: ${LABEL_SYSTEM_POSTGRES_DB:-label_system}
+      APP_USER_1: ${LABEL_SYSTEM_APP_USER_1:-user1}
+      APP_PASS_1: ${LABEL_SYSTEM_APP_PASS_1:-change-me-label-pass1}
+      APP_USER_2: ${LABEL_SYSTEM_APP_USER_2:-user2}
+      APP_PASS_2: ${LABEL_SYSTEM_APP_PASS_2:-change-me-label-pass2}
+      PRINT_ENABLED: "false"
+      OPENAI_API_KEY: ${LABEL_SYSTEM_OPENAI_API_KEY:-}
+      OPENAI_IMAGE_MODEL: ${LABEL_SYSTEM_OPENAI_IMAGE_MODEL:-gpt-image-1}
+    volumes:
+      - label_system_icons_generated:/app/assets/icons/generated
+    expose:
+      - "8000"
+    depends_on:
+      recipes-db:
+        condition: service_healthy
+      db-password-sync:
+        condition: service_completed_successfully
+
+  label-system-frontend:
+    image: ghcr.io/mordanov/label-system-frontend:latest
+    restart: unless-stopped
+    expose:
+      - "80"
+
   home-resources-backend:
     image: ghcr.io/mordanov/home-resources-backend:latest
     restart: unless-stopped
@@ -813,6 +849,7 @@ volumes:
   servinga_prometheus_data:
   portuguese_expenses_uploads_data:
   home_resources_uploads_data:
+  label_system_icons_generated:
   certbot_certs:
   certbot_www:
   verdecora_bot_data:

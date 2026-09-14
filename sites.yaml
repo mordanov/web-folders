@@ -157,6 +157,19 @@ sites:
     health_path: /health
     compose_services: [portuguese-expenses-backend, portuguese-expenses-frontend]
 
+  - id: label-system
+    priority: 120
+    cert_label: label-system
+    domain:
+      primary_var: LABEL_SYSTEM_PRIMARY_DOMAIN
+      server_names_var: LABEL_SYSTEM_SERVER_NAMES
+    db:
+      db_var: LABEL_SYSTEM_POSTGRES_DB
+      user_var: LABEL_SYSTEM_POSTGRES_USER
+      password_var: LABEL_SYSTEM_POSTGRES_PASSWORD
+    health_path: /health
+    compose_services: [label-system-backend, label-system-frontend]
+
   - id: home-resources
     priority: 130
     cert_label: home-resource-consumption

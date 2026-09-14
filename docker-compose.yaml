@@ -42,6 +42,9 @@ services:
       DOC_FORGE_POSTGRES_DB: ${DOC_FORGE_POSTGRES_DB:-doc_forge}
       DOC_FORGE_POSTGRES_USER: ${DOC_FORGE_POSTGRES_USER:-doc_forge_user}
       DOC_FORGE_POSTGRES_PASSWORD: ${DOC_FORGE_POSTGRES_PASSWORD:-change-me-doc-forge-db}
+      LABEL_SYSTEM_POSTGRES_DB: ${LABEL_SYSTEM_POSTGRES_DB:-label_system}
+      LABEL_SYSTEM_POSTGRES_USER: ${LABEL_SYSTEM_POSTGRES_USER:-label_system_user}
+      LABEL_SYSTEM_POSTGRES_PASSWORD: ${LABEL_SYSTEM_POSTGRES_PASSWORD:-change-me-label-system-db}
     volumes:
       - recipes_postgres_data:/var/lib/postgresql/data
       - ./postgres-init:/docker-entrypoint-initdb.d:ro
@@ -94,6 +97,9 @@ services:
       DOC_FORGE_POSTGRES_DB: ${DOC_FORGE_POSTGRES_DB:-doc_forge}
       DOC_FORGE_POSTGRES_USER: ${DOC_FORGE_POSTGRES_USER:-doc_forge_user}
       DOC_FORGE_POSTGRES_PASSWORD: ${DOC_FORGE_POSTGRES_PASSWORD:-change-me-doc-forge-db}
+      LABEL_SYSTEM_POSTGRES_DB: ${LABEL_SYSTEM_POSTGRES_DB:-label_system}
+      LABEL_SYSTEM_POSTGRES_USER: ${LABEL_SYSTEM_POSTGRES_USER:-label_system_user}
+      LABEL_SYSTEM_POSTGRES_PASSWORD: ${LABEL_SYSTEM_POSTGRES_PASSWORD:-change-me-label-system-db}
     volumes:
       - ./scripts/sync-app-db-users.sh:/usr/local/bin/sync-app-db-users.sh:ro
       - ./sites.yaml:/etc/web-folders/sites.yaml:ro

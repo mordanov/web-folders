@@ -21,9 +21,6 @@ services:
       ARCHIVE_POSTGRES_DB: ${ARCHIVE_POSTGRES_DB:-archive}
       ARCHIVE_POSTGRES_USER: ${ARCHIVE_POSTGRES_USER:-archive_user}
       ARCHIVE_POSTGRES_PASSWORD: ${ARCHIVE_POSTGRES_PASSWORD:-change-me-archive-db}
-      SERVINGA_POSTGRES_DB: ${SERVINGA_POSTGRES_DB:-servinga}
-      SERVINGA_POSTGRES_USER: ${SERVINGA_POSTGRES_USER:-servinga_user}
-      SERVINGA_POSTGRES_PASSWORD: ${SERVINGA_POSTGRES_PASSWORD:-change-me-servinga-db}
       PORTUGUESE_EXPENSES_POSTGRES_DB: ${PORTUGUESE_EXPENSES_POSTGRES_DB:-portuguese_expenses}
       PORTUGUESE_EXPENSES_POSTGRES_USER: ${PORTUGUESE_EXPENSES_POSTGRES_USER:-portuguese_expenses_user}
       PORTUGUESE_EXPENSES_POSTGRES_PASSWORD: ${PORTUGUESE_EXPENSES_POSTGRES_PASSWORD:-change-me-portuguese-expenses-db}
@@ -45,6 +42,9 @@ services:
       LABEL_SYSTEM_POSTGRES_DB: ${LABEL_SYSTEM_POSTGRES_DB:-label_system}
       LABEL_SYSTEM_POSTGRES_USER: ${LABEL_SYSTEM_POSTGRES_USER:-label_system_user}
       LABEL_SYSTEM_POSTGRES_PASSWORD: ${LABEL_SYSTEM_POSTGRES_PASSWORD:-change-me-label-system-db}
+      MOVIECATALOG_POSTGRES_DB: ${MOVIECATALOG_POSTGRES_DB:-moviecatalog}
+      MOVIECATALOG_POSTGRES_USER: ${MOVIECATALOG_POSTGRES_USER:-catalog}
+      MOVIECATALOG_POSTGRES_PASSWORD: ${MOVIECATALOG_POSTGRES_PASSWORD:-change-me-movie-catalog-db}
     volumes:
       - recipes_postgres_data:/var/lib/postgresql/data
       - ./postgres-init:/docker-entrypoint-initdb.d:ro
@@ -76,9 +76,6 @@ services:
       ARCHIVE_POSTGRES_DB: ${ARCHIVE_POSTGRES_DB:-archive}
       ARCHIVE_POSTGRES_USER: ${ARCHIVE_POSTGRES_USER:-archive_user}
       ARCHIVE_POSTGRES_PASSWORD: ${ARCHIVE_POSTGRES_PASSWORD:-change-me-archive-db}
-      SERVINGA_POSTGRES_DB: ${SERVINGA_POSTGRES_DB:-servinga}
-      SERVINGA_POSTGRES_USER: ${SERVINGA_POSTGRES_USER:-servinga_user}
-      SERVINGA_POSTGRES_PASSWORD: ${SERVINGA_POSTGRES_PASSWORD:-change-me-servinga-db}
       PORTUGUESE_EXPENSES_POSTGRES_DB: ${PORTUGUESE_EXPENSES_POSTGRES_DB:-portuguese_expenses}
       PORTUGUESE_EXPENSES_POSTGRES_USER: ${PORTUGUESE_EXPENSES_POSTGRES_USER:-portuguese_expenses_user}
       PORTUGUESE_EXPENSES_POSTGRES_PASSWORD: ${PORTUGUESE_EXPENSES_POSTGRES_PASSWORD:-change-me-portuguese-expenses-db}
@@ -100,6 +97,9 @@ services:
       LABEL_SYSTEM_POSTGRES_DB: ${LABEL_SYSTEM_POSTGRES_DB:-label_system}
       LABEL_SYSTEM_POSTGRES_USER: ${LABEL_SYSTEM_POSTGRES_USER:-label_system_user}
       LABEL_SYSTEM_POSTGRES_PASSWORD: ${LABEL_SYSTEM_POSTGRES_PASSWORD:-change-me-label-system-db}
+      MOVIECATALOG_POSTGRES_DB: ${MOVIECATALOG_POSTGRES_DB:-moviecatalog}
+      MOVIECATALOG_POSTGRES_USER: ${MOVIECATALOG_POSTGRES_USER:-catalog}
+      MOVIECATALOG_POSTGRES_PASSWORD: ${MOVIECATALOG_POSTGRES_PASSWORD:-change-me-movie-catalog-db}
     volumes:
       - ./scripts/sync-app-db-users.sh:/usr/local/bin/sync-app-db-users.sh:ro
       - ./sites.yaml:/etc/web-folders/sites.yaml:ro
@@ -221,7 +221,7 @@ services:
       MAINPAGE_ENABLE_TIMELINE: ${MAINPAGE_ENABLE_TIMELINE:-1}
       MAINPAGE_ENABLE_HOMERESOURCES: ${MAINPAGE_ENABLE_HOMERESOURCES:-1}
       MAINPAGE_ENABLE_EXPENSES: ${MAINPAGE_ENABLE_EXPENSES:-1}
-      MAINPAGE_ENABLE_SERVINGA: ${MAINPAGE_ENABLE_SERVINGA:-1}
+      MAINPAGE_ENABLE_TRAVELSEARCH: ${MAINPAGE_ENABLE_TRAVELSEARCH:-1}
     expose:
       - "80"
 
@@ -251,8 +251,6 @@ services:
       ADMIN_ROUTINE_SERVER_NAMES: ${ADMIN_ROUTINE_SERVER_NAMES:-admin.mainpage.local}
       ARCHIVE_PRIMARY_DOMAIN: ${ARCHIVE_PRIMARY_DOMAIN:-archive.mainpage.local}
       ARCHIVE_SERVER_NAMES: ${ARCHIVE_SERVER_NAMES:-archive.mainpage.local}
-      SERVINGA_PRIMARY_DOMAIN: ${SERVINGA_PRIMARY_DOMAIN:-servinga.mainpage.local}
-      SERVINGA_SERVER_NAMES: ${SERVINGA_SERVER_NAMES:-servinga.mainpage.local}
       PORTUGUESE_EXPENSES_PRIMARY_DOMAIN: ${PORTUGUESE_EXPENSES_PRIMARY_DOMAIN:-portugal2026.mainpage.local}
       PORTUGUESE_EXPENSES_SERVER_NAMES: ${PORTUGUESE_EXPENSES_SERVER_NAMES:-portugal2026.mainpage.local}
       HOME_RESOURCES_PRIMARY_DOMAIN: ${HOME_RESOURCES_PRIMARY_DOMAIN:-home-resources.mainpage.local}
@@ -270,6 +268,8 @@ services:
       REMINDERS2_PRIMARY_DOMAIN: ${REMINDERS2_PRIMARY_DOMAIN:-reminders2.mainpage.ru}
       REMINDERS2_SERVER_NAMES: ${REMINDERS2_SERVER_NAMES:-reminders2.mainpage.ru}
       REMINDERS2_INTERNAL_AUTH_SECRET: ${REMINDERS2_INTERNAL_AUTH_SECRET:?REMINDERS2_INTERNAL_AUTH_SECRET is required}
+      MOVIECATALOG_PRIMARY_DOMAIN: ${MOVIECATALOG_PRIMARY_DOMAIN:-movies.miveralta.ru}
+      MOVIECATALOG_SERVER_NAMES: ${MOVIECATALOG_SERVER_NAMES:-movies.miveralta.ru}
       REMINDERS2_AUTH_USER_1_USERNAME: ${REMINDERS2_AUTH_USER_1_USERNAME:?REMINDERS2_AUTH_USER_1_USERNAME is required}
       REMINDERS2_AUTH_USER_1_PASSWORD: ${REMINDERS2_AUTH_USER_1_PASSWORD:?REMINDERS2_AUTH_USER_1_PASSWORD is required}
       REMINDERS2_AUTH_USER_2_USERNAME: ${REMINDERS2_AUTH_USER_2_USERNAME:?REMINDERS2_AUTH_USER_2_USERNAME is required}
@@ -296,8 +296,6 @@ services:
       - admin-routine-frontend
       - archive-backend
       - archive-frontend
-      - servinga-backend
-      - servinga-frontend
       - portuguese-expenses-backend
       - portuguese-expenses-frontend
       - home-resources-backend
@@ -314,6 +312,8 @@ services:
       - reminders2-frontend
       - fuel-weather-bot
       - flying-search-bot
+      - movie-catalog-backend
+      - movie-catalog-web
 
   certbot:
     image: certbot/certbot:latest
@@ -432,9 +432,6 @@ services:
       PORTUGUESE_EXPENSES_POSTGRES_DB: ${PORTUGUESE_EXPENSES_POSTGRES_DB:-portuguese_expenses}
       PORTUGUESE_EXPENSES_POSTGRES_USER: ${PORTUGUESE_EXPENSES_POSTGRES_USER:-portuguese_expenses_user}
       PORTUGUESE_EXPENSES_POSTGRES_PASSWORD: ${PORTUGUESE_EXPENSES_POSTGRES_PASSWORD:-change-me-portuguese-expenses-db}
-      SERVINGA_POSTGRES_DB: ${SERVINGA_POSTGRES_DB:-servinga}
-      SERVINGA_POSTGRES_USER: ${SERVINGA_POSTGRES_USER:-servinga_user}
-      SERVINGA_POSTGRES_PASSWORD: ${SERVINGA_POSTGRES_PASSWORD:-change-me-servinga-db}
       GITHUB_TOKEN: ${GITHUB_TOKEN:-}
       GITHUB_OWNER: ${GITHUB_OWNER:-}
       # Backup storage backend (local FS volume by default; switch to "s3" to
@@ -455,8 +452,6 @@ services:
       - news_photos_data:/mnt/news_photos
       - budget_uploads_data:/mnt/budget_uploads
       - archive_thumbnails_data:/mnt/archive_thumbnails
-
-      - servinga_prometheus_data:/mnt/servinga_prometheus_data
       - portuguese_expenses_uploads_data:/mnt/portuguese_expenses_uploads
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - ./ci-repos.yaml:/etc/admin-routine/ci-repos.yaml:ro
@@ -521,47 +516,6 @@ services:
     expose:
       - "80"
 
-
-  servinga-prometheus:
-    image: prom/prometheus:v2.51.0
-    restart: unless-stopped
-    network_mode: host
-    volumes:
-      - ../servinga-monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
-      - servinga_prometheus_data:/prometheus
-    command:
-      - "--config.file=/etc/prometheus/prometheus.yml"
-      - "--storage.tsdb.path=/prometheus"
-      - "--storage.tsdb.retention.time=30d"
-      - "--web.listen-address=0.0.0.0:9090"
-      - "--web.enable-lifecycle"
-
-  servinga-backend:
-    image: ghcr.io/mordanov/servinga-backend:latest
-    restart: unless-stopped
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
-    environment:
-      PROMETHEUS_URL: http://host.docker.internal:9090
-      PROMETHEUS_FALLBACK_URLS: http://gateway.docker.internal:9090
-      NO_PROXY: localhost,127.0.0.1,host.docker.internal
-      no_proxy: localhost,127.0.0.1,host.docker.internal
-      DATABASE_URL: postgresql+asyncpg://${SERVINGA_POSTGRES_USER:-servinga_user}:${SERVINGA_POSTGRES_PASSWORD:-change-me-servinga-db}@recipes-db:5432/${SERVINGA_POSTGRES_DB:-servinga}
-    expose:
-      - "8000"
-    depends_on:
-      recipes-db:
-        condition: service_healthy
-      db-password-sync:
-        condition: service_completed_successfully
-      servinga-prometheus:
-        condition: service_started
-
-  servinga-frontend:
-    image: ghcr.io/mordanov/servinga-frontend:latest
-    restart: unless-stopped
-    expose:
-      - "80"
 
   portuguese-expenses-backend:
     image: ghcr.io/mordanov/portuguese-expenses-backend:latest
@@ -752,6 +706,9 @@ services:
       TERREMOTO_MAXLAT: ${FUEL_WEATHER_BOT_TERREMOTO_MAXLAT:-44.0}
       TERREMOTO_MINLON: ${FUEL_WEATHER_BOT_TERREMOTO_MINLON:--19.0}
       TERREMOTO_MAXLON: ${FUEL_WEATHER_BOT_TERREMOTO_MAXLON:-5.0}
+      EARTHQUAKE_CACHE_FILE: /data/earthquake_seen.json
+    volumes:
+      - fuel_weather_bot_data:/data
     depends_on:
       recipes-db:
         condition: service_healthy
@@ -822,6 +779,55 @@ services:
     expose:
       - "80"
 
+  movie-catalog-backend:
+    image: ghcr.io/mordanov/movie-catalog-backend:latest
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql+asyncpg://${MOVIECATALOG_POSTGRES_USER:-catalog}:${MOVIECATALOG_POSTGRES_PASSWORD:-change-me-movie-catalog-db}@recipes-db:5432/${MOVIECATALOG_POSTGRES_DB:-moviecatalog}
+      OPENAI_API_KEY: ${MOVIECATALOG_OPENAI_API_KEY:?MOVIECATALOG_OPENAI_API_KEY is required}
+      TMDB_API_KEY: ${MOVIECATALOG_TMDB_API_KEY:?MOVIECATALOG_TMDB_API_KEY is required}
+      S3_ENDPOINT: ${ARCHIVE_S3_ENDPOINT_URL:?ARCHIVE_S3_ENDPOINT_URL is required}
+      S3_REGION: ${ARCHIVE_S3_REGION:-fsn1}
+      S3_ACCESS_KEY: ${ARCHIVE_S3_ACCESS_KEY:?ARCHIVE_S3_ACCESS_KEY is required}
+      S3_SECRET_KEY: ${ARCHIVE_S3_SECRET_KEY:?ARCHIVE_S3_SECRET_KEY is required}
+      S3_BUCKET: ${ARCHIVE_S3_BUCKET:?ARCHIVE_S3_BUCKET is required}
+      S3_KEY_PREFIX: movie_posters/
+      S3_FORCE_PATH_STYLE: ${ARCHIVE_S3_FORCE_PATH_STYLE:-1}
+      S3_PUBLIC_URL: ${MOVIECATALOG_S3_PUBLIC_URL:?MOVIECATALOG_S3_PUBLIC_URL is required}
+      WEB_USER_1_LOGIN: ${MOVIECATALOG_WEB_USER_1_LOGIN:?MOVIECATALOG_WEB_USER_1_LOGIN is required}
+      WEB_USER_1_PASSWORD: ${MOVIECATALOG_WEB_USER_1_PASSWORD:?MOVIECATALOG_WEB_USER_1_PASSWORD is required}
+      WEB_USER_2_LOGIN: ${MOVIECATALOG_WEB_USER_2_LOGIN:-}
+      WEB_USER_2_PASSWORD: ${MOVIECATALOG_WEB_USER_2_PASSWORD:-}
+      JWT_SECRET: ${MOVIECATALOG_JWT_SECRET:?MOVIECATALOG_JWT_SECRET is required}
+      JWT_EXPIRE_HOURS: ${MOVIECATALOG_JWT_EXPIRE_HOURS:-72}
+      BOT_SECRET: ${MOVIECATALOG_BOT_SECRET:?MOVIECATALOG_BOT_SECRET is required}
+      COOKIE_SECURE: ${MOVIECATALOG_COOKIE_SECURE:-true}
+      INITIAL_ADMIN_TELEGRAM_ID: ${MOVIECATALOG_INITIAL_ADMIN_TELEGRAM_ID:-}
+    expose:
+      - "8000"
+    depends_on:
+      recipes-db:
+        condition: service_healthy
+      db-password-sync:
+        condition: service_completed_successfully
+
+  movie-catalog-bot:
+    image: ghcr.io/mordanov/movie-catalog-bot:latest
+    restart: unless-stopped
+    environment:
+      TELEGRAM_BOT_TOKEN: ${MOVIECATALOG_TELEGRAM_BOT_TOKEN:?MOVIECATALOG_TELEGRAM_BOT_TOKEN is required}
+      INITIAL_ADMIN_TELEGRAM_ID: ${MOVIECATALOG_INITIAL_ADMIN_TELEGRAM_ID:-}
+      BACKEND_URL: http://movie-catalog-backend:8000
+      BOT_SECRET: ${MOVIECATALOG_BOT_SECRET:?MOVIECATALOG_BOT_SECRET is required}
+    depends_on:
+      - movie-catalog-backend
+
+  movie-catalog-web:
+    image: ghcr.io/mordanov/movie-catalog-web:latest
+    restart: unless-stopped
+    expose:
+      - "80"
+
   pgview:
     image: sosedoff/pgweb
     restart: unless-stopped
@@ -841,6 +847,19 @@ services:
     volumes:
       - verdecora_bot_data:/data
 
+  docker-cleanup:
+    image: docker:cli
+    restart: unless-stopped
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    entrypoint: /bin/sh
+    command: >
+      -c "trap exit TERM INT;
+          while :; do
+            sleep ${DOCKER_CLEANUP_INTERVAL:-604800} & wait $${!};
+            docker system prune -af;
+          done"
+
 volumes:
   recipes_postgres_data:
   recipes_uploads_data:
@@ -851,8 +870,7 @@ volumes:
   budget_uploads_data:
   admin_routine_backups_data:
   archive_thumbnails_data:
-
-  servinga_prometheus_data:
+  fuel_weather_bot_data:
   portuguese_expenses_uploads_data:
   home_resources_uploads_data:
   label_system_icons_generated:

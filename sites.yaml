@@ -131,19 +131,6 @@ sites:
     health_path: /health
     compose_services: [archive-backend, archive-frontend]
 
-  - id: servinga
-    priority: 100
-    cert_label: servinga-dashboard
-    domain:
-      primary_var: SERVINGA_PRIMARY_DOMAIN
-      server_names_var: SERVINGA_SERVER_NAMES
-    db:
-      db_var: SERVINGA_POSTGRES_DB
-      user_var: SERVINGA_POSTGRES_USER
-      password_var: SERVINGA_POSTGRES_PASSWORD
-    health_path: /api/health
-    compose_services: [servinga-backend, servinga-frontend]
-
   - id: portuguese-expenses
     priority: 110
     cert_label: portuguese-expenses
@@ -218,6 +205,19 @@ sites:
     template_vars: [REMINDERS2_INTERNAL_AUTH_SECRET]
     health_path: /openapi.json
     compose_services: [reminders2-db, reminders2-backend, reminders2-frontend]
+
+  - id: movie-catalog
+    priority: 180
+    cert_label: movie-catalog
+    domain:
+      primary_var: MOVIECATALOG_PRIMARY_DOMAIN
+      server_names_var: MOVIECATALOG_SERVER_NAMES
+    db:
+      db_var: MOVIECATALOG_POSTGRES_DB
+      user_var: MOVIECATALOG_POSTGRES_USER
+      password_var: MOVIECATALOG_POSTGRES_PASSWORD
+    health_path: /api/health
+    compose_services: [movie-catalog-backend, movie-catalog-bot, movie-catalog-web]
 
   - id: pgview
     priority: 135

@@ -52,6 +52,14 @@ jobs:
           IDEAL_CITY_FINDER_JWT_SECRET_KEY="${IDEAL_CITY_FINDER_JWT_SECRET_KEY:-placeholder-ideal-city-finder-jwt-secret}" \
           IDEAL_CITY_FINDER_OPENAI_API_KEY="${IDEAL_CITY_FINDER_OPENAI_API_KEY:-placeholder-ideal-city-finder-openai-key}" \
           IDEAL_CITY_FINDER_GOOGLE_MAPS_API_KEY="${IDEAL_CITY_FINDER_GOOGLE_MAPS_API_KEY:-placeholder-ideal-city-finder-maps-key}" \
+          MOVIECATALOG_OPENAI_API_KEY="${MOVIECATALOG_OPENAI_API_KEY:-placeholder-movie-catalog-openai-key}" \
+          MOVIECATALOG_TMDB_API_KEY="${MOVIECATALOG_TMDB_API_KEY:-placeholder-movie-catalog-tmdb-key}" \
+          MOVIECATALOG_JWT_SECRET="${MOVIECATALOG_JWT_SECRET:-placeholder-movie-catalog-jwt-secret}" \
+          MOVIECATALOG_BOT_SECRET="${MOVIECATALOG_BOT_SECRET:-placeholder-movie-catalog-bot-secret}" \
+          MOVIECATALOG_TELEGRAM_BOT_TOKEN="${MOVIECATALOG_TELEGRAM_BOT_TOKEN:-placeholder-movie-catalog-bot-token}" \
+          MOVIECATALOG_S3_PUBLIC_URL="${MOVIECATALOG_S3_PUBLIC_URL:-https://fsn1.your-objectstorage.com/mordanov-archive/movie_posters}" \
+          MOVIECATALOG_WEB_USER_1_LOGIN="${MOVIECATALOG_WEB_USER_1_LOGIN:-placeholder-movie-catalog-user1-login}" \
+          MOVIECATALOG_WEB_USER_1_PASSWORD="${MOVIECATALOG_WEB_USER_1_PASSWORD:-placeholder-movie-catalog-user1-password}" \
           docker compose -f docker-compose.yaml config > /dev/null
 
   deploy:

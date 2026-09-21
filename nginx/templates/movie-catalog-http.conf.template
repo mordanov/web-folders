@@ -1,0 +1,22 @@
+server {
+    listen 80;
+    listen [::]:80;
+    server_name ${MOVIECATALOG_SERVER_NAMES};
+
+    location /.well-known/acme-challenge/ {
+        root /var/www/certbot;
+    }
+
+    location /api/ {
+        set $movie_catalog_backend http://movie-catalog-backend:8000;
+        proxy_pass $movie_catalog_backend;
+        include /etc/nginx/snippets/proxy-common.conf;
+        proxy_read_timeout 60s;
+    }
+
+    location / {
+        set $movie_catalog_frontend http://movie-catalog-web:80;
+        proxy_pass $movie_catalog_frontend;
+        include /etc/nginx/snippets/proxy-common.conf;
+    }
+}

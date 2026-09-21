@@ -55,7 +55,6 @@ configure_link "ADMIN"         "admin"          "${MAINPAGE_ENABLE_ADMIN:-1}"
 configure_link "TIMELINE"      "timeline"       "${MAINPAGE_ENABLE_TIMELINE:-1}"
 configure_link "HOMERESOURCES" "home-resources" "${MAINPAGE_ENABLE_HOMERESOURCES:-1}"
 configure_link "EXPENSES"      "portugal2026"   "${MAINPAGE_ENABLE_EXPENSES:-1}"
-configure_link "SERVINGA"      "monitoring"     "${MAINPAGE_ENABLE_SERVINGA:-1}"
 configure_link "TRAVELSEARCH"  "travelsearch"   "${MAINPAGE_ENABLE_TRAVELSEARCH:-1}"
 
 escape_sed() {
@@ -116,11 +115,6 @@ sed \
   -e "s|__EXPENSES_LINK_TITLE__|$(escape_sed "$EXPENSES_LINK_TITLE")|g" \
   -e "s|__EXPENSES_LINK_ARIA_DISABLED__|$(escape_sed "$EXPENSES_LINK_ARIA_DISABLED")|g" \
   -e "s|__EXPENSES_LINK_TABINDEX__|$(escape_sed "$EXPENSES_LINK_TABINDEX")|g" \
-  -e "s|__SERVINGA_LINK_HREF__|$(escape_sed "$SERVINGA_LINK_HREF")|g" \
-  -e "s|__SERVINGA_LINK_CLASS__|$(escape_sed "$SERVINGA_LINK_CLASS")|g" \
-  -e "s|__SERVINGA_LINK_TITLE__|$(escape_sed "$SERVINGA_LINK_TITLE")|g" \
-  -e "s|__SERVINGA_LINK_ARIA_DISABLED__|$(escape_sed "$SERVINGA_LINK_ARIA_DISABLED")|g" \
-  -e "s|__SERVINGA_LINK_TABINDEX__|$(escape_sed "$SERVINGA_LINK_TABINDEX")|g" \
   -e "s|__TRAVELSEARCH_LINK_HREF__|$(escape_sed "$TRAVELSEARCH_LINK_HREF")|g" \
   -e "s|__TRAVELSEARCH_LINK_CLASS__|$(escape_sed "$TRAVELSEARCH_LINK_CLASS")|g" \
   -e "s|__TRAVELSEARCH_LINK_TITLE__|$(escape_sed "$TRAVELSEARCH_LINK_TITLE")|g" \

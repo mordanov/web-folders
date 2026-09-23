@@ -361,7 +361,108 @@ cp web-folders/ci-workflow-templates/<APP_ID>.yml \
 
 ---
 
-## 7. Issue the TLS certificate
+## 7. Add a favicon and app icons to the frontend
+
+Directory: `<app-repo>/web/public/` (or `frontend/public/` — wherever Vite's `publicDir` points)
+
+Every onboarded app needs a complete icon set so the browser tab, bookmarks, and the iOS home-screen shortcut all look intentional. Do this before the first CI build so the images land in the Docker image.
+
+### Files to create
+
+| File | Size | Purpose |
+|---|---|---|
+| `favicon.svg` | vector | Modern browsers (replaces Vite's default `vite.svg`) |
+| `favicon-32x32.png` | 32 × 32 | Standard favicon fallback |
+| `favicon-16x16.png` | 16 × 16 | Legacy favicon fallback |
+| `apple-touch-icon.png` | 180 × 180 | iOS home screen / Safari |
+| `icon-192x192.png` | 192 × 192 | PWA manifest |
+| `icon-512x512.png` | 512 × 512 | PWA manifest (also used as `maskable`) |
+| `site.webmanifest` | — | PWA metadata |
+
+### Design the SVG
+
+Create `public/favicon.svg`. Use a simple, flat icon that reads at 16 px:
+- Pick a motif from the app's domain (clapperboard for a movie catalog, printer for a label system, etc.)
+- Use the app's primary/background colors from its CSS theme tokens
+- `viewBox="0 0 100 100"`, background `<rect>` with `rx="18"` for rounded corners
+- B/W high-contrast shapes only — avoid gradients and thin strokes that disappear at small sizes
+
+### Generate PNGs with Pillow
+
+Pillow is available in the project's Python venv. Write a small script and run it once from the repo root. The `rr()` helper draws rounded rectangles:
+
+```python
+# scripts/gen_icons.py  (run once, commit the PNGs, delete the script)
+from PIL import Image, ImageDraw
+import os
+
+def rr(draw, box, r, fill):
+    x0, y0, x1, y1 = box
+    r = min(r, (x1-x0)//2, (y1-y0)//2)
+    if r <= 0:
+        draw.rectangle(box, fill=fill); return
+    draw.rectangle([x0+r, y0, x1-r, y1], fill=fill)
+    draw.rectangle([x0, y0+r, x1, y1-r], fill=fill)
+    for cx, cy in [(x0+r,y0+r),(x1-r,y0+r),(x0+r,y1-r),(x1-r,y1-r)]:
+        draw.ellipse([cx-r,cy-r,cx+r,cy+r], fill=fill)
+
+def make_icon(size):
+    img = Image.new('RGBA', (size, size), (0,0,0,0))
+    d = ImageDraw.Draw(img)
+    sc = lambda v: round(v * size / 100)   # scale from 100×100 space
+    # --- draw your icon here using rr(), d.rectangle(), etc. ---
+    # Scale every coordinate with sc(). See movie-catalog for a worked example.
+    return img
+
+os.makedirs('web/public', exist_ok=True)
+for path, size in {
+    'web/public/favicon-16x16.png':   16,
+    'web/public/favicon-32x32.png':   32,
+    'web/public/apple-touch-icon.png': 180,
+    'web/public/icon-192x192.png':    192,
+    'web/public/icon-512x512.png':    512,
+}.items():
+    make_icon(size).save(path, 'PNG')
+    print(f'✓ {path}')
+```
+
+Use PIL's `clipPath` equivalent (create a mask layer, draw shapes on it, then `img.paste(layer, mask=mask)`) when you need the rounded clapper-clip effect on an inner element.
+
+### Create `site.webmanifest`
+
+```json
+{
+  "name": "<App full name>",
+  "short_name": "<Short name>",
+  "description": "<One line>",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "<app bg hex>",
+  "theme_color": "<app bg hex>",
+  "icons": [
+    { "src": "/icon-192x192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/icon-512x512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "/icon-512x512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
+```
+
+### Update `index.html`
+
+Replace the default Vite favicon line with:
+
+```html
+<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+<link rel="manifest" href="/site.webmanifest" />
+<meta name="theme-color" content="<app bg hex>" />
+```
+
+---
+
+## 8. Issue the TLS certificate
 
 On the VPS, after the stack has been restarted with the new services in HTTP-only mode, issue the certificate:
 
@@ -382,7 +483,7 @@ docker compose up -d --force-recreate nginx
 
 ---
 
-## 8. First-time deployment on the VPS
+## 9. First-time deployment on the VPS
 
 If the images do not yet exist on the VPS (CI has not run yet), pull and start them manually:
 
@@ -411,7 +512,7 @@ After the first successful CI build, future deployments are fully automated.
 
 ---
 
-## 9. Verify
+## 10. Verify
 
 Run these checks before declaring the app live:
 
@@ -448,5 +549,9 @@ docker compose exec nginx nginx -t
 - [ ] `.env` on VPS — real values filled in
 - [ ] CI workflow template created and copied to app repo
 - [ ] `ci-workflow-templates/README.md` — table row added
+- [ ] `public/favicon.svg` — designed and committed
+- [ ] `public/favicon-{16,32}.png`, `apple-touch-icon.png`, `icon-{192,512}.png` — generated and committed
+- [ ] `public/site.webmanifest` — created
+- [ ] `index.html` — favicon links updated
 - [ ] TLS certificate issued
 - [ ] Health check passes

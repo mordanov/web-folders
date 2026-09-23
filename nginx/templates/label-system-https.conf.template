@@ -14,7 +14,8 @@ server {
 
     location /api/ {
         set $label_system_backend http://label-system-backend:8000;
-        proxy_pass $label_system_backend/;
+        rewrite ^/api/(.*)$ /$1 break;
+        proxy_pass $label_system_backend;
         include /etc/nginx/snippets/proxy-common.conf;
     }
 

@@ -239,9 +239,7 @@ sites:
     compose_services: [pgview]
 
 workers:
-  - id: solfeo-telegram-prototype
-    compose_services: [solfeo-telegram-prototype]
-
+  # Solfeo Telegram polling now belongs to the isolated product deployment.
   - id: fuel-weather-bot
     db:
       db_var: FUEL_WEATHER_BOT_POSTGRES_DB

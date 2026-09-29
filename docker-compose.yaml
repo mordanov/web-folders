@@ -270,6 +270,8 @@ services:
       REMINDERS2_INTERNAL_AUTH_SECRET: ${REMINDERS2_INTERNAL_AUTH_SECRET:?REMINDERS2_INTERNAL_AUTH_SECRET is required}
       MOVIECATALOG_PRIMARY_DOMAIN: ${MOVIECATALOG_PRIMARY_DOMAIN:-movies.miveralta.ru}
       MOVIECATALOG_SERVER_NAMES: ${MOVIECATALOG_SERVER_NAMES:-movies.miveralta.ru}
+      SOLFEO_PWA_PROTOTYPE_PRIMARY_DOMAIN: ${SOLFEO_PWA_PROTOTYPE_PRIMARY_DOMAIN:-solfeo.miveralta.ru}
+      SOLFEO_PWA_PROTOTYPE_SERVER_NAMES: ${SOLFEO_PWA_PROTOTYPE_SERVER_NAMES:-solfeo.miveralta.ru}
       REMINDERS2_AUTH_USER_1_USERNAME: ${REMINDERS2_AUTH_USER_1_USERNAME:?REMINDERS2_AUTH_USER_1_USERNAME is required}
       REMINDERS2_AUTH_USER_1_PASSWORD: ${REMINDERS2_AUTH_USER_1_PASSWORD:?REMINDERS2_AUTH_USER_1_PASSWORD is required}
       REMINDERS2_AUTH_USER_2_USERNAME: ${REMINDERS2_AUTH_USER_2_USERNAME:?REMINDERS2_AUTH_USER_2_USERNAME is required}
@@ -314,6 +316,7 @@ services:
       - flying-search-bot
       - movie-catalog-backend
       - movie-catalog-web
+      - solfeo-pwa-prototype
 
   certbot:
     image: certbot/certbot:latest
@@ -827,6 +830,18 @@ services:
     restart: unless-stopped
     expose:
       - "80"
+
+  solfeo-pwa-prototype:
+    image: ${SOLFEO_PWA_PROTOTYPE_IMAGE:-ghcr.io/mordanov/solfeo-pwa-prototype:unpublished}
+    restart: unless-stopped
+    expose:
+      - "80"
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://127.0.0.1/prototype-share/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
 
   pgview:
     image: sosedoff/pgweb

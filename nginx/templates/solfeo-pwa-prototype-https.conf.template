@@ -1,0 +1,28 @@
+server {
+    listen 443 ssl;
+    listen [::]:443 ssl;
+    server_name ${SOLFEO_PWA_PROTOTYPE_SERVER_NAMES};
+
+    ssl_certificate /etc/letsencrypt/live/${SOLFEO_PWA_PROTOTYPE_PRIMARY_DOMAIN}/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/${SOLFEO_PWA_PROTOTYPE_PRIMARY_DOMAIN}/privkey.pem;
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_ciphers HIGH:!aNULL:!MD5;
+    ssl_session_cache shared:SSL:10m;
+    ssl_session_timeout 1d;
+
+    if ($request_method !~ ^(GET|HEAD)$) {
+        return 405;
+    }
+
+    location /prototype-share/ {
+        set $solfeo_pwa_prototype http://solfeo-pwa-prototype:80;
+        proxy_pass $solfeo_pwa_prototype;
+        include /etc/nginx/snippets/proxy-common.conf;
+        proxy_pass_request_body off;
+        proxy_set_header Content-Length "";
+    }
+
+    location / {
+        return 404;
+    }
+}

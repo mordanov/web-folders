@@ -60,6 +60,7 @@ Repeat for each repo. Secrets `VPS_HOST`, `VPS_USER`, `VPS_SSH_KEY` are already 
 | `reminders2-app` | `reminders2-app.yml` | reminders2-backend, reminders2-frontend |
 | `label-system` | `label-system.yml` | label-system-backend, label-system-frontend |
 | `movie-catalog` | `movie-catalog.yml` | movie-catalog-backend, movie-catalog-bot, movie-catalog-web |
+| `solfeo-exercises` | `solfeo-pwa-prototype.yml` | solfeo-pwa-prototype (publish only) |
 
 `dark-factory` (ticket-manager) is excluded — being offboarded.
 
@@ -67,6 +68,19 @@ Polling-only bots are registered under `workers` in `sites.yaml`. They participa
 in database provisioning and Compose deployment without nginx, DNS, or TLS entries.
 
 ## Notes on special cases
+
+### `solfeo-exercises` — disposable PWA prototype
+
+Copy `solfeo-pwa-prototype.yml` to `.github/workflows/publish-pwa-prototype.yml`.
+The workflow validates the prototype and publishes an x86-64 image with a full commit tag.
+It does not deploy the shared stack or require VPS secrets.
+Set `SOLFEO_PWA_PROTOTYPE_IMAGE` in the VPS `.env` to the published image digest before deployment.
+The `unpublished` default deliberately prevents an accidental deployment of an unpinned image.
+Use `docker compose up -d --no-deps --wait solfeo-pwa-prototype` after pulling that image.
+Deploy the nginx templates separately during initial onboarding.
+Do not run the full stack deployment for this prototype.
+No database, Redis, or public landing-page link applies.
+See `solfeo-exercises/docs/developer/pwa-share.md` for TLS, verification, rollback, and removal.
 
 ### `family-archive` — replicas
 The deploy step uses `--scale archive-backend=${ARCHIVE_REPLICAS:-2}`. The replica count is still controlled by the `ARCHIVE_REPLICAS` env var in `.env` on the VPS.

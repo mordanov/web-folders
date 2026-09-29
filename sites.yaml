@@ -219,6 +219,15 @@ sites:
     health_path: /api/health
     compose_services: [movie-catalog-backend, movie-catalog-bot, movie-catalog-web]
 
+  - id: solfeo-pwa-prototype
+    priority: 190
+    cert_label: solfeo-pwa-prototype
+    domain:
+      primary_var: SOLFEO_PWA_PROTOTYPE_PRIMARY_DOMAIN
+      server_names_var: SOLFEO_PWA_PROTOTYPE_SERVER_NAMES
+    health_path: /prototype-share/health
+    compose_services: [solfeo-pwa-prototype]
+
   - id: pgview
     priority: 135
     cert_label: pgview

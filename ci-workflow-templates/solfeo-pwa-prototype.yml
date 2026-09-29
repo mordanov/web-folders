@@ -1,0 +1,62 @@
+name: Publish PWA prototype
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - prototypes/pwa/**
+      - .github/workflows/publish-pwa-prototype.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+concurrency:
+  group: publish-pwa-prototype-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: prototypes/pwa
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: prototypes/pwa/package-lock.json
+      - name: Read prototype build configuration
+        run: |
+          cp .env.example .env
+          grep '^VITE_' .env.example >> "$GITHUB_ENV"
+      - run: npm ci --no-audit --no-fund
+      - run: npm test && npm run lint && npm run format:check && npm run build
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Publish tested x86-64 image
+        id: image
+        uses: docker/build-push-action@v6
+        with:
+          context: prototypes/pwa
+          platforms: linux/amd64
+          push: true
+          tags: ghcr.io/mordanov/solfeo-pwa-prototype:sha-${{ github.sha }}
+          labels: org.opencontainers.image.source=https://github.com/mordanov/solfeo-exercises
+          build-args: |
+            VITE_DEFAULT_LANGUAGE=${{ env.VITE_DEFAULT_LANGUAGE }}
+            VITE_MAX_SHARE_BYTES=${{ env.VITE_MAX_SHARE_BYTES }}
+            VITE_SW_READY_TIMEOUT_MS=${{ env.VITE_SW_READY_TIMEOUT_MS }}
+      - name: Record published image
+        env:
+          IMAGE_DIGEST: ${{ steps.image.outputs.digest }}
+        run: |
+          printf 'Image: `ghcr.io/mordanov/solfeo-pwa-prototype@%s`\n\n' "$IMAGE_DIGEST" >> "$GITHUB_STEP_SUMMARY"
+          printf 'Tag: `sha-%s`. Deployment is a separate, targeted operation.\n' "$GITHUB_SHA" >> "$GITHUB_STEP_SUMMARY"

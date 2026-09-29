@@ -80,7 +80,12 @@ Use `docker compose up -d --no-deps --wait solfeo-pwa-prototype` after pulling t
 Deploy the nginx templates separately during initial onboarding.
 Do not run the full stack deployment for this prototype.
 No database, Redis, or public landing-page link applies.
-See `solfeo-exercises/docs/developer/pwa-share.md` for TLS, verification, rollback, and removal.
+See [the prototype guide](https://github.com/mordanov/solfeo-exercises/blob/main/docs/developer/pwa-share.md)
+for TLS, verification, rollback, and removal.
+The prototype URL is `https://solfeo.miveralta.ru/prototype-share/`.
+Initial onboarding uses a separate branch and a targeted, manually verified deployment.
+The final synchronization to `main` uses `[skip ci]` to prevent the general deployment workflow from restarting unrelated applications.
+This one-time synchronization does not disable subsequent workflow runs.
 
 ### `family-archive` — replicas
 The deploy step uses `--scale archive-backend=${ARCHIVE_REPLICAS:-2}`. The replica count is still controlled by the `ARCHIVE_REPLICAS` env var in `.env` on the VPS.

@@ -230,6 +230,7 @@ services:
       context: ./nginx
     container_name: web-folders-nginx
     restart: unless-stopped
+    networks: [default, solfeo_proxy]
     ports:
       - "80:80"
       - "443:443"
@@ -912,6 +913,11 @@ services:
             sleep ${DOCKER_CLEANUP_INTERVAL:-604800} & wait $${!};
             docker system prune -af;
           done"
+
+networks:
+  solfeo_proxy:
+    external: true
+    name: ${SOLFEO_PRODUCT_PROXY_NETWORK:-solfeo-proxy}
 
 volumes:
   recipes_postgres_data:

@@ -70,6 +70,23 @@ in database provisioning and Compose deployment without nginx, DNS, or TLS entri
 
 ## Notes on special cases
 
+### `solfeo-exercises` — separate product deployment
+
+The product uses its own Compose project and PostgreSQL instance.
+Do not add product services or database credentials to the shared manifest.
+The existing `solfeo-pwa-prototype` TLS host routes `/` to `solfeo-product-frontend:8080`.
+The `/prototype-share/` route and the Telegram worker remain unchanged.
+Create the external `solfeo-proxy` network before starting shared nginx.
+Only shared nginx and the product frontend join this network.
+Set `SOLFEO_PRODUCT_PROXY_NETWORK` if the operator selects another network name.
+Match the product's `PRODUCTION_PROXY_NETWORK` value.
+
+The authoritative workflows are the product repository's `publish-product.yml` and `cd.yml`.
+Unlike the older templates, CD verifies pinned SSH host keys and uses temporary registry credentials.
+It downloads the verified bundle, migrates, verifies health, and restores compatible previous images on failure.
+Do not replace this paired workflow with the generic shared-stack deployment template.
+See [the product deployment guide](https://github.com/mordanov/solfeo-exercises/blob/main/docs/developer/deploy.md).
+
 ### `solfeo-exercises` — optional Telegram prototype
 
 Copy `solfeo-telegram-prototype.yml` to `.github/workflows/publish-telegram-prototype.yml`.

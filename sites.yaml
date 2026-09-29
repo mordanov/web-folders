@@ -220,6 +220,8 @@ sites:
     compose_services: [movie-catalog-backend, movie-catalog-bot, movie-catalog-web]
 
   - id: solfeo-pwa-prototype
+    # This existing TLS host also routes the separately deployed product.
+    # Product services and its private database do not join this Compose project.
     priority: 190
     cert_label: solfeo-pwa-prototype
     domain:

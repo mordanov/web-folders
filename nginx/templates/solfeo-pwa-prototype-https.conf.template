@@ -10,11 +10,10 @@ server {
     ssl_session_cache shared:SSL:10m;
     ssl_session_timeout 1d;
 
-    if ($request_method !~ ^(GET|HEAD)$) {
-        return 405;
-    }
-
     location /prototype-share/ {
+        if ($request_method !~ ^(GET|HEAD)$) {
+            return 405;
+        }
         set $solfeo_pwa_prototype http://solfeo-pwa-prototype:80;
         proxy_pass $solfeo_pwa_prototype;
         include /etc/nginx/snippets/proxy-common.conf;
@@ -23,6 +22,8 @@ server {
     }
 
     location / {
-        return 404;
+        set $solfeo_product_frontend http://solfeo-product-frontend:8080;
+        proxy_pass $solfeo_product_frontend;
+        include /etc/nginx/snippets/proxy-common.conf;
     }
 }

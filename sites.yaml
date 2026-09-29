@@ -237,6 +237,9 @@ sites:
     compose_services: [pgview]
 
 workers:
+  - id: solfeo-telegram-prototype
+    compose_services: [solfeo-telegram-prototype]
+
   - id: fuel-weather-bot
     db:
       db_var: FUEL_WEATHER_BOT_POSTGRES_DB

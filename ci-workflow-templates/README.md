@@ -74,9 +74,10 @@ in database provisioning and Compose deployment without nginx, DNS, or TLS entri
 
 Copy `solfeo-telegram-prototype.yml` to `.github/workflows/publish-telegram-prototype.yml`.
 The worker has no public ports, nginx routes, database, or Redis.
-Its profile remains opt-in until a dedicated token and sender allowlist exist.
-Do not register it in `sites.yaml` before activation: the general deployment explicitly starts every registered service, even with a profile.
-After credentials are configured, add its service under `workers`, then use a targeted deployment.
+The dedicated credentials are configured on the VPS, and `sites.yaml` registers the worker.
+The general deployment explicitly starts registered services, even when they have an opt-in profile.
+For targeted updates, use `docker compose up -d --no-deps --wait solfeo-telegram-prototype`.
+Keep the private sender allowlist configured; an empty list prevents startup.
 Set the published image digest in the VPS `.env`; never use a temporary image override.
 See [the bot guide](https://github.com/mordanov/solfeo-exercises/blob/main/docs/developer/telegram-bot.md).
 

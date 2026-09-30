@@ -15,9 +15,6 @@ services:
       BUDGET_POSTGRES_DB: ${BUDGET_POSTGRES_DB:-budget}
       BUDGET_POSTGRES_USER: ${BUDGET_POSTGRES_USER:-budget_user}
       BUDGET_POSTGRES_PASSWORD: ${BUDGET_POSTGRES_PASSWORD:-change-me-budget-db}
-      REMINDERS_POSTGRES_DB: ${REMINDERS_POSTGRES_DB:-reminders}
-      REMINDERS_POSTGRES_USER: ${REMINDERS_POSTGRES_USER:-reminders_user}
-      REMINDERS_POSTGRES_PASSWORD: ${REMINDERS_POSTGRES_PASSWORD:-change-me-reminders-db}
       ARCHIVE_POSTGRES_DB: ${ARCHIVE_POSTGRES_DB:-archive}
       ARCHIVE_POSTGRES_USER: ${ARCHIVE_POSTGRES_USER:-archive_user}
       ARCHIVE_POSTGRES_PASSWORD: ${ARCHIVE_POSTGRES_PASSWORD:-change-me-archive-db}
@@ -70,9 +67,6 @@ services:
       BUDGET_POSTGRES_DB: ${BUDGET_POSTGRES_DB:-budget}
       BUDGET_POSTGRES_USER: ${BUDGET_POSTGRES_USER:-budget_user}
       BUDGET_POSTGRES_PASSWORD: ${BUDGET_POSTGRES_PASSWORD:-change-me-budget-db}
-      REMINDERS_POSTGRES_DB: ${REMINDERS_POSTGRES_DB:-reminders}
-      REMINDERS_POSTGRES_USER: ${REMINDERS_POSTGRES_USER:-reminders_user}
-      REMINDERS_POSTGRES_PASSWORD: ${REMINDERS_POSTGRES_PASSWORD:-change-me-reminders-db}
       ARCHIVE_POSTGRES_DB: ${ARCHIVE_POSTGRES_DB:-archive}
       ARCHIVE_POSTGRES_USER: ${ARCHIVE_POSTGRES_USER:-archive_user}
       ARCHIVE_POSTGRES_PASSWORD: ${ARCHIVE_POSTGRES_PASSWORD:-change-me-archive-db}
@@ -212,7 +206,6 @@ services:
       MAINPAGE_BROWSER_TITLE: ${MAINPAGE_BROWSER_TITLE:-}
       MAINPAGE_LINK_DOMAIN: ${MAINPAGE_LINK_DOMAIN:-}
       MAINPAGE_ENABLE_RECIPES: ${MAINPAGE_ENABLE_RECIPES:-1}
-      MAINPAGE_ENABLE_REMINDERS: ${MAINPAGE_ENABLE_REMINDERS:-1}
       MAINPAGE_ENABLE_FAMILYPHOTO: ${MAINPAGE_ENABLE_FAMILYPHOTO:-1}
       MAINPAGE_ENABLE_HOME: ${MAINPAGE_ENABLE_HOME:-1}
       MAINPAGE_ENABLE_NEWS: ${MAINPAGE_ENABLE_NEWS:-1}
@@ -246,8 +239,6 @@ services:
       NEWS_SERVER_NAMES: ${NEWS_SERVER_NAMES:-news.mainpage.local}
       BUDGET_PRIMARY_DOMAIN: ${BUDGET_PRIMARY_DOMAIN:-budget.mainpage.local}
       BUDGET_SERVER_NAMES: ${BUDGET_SERVER_NAMES:-budget.mainpage.local}
-      REMINDERS_PRIMARY_DOMAIN: ${REMINDERS_PRIMARY_DOMAIN:-reminders.mainpage.local}
-      REMINDERS_SERVER_NAMES: ${REMINDERS_SERVER_NAMES:-reminders.mainpage.local}
       ADMIN_ROUTINE_PRIMARY_DOMAIN: ${ADMIN_ROUTINE_PRIMARY_DOMAIN:-admin.mainpage.local}
       ADMIN_ROUTINE_SERVER_NAMES: ${ADMIN_ROUTINE_SERVER_NAMES:-admin.mainpage.local}
       ARCHIVE_PRIMARY_DOMAIN: ${ARCHIVE_PRIMARY_DOMAIN:-archive.mainpage.local}
@@ -293,8 +284,6 @@ services:
       - mainpage-landing
       - budget-backend
       - budget-frontend
-      - reminders-backend
-      - reminders-frontend
       - admin-routine-backend
       - admin-routine-frontend
       - archive-backend
@@ -372,40 +361,6 @@ services:
     expose:
       - "80"
 
-  reminders-backend:
-    image: ghcr.io/mordanov/reminders-backend:latest
-    restart: unless-stopped
-    environment:
-      DATABASE_URL: postgresql+asyncpg://${REMINDERS_POSTGRES_USER:-reminders_user}:${REMINDERS_POSTGRES_PASSWORD:-change-me-reminders-db}@recipes-db:5432/${REMINDERS_POSTGRES_DB:-reminders}
-      SECRET_KEY: ${REMINDERS_SECRET_KEY:-change-me-reminders-secret}
-      SMTP_HOST: ${REMINDERS_SMTP_HOST:-smtp.gmail.com}
-      SMTP_PORT: ${REMINDERS_SMTP_PORT:-587}
-      SMTP_USER: ${REMINDERS_SMTP_USER:-}
-      SMTP_PASSWORD: ${REMINDERS_SMTP_PASSWORD:-}
-      SMTP_FROM: ${REMINDERS_SMTP_FROM:-reminders@app.local}
-      REMINDER_CHECK_INTERVAL: ${REMINDERS_CHECK_INTERVAL:-60}
-      DEFAULT_USER1_USERNAME: ${REMINDERS_DEFAULT_USER1_USERNAME:-user1}
-      DEFAULT_USER1_EMAIL: ${REMINDERS_DEFAULT_USER1_EMAIL:-user1@family.local}
-      DEFAULT_USER1_PASSWORD: ${REMINDERS_DEFAULT_USER1_PASSWORD:-change-me-reminders-user1-password}
-      DEFAULT_USER2_USERNAME: ${REMINDERS_DEFAULT_USER2_USERNAME:-user2}
-      DEFAULT_USER2_EMAIL: ${REMINDERS_DEFAULT_USER2_EMAIL:-user2@family.local}
-      DEFAULT_USER2_PASSWORD: ${REMINDERS_DEFAULT_USER2_PASSWORD:-change-me-reminders-user2-password}
-    expose:
-      - "8000"
-    command: >
-      sh -c "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8000"
-    depends_on:
-      recipes-db:
-        condition: service_healthy
-      db-password-sync:
-        condition: service_completed_successfully
-
-  reminders-frontend:
-    image: ghcr.io/mordanov/reminders-frontend:latest
-    restart: unless-stopped
-    expose:
-      - "80"
-
   admin-routine-backend:
     image: ghcr.io/mordanov/admin-routine-backend:latest
     restart: unless-stopped
@@ -427,9 +382,6 @@ services:
       BUDGET_POSTGRES_DB: ${BUDGET_POSTGRES_DB:-budget}
       BUDGET_POSTGRES_USER: ${BUDGET_POSTGRES_USER:-budget_user}
       BUDGET_POSTGRES_PASSWORD: ${BUDGET_POSTGRES_PASSWORD:-change-me-budget-db}
-      REMINDERS_POSTGRES_DB: ${REMINDERS_POSTGRES_DB:-reminders}
-      REMINDERS_POSTGRES_USER: ${REMINDERS_POSTGRES_USER:-reminders_user}
-      REMINDERS_POSTGRES_PASSWORD: ${REMINDERS_POSTGRES_PASSWORD:-change-me-reminders-db}
       ARCHIVE_POSTGRES_DB: ${ARCHIVE_POSTGRES_DB:-archive}
       ARCHIVE_POSTGRES_USER: ${ARCHIVE_POSTGRES_USER:-archive_user}
       ARCHIVE_POSTGRES_PASSWORD: ${ARCHIVE_POSTGRES_PASSWORD:-change-me-archive-db}

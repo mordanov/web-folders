@@ -95,19 +95,6 @@ sites:
     health_path: /health
     compose_services: [budget-backend, budget-frontend]
 
-  - id: reminders
-    priority: 60
-    cert_label: reminders-app
-    domain:
-      primary_var: REMINDERS_PRIMARY_DOMAIN
-      server_names_var: REMINDERS_SERVER_NAMES
-    db:
-      db_var: REMINDERS_POSTGRES_DB
-      user_var: REMINDERS_POSTGRES_USER
-      password_var: REMINDERS_POSTGRES_PASSWORD
-    health_path: /health
-    compose_services: [reminders-backend, reminders-frontend]
-
   - id: admin-routine
     priority: 70
     cert_label: family-admin-routine

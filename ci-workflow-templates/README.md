@@ -47,7 +47,6 @@ Repeat for each repo. Secrets `VPS_HOST`, `VPS_USER`, `VPS_SSH_KEY` are already 
 | `poetry-site` | `poetry-site.yml` | poetry-backend |
 | `news-site` | `news-site.yml` | news-backend, news-frontend |
 | `family-budget` | `family-budget.yml` | budget-backend, budget-frontend |
-| `reminders-app` | `reminders-app.yml` | reminders-backend, reminders-frontend |
 | `family-admin-routine` | `family-admin-routine.yml` | admin-routine-backend, admin-routine-frontend |
 | `family-archive` | `family-archive.yml` | archive-backend, archive-frontend |
 | `servinga-monitoring` | `servinga-monitoring.yml` | servinga-backend, servinga-frontend |

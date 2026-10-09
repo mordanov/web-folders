@@ -1,0 +1,31 @@
+server {
+    listen 443 ssl;
+    listen [::]:443 ssl;
+    server_name ${MATH_RACERS_SERVER_NAMES};
+
+    ssl_certificate /etc/letsencrypt/live/${MATH_RACERS_PRIMARY_DOMAIN}/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/${MATH_RACERS_PRIMARY_DOMAIN}/privkey.pem;
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_ciphers HIGH:!aNULL:!MD5;
+    ssl_session_cache shared:SSL:10m;
+    ssl_session_timeout 1d;
+
+    location /api/ {
+        set $math_racers_backend http://math-racers-backend:8000;
+        proxy_pass $math_racers_backend;
+        include /etc/nginx/snippets/proxy-common.conf;
+        proxy_read_timeout 120s;
+    }
+
+    location /health {
+        set $math_racers_backend http://math-racers-backend:8000;
+        proxy_pass $math_racers_backend;
+        include /etc/nginx/snippets/proxy-common.conf;
+    }
+
+    location / {
+        set $math_racers_frontend http://math-racers-frontend:80;
+        proxy_pass $math_racers_frontend;
+        include /etc/nginx/snippets/proxy-common.conf;
+    }
+}

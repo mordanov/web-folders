@@ -206,6 +206,19 @@ sites:
     health_path: /api/health
     compose_services: [movie-catalog-backend, movie-catalog-bot, movie-catalog-web]
 
+  - id: math-racers
+    priority: 200
+    cert_label: math-racers
+    domain:
+      primary_var: MATH_RACERS_PRIMARY_DOMAIN
+      server_names_var: MATH_RACERS_SERVER_NAMES
+    db:
+      db_var: MATH_RACERS_POSTGRES_DB
+      user_var: MATH_RACERS_POSTGRES_USER
+      password_var: MATH_RACERS_POSTGRES_PASSWORD
+    health_path: /health
+    compose_services: [math-racers-redis, math-racers-backend, math-racers-worker, math-racers-frontend]
+
   - id: solfeo-pwa-prototype
     # This existing TLS host also routes the separately deployed product.
     # Product services and its private database do not join this Compose project.

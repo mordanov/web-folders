@@ -59,6 +59,7 @@ Repeat for each repo. Secrets `VPS_HOST`, `VPS_USER`, `VPS_SSH_KEY` are already 
 | `reminders2-app` | `reminders2-app.yml` | reminders2-backend, reminders2-frontend |
 | `label-system` | `label-system.yml` | label-system-backend, label-system-frontend |
 | `movie-catalog` | `movie-catalog.yml` | movie-catalog-backend, movie-catalog-bot, movie-catalog-web |
+| `math-racers` | `math-racers.yml` | math-racers-backend, math-racers-worker, math-racers-frontend |
 | `solfeo-exercises` | `solfeo-pwa-prototype.yml` | solfeo-pwa-prototype (publish only) |
 | `solfeo-exercises` | `solfeo-telegram-prototype.yml` | solfeo-telegram-prototype (publish only; opt-in) |
 

@@ -42,6 +42,9 @@ services:
       MOVIECATALOG_POSTGRES_DB: ${MOVIECATALOG_POSTGRES_DB:-moviecatalog}
       MOVIECATALOG_POSTGRES_USER: ${MOVIECATALOG_POSTGRES_USER:-catalog}
       MOVIECATALOG_POSTGRES_PASSWORD: ${MOVIECATALOG_POSTGRES_PASSWORD:-change-me-movie-catalog-db}
+      MATH_RACERS_POSTGRES_DB: ${MATH_RACERS_POSTGRES_DB:-mathracers}
+      MATH_RACERS_POSTGRES_USER: ${MATH_RACERS_POSTGRES_USER:-mathracers_user}
+      MATH_RACERS_POSTGRES_PASSWORD: ${MATH_RACERS_POSTGRES_PASSWORD:-change-me-math-racers-db}
     volumes:
       - recipes_postgres_data:/var/lib/postgresql/data
       - ./postgres-init:/docker-entrypoint-initdb.d:ro
@@ -94,6 +97,9 @@ services:
       MOVIECATALOG_POSTGRES_DB: ${MOVIECATALOG_POSTGRES_DB:-moviecatalog}
       MOVIECATALOG_POSTGRES_USER: ${MOVIECATALOG_POSTGRES_USER:-catalog}
       MOVIECATALOG_POSTGRES_PASSWORD: ${MOVIECATALOG_POSTGRES_PASSWORD:-change-me-movie-catalog-db}
+      MATH_RACERS_POSTGRES_DB: ${MATH_RACERS_POSTGRES_DB:-mathracers}
+      MATH_RACERS_POSTGRES_USER: ${MATH_RACERS_POSTGRES_USER:-mathracers_user}
+      MATH_RACERS_POSTGRES_PASSWORD: ${MATH_RACERS_POSTGRES_PASSWORD:-change-me-math-racers-db}
     volumes:
       - ./scripts/sync-app-db-users.sh:/usr/local/bin/sync-app-db-users.sh:ro
       - ./sites.yaml:/etc/web-folders/sites.yaml:ro
@@ -264,6 +270,8 @@ services:
       MOVIECATALOG_SERVER_NAMES: ${MOVIECATALOG_SERVER_NAMES:-movies.miveralta.ru}
       SOLFEO_PWA_PROTOTYPE_PRIMARY_DOMAIN: ${SOLFEO_PWA_PROTOTYPE_PRIMARY_DOMAIN:-solfeo.miveralta.ru}
       SOLFEO_PWA_PROTOTYPE_SERVER_NAMES: ${SOLFEO_PWA_PROTOTYPE_SERVER_NAMES:-solfeo.miveralta.ru}
+      MATH_RACERS_PRIMARY_DOMAIN: ${MATH_RACERS_PRIMARY_DOMAIN:-mathracers.miveralta.ru}
+      MATH_RACERS_SERVER_NAMES: ${MATH_RACERS_SERVER_NAMES:-mathracers.miveralta.ru}
       REMINDERS2_AUTH_USER_1_USERNAME: ${REMINDERS2_AUTH_USER_1_USERNAME:?REMINDERS2_AUTH_USER_1_USERNAME is required}
       REMINDERS2_AUTH_USER_1_PASSWORD: ${REMINDERS2_AUTH_USER_1_PASSWORD:?REMINDERS2_AUTH_USER_1_PASSWORD is required}
       REMINDERS2_AUTH_USER_2_USERNAME: ${REMINDERS2_AUTH_USER_2_USERNAME:?REMINDERS2_AUTH_USER_2_USERNAME is required}
@@ -307,6 +315,9 @@ services:
       - movie-catalog-backend
       - movie-catalog-web
       - solfeo-pwa-prototype
+      - math-racers-backend
+      - math-racers-worker
+      - math-racers-frontend
 
   certbot:
     image: certbot/certbot:latest
@@ -833,6 +844,86 @@ services:
       timeout: 5s
       retries: 3
       start_period: 40s
+
+  math-racers-redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    command: redis-server --save "" --appendonly no
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 5s
+
+  math-racers-backend:
+    image: ghcr.io/mordanov/math-racers-backend:latest
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql+asyncpg://${MATH_RACERS_POSTGRES_USER:-mathracers_user}:${MATH_RACERS_POSTGRES_PASSWORD:-change-me-math-racers-db}@recipes-db:5432/${MATH_RACERS_POSTGRES_DB:-mathracers}
+      REDIS_URL: redis://math-racers-redis:6379/0
+      JWT_SECRET: ${MATH_RACERS_JWT_SECRET:?MATH_RACERS_JWT_SECRET is required}
+      JWT_ACCESS_TTL_MINUTES: ${MATH_RACERS_JWT_ACCESS_TTL_MINUTES:-15}
+      JWT_REFRESH_TTL_DAYS: ${MATH_RACERS_JWT_REFRESH_TTL_DAYS:-30}
+      ADMIN_EMAIL: ${MATH_RACERS_ADMIN_EMAIL:-admin@example.com}
+      ADMIN_PASSWORD: ${MATH_RACERS_ADMIN_PASSWORD:?MATH_RACERS_ADMIN_PASSWORD is required}
+      OPENAI_API_KEY: ${MATH_RACERS_OPENAI_API_KEY:?MATH_RACERS_OPENAI_API_KEY is required}
+      STORAGE_ENDPOINT: ${MATH_RACERS_STORAGE_ENDPOINT:?MATH_RACERS_STORAGE_ENDPOINT is required}
+      STORAGE_ACCESS_KEY: ${MATH_RACERS_STORAGE_ACCESS_KEY:?MATH_RACERS_STORAGE_ACCESS_KEY is required}
+      STORAGE_SECRET_KEY: ${MATH_RACERS_STORAGE_SECRET_KEY:?MATH_RACERS_STORAGE_SECRET_KEY is required}
+      STORAGE_BUCKET: ${MATH_RACERS_STORAGE_BUCKET:-math-racers-assets}
+      ENVIRONMENT: ${MATH_RACERS_ENVIRONMENT:-production}
+      LOG_LEVEL: ${MATH_RACERS_LOG_LEVEL:-INFO}
+    expose:
+      - "8000"
+    depends_on:
+      recipes-db:
+        condition: service_healthy
+      db-password-sync:
+        condition: service_completed_successfully
+      math-racers-redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health', timeout=3)"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+
+  math-racers-worker:
+    image: ghcr.io/mordanov/math-racers-backend:latest
+    restart: unless-stopped
+    command: ["python", "-m", "app.worker"]
+    environment:
+      DATABASE_URL: postgresql+asyncpg://${MATH_RACERS_POSTGRES_USER:-mathracers_user}:${MATH_RACERS_POSTGRES_PASSWORD:-change-me-math-racers-db}@recipes-db:5432/${MATH_RACERS_POSTGRES_DB:-mathracers}
+      REDIS_URL: redis://math-racers-redis:6379/0
+      JWT_SECRET: ${MATH_RACERS_JWT_SECRET:?MATH_RACERS_JWT_SECRET is required}
+      JWT_ACCESS_TTL_MINUTES: ${MATH_RACERS_JWT_ACCESS_TTL_MINUTES:-15}
+      JWT_REFRESH_TTL_DAYS: ${MATH_RACERS_JWT_REFRESH_TTL_DAYS:-30}
+      ADMIN_EMAIL: ${MATH_RACERS_ADMIN_EMAIL:-admin@example.com}
+      ADMIN_PASSWORD: ${MATH_RACERS_ADMIN_PASSWORD:?MATH_RACERS_ADMIN_PASSWORD is required}
+      OPENAI_API_KEY: ${MATH_RACERS_OPENAI_API_KEY:?MATH_RACERS_OPENAI_API_KEY is required}
+      STORAGE_ENDPOINT: ${MATH_RACERS_STORAGE_ENDPOINT:?MATH_RACERS_STORAGE_ENDPOINT is required}
+      STORAGE_ACCESS_KEY: ${MATH_RACERS_STORAGE_ACCESS_KEY:?MATH_RACERS_STORAGE_ACCESS_KEY is required}
+      STORAGE_SECRET_KEY: ${MATH_RACERS_STORAGE_SECRET_KEY:?MATH_RACERS_STORAGE_SECRET_KEY is required}
+      STORAGE_BUCKET: ${MATH_RACERS_STORAGE_BUCKET:-math-racers-assets}
+      ENVIRONMENT: ${MATH_RACERS_ENVIRONMENT:-production}
+      LOG_LEVEL: ${MATH_RACERS_LOG_LEVEL:-INFO}
+    depends_on:
+      recipes-db:
+        condition: service_healthy
+      db-password-sync:
+        condition: service_completed_successfully
+      math-racers-redis:
+        condition: service_healthy
+      math-racers-backend:
+        condition: service_started
+
+  math-racers-frontend:
+    image: ghcr.io/mordanov/math-racers-frontend:latest
+    restart: unless-stopped
+    expose:
+      - "80"
 
   pgview:
     image: sosedoff/pgweb

@@ -60,6 +60,12 @@ jobs:
           MOVIECATALOG_S3_PUBLIC_URL="${MOVIECATALOG_S3_PUBLIC_URL:-https://fsn1.your-objectstorage.com/mordanov-archive/movie_posters}" \
           MOVIECATALOG_WEB_USER_1_LOGIN="${MOVIECATALOG_WEB_USER_1_LOGIN:-placeholder-movie-catalog-user1-login}" \
           MOVIECATALOG_WEB_USER_1_PASSWORD="${MOVIECATALOG_WEB_USER_1_PASSWORD:-placeholder-movie-catalog-user1-password}" \
+          MATH_RACERS_JWT_SECRET="${MATH_RACERS_JWT_SECRET:-placeholder-math-racers-jwt-secret}" \
+          MATH_RACERS_ADMIN_PASSWORD="${MATH_RACERS_ADMIN_PASSWORD:-placeholder-math-racers-admin-password}" \
+          MATH_RACERS_OPENAI_API_KEY="${MATH_RACERS_OPENAI_API_KEY:-placeholder-math-racers-openai-key}" \
+          MATH_RACERS_STORAGE_ENDPOINT="${MATH_RACERS_STORAGE_ENDPOINT:-https://example.invalid}" \
+          MATH_RACERS_STORAGE_ACCESS_KEY="${MATH_RACERS_STORAGE_ACCESS_KEY:-placeholder-math-racers-storage-access}" \
+          MATH_RACERS_STORAGE_SECRET_KEY="${MATH_RACERS_STORAGE_SECRET_KEY:-placeholder-math-racers-storage-secret}" \
           docker compose -f docker-compose.yaml config > /dev/null
 
   deploy:

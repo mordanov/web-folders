@@ -60,8 +60,6 @@ Repeat for each repo. Secrets `VPS_HOST`, `VPS_USER`, `VPS_SSH_KEY` are already 
 | `label-system` | `label-system.yml` | label-system-backend, label-system-frontend |
 | `movie-catalog` | `movie-catalog.yml` | movie-catalog-backend, movie-catalog-bot, movie-catalog-web |
 | `math-racers` | `math-racers.yml` | math-racers-backend, math-racers-worker, math-racers-frontend |
-| `solfeo-exercises` | `solfeo-pwa-prototype.yml` | solfeo-pwa-prototype (publish only) |
-| `solfeo-exercises` | `solfeo-telegram-prototype.yml` | solfeo-telegram-prototype (publish only; opt-in) |
 
 `dark-factory` (ticket-manager) is excluded — being offboarded.
 
@@ -69,52 +67,6 @@ Polling-only bots are registered under `workers` in `sites.yaml`. They participa
 in database provisioning and Compose deployment without nginx, DNS, or TLS entries.
 
 ## Notes on special cases
-
-### `solfeo-exercises` — separate product deployment
-
-The product uses its own Compose project and PostgreSQL instance.
-Do not add product services or database credentials to the shared manifest.
-The existing `solfeo-pwa-prototype` TLS host routes `/` to `solfeo-product-frontend:8080`.
-The `/prototype-share/` route and the Telegram worker remain unchanged.
-Create the external `solfeo-proxy` network before starting shared nginx.
-Only shared nginx and the product frontend join this network.
-Set `SOLFEO_PRODUCT_PROXY_NETWORK` if the operator selects another network name.
-Match the product's `PRODUCTION_PROXY_NETWORK` value.
-
-The authoritative workflows are the product repository's `publish-product.yml` and `cd.yml`.
-Unlike the older templates, CD verifies pinned SSH host keys and uses temporary registry credentials.
-It downloads the verified bundle, migrates, verifies health, and restores compatible previous images on failure.
-Do not replace this paired workflow with the generic shared-stack deployment template.
-See [the product deployment guide](https://github.com/mordanov/solfeo-exercises/blob/main/docs/developer/deploy.md).
-
-### `solfeo-exercises` — optional Telegram prototype
-
-Copy `solfeo-telegram-prototype.yml` to `.github/workflows/publish-telegram-prototype.yml`.
-The worker has no public ports, nginx routes, database, or Redis.
-The dedicated credentials are configured on the VPS, and `sites.yaml` registers the worker.
-The general deployment explicitly starts registered services, even when they have an opt-in profile.
-For targeted updates, use `docker compose up -d --no-deps --wait solfeo-telegram-prototype`.
-Keep the private sender allowlist configured; an empty list prevents startup.
-Set the published image digest in the VPS `.env`; never use a temporary image override.
-See [the bot guide](https://github.com/mordanov/solfeo-exercises/blob/main/docs/developer/telegram-bot.md).
-
-### `solfeo-exercises` — disposable PWA prototype
-
-Copy `solfeo-pwa-prototype.yml` to `.github/workflows/publish-pwa-prototype.yml`.
-The workflow validates the prototype and publishes an x86-64 image with a full commit tag.
-It does not deploy the shared stack or require VPS secrets.
-Set `SOLFEO_PWA_PROTOTYPE_IMAGE` in the VPS `.env` to the published image digest before deployment.
-The `unpublished` default deliberately prevents an accidental deployment of an unpinned image.
-Use `docker compose up -d --no-deps --wait solfeo-pwa-prototype` after pulling that image.
-Deploy the nginx templates separately during initial onboarding.
-Do not run the full stack deployment for this prototype.
-No database, Redis, or public landing-page link applies.
-See [the prototype guide](https://github.com/mordanov/solfeo-exercises/blob/main/docs/developer/pwa-share.md)
-for TLS, verification, rollback, and removal.
-The prototype URL is `https://solfeo.miveralta.ru/prototype-share/`.
-Initial onboarding uses a separate branch and a targeted, manually verified deployment.
-The final synchronization to `main` uses `[skip ci]` to prevent the general deployment workflow from restarting unrelated applications.
-This one-time synchronization does not disable subsequent workflow runs.
 
 ### `family-archive` — replicas
 The deploy step uses `--scale archive-backend=${ARCHIVE_REPLICAS:-2}`. The replica count is still controlled by the `ARCHIVE_REPLICAS` env var in `.env` on the VPS.

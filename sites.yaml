@@ -219,17 +219,6 @@ sites:
     health_path: /health
     compose_services: [math-racers-redis, math-racers-backend, math-racers-worker, math-racers-frontend]
 
-  - id: solfeo-pwa-prototype
-    # This existing TLS host also routes the separately deployed product.
-    # Product services and its private database do not join this Compose project.
-    priority: 190
-    cert_label: solfeo-pwa-prototype
-    domain:
-      primary_var: SOLFEO_PWA_PROTOTYPE_PRIMARY_DOMAIN
-      server_names_var: SOLFEO_PWA_PROTOTYPE_SERVER_NAMES
-    health_path: /prototype-share/health
-    compose_services: [solfeo-pwa-prototype]
-
   - id: pgview
     priority: 135
     cert_label: pgview

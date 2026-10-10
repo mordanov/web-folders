@@ -229,7 +229,7 @@ services:
       context: ./nginx
     container_name: web-folders-nginx
     restart: unless-stopped
-    networks: [default, solfeo_proxy]
+    networks: [default]
     ports:
       - "80:80"
       - "443:443"

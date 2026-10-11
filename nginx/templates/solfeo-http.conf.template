@@ -1,0 +1,16 @@
+server {
+    listen 80;
+    listen [::]:80;
+    server_name ${SOLFEO_SERVER_NAMES};
+
+    location /.well-known/acme-challenge/ {
+        root /var/www/certbot;
+    }
+
+    location / {
+        set $solfeo_frontend http://solfeo-product-frontend:8080;
+        proxy_pass $solfeo_frontend;
+        include /etc/nginx/snippets/proxy-common.conf;
+        proxy_read_timeout 180s;
+    }
+}

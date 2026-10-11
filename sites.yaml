@@ -227,6 +227,15 @@ sites:
       server_names_var: PGVIEW_SERVER_NAMES
     compose_services: [pgview]
 
+  # Product services are deployed separately; this shared stack owns only
+  # the public vhost and certificate.
+  - id: solfeo
+    priority: 210
+    cert_label: solfeo-product
+    domain:
+      primary_var: SOLFEO_PRIMARY_DOMAIN
+      server_names_var: SOLFEO_SERVER_NAMES
+
 workers:
   # Solfeo Telegram polling now belongs to the isolated product deployment.
   - id: fuel-weather-bot

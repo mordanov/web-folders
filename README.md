@@ -1,4 +1,4 @@
-# Shared Docker Compose for `family-kitchen-recipes`, `poetry-site` and `mainpage-landing`
+# Shared Docker Compose for family sites and the Solfeo public proxy
 
 В этой папке собран единый контур развертывания для проектов:
 
@@ -32,6 +32,11 @@
 - неизвестные пути `mainpage` перенаправляются на отдельный 404-субдомен со статической страницей
 - трафик идёт через общий `nginx`
 
+### Solfeo
+- приложение разворачивается отдельным product workflow;
+- общий `nginx` проксирует домен на `solfeo-product-frontend:8080` через внешнюю сеть `solfeo-proxy`;
+- сайт и TLS-сертификат регистрируются в `sites.yaml` и обслуживаются общим Certbot.
+
 ## Как запустить
 
 1. Скопируйте пример переменных:
@@ -49,12 +54,17 @@ cp .env.example .env
 - `MAINPAGE_PRIMARY_DOMAIN`
 - `MAINPAGE_SERVER_NAMES`
 - `MAINPAGE_404_DOMAIN`
+- `SOLFEO_PRIMARY_DOMAIN`
+- `SOLFEO_SERVER_NAMES`
+- `PRODUCTION_PROXY_NETWORK` (по умолчанию `solfeo-proxy`)
 - `LETSENCRYPT_EMAIL`
-- секреты и пароли обоих проектов
+- секреты и пароли сервисов этого стека; секреты Solfeo хранятся в конфигурации
+  его отдельного product deployment
 
 > В `*_SERVER_NAMES` указываются все домены сайта через пробел. Первый домен сертификата должен совпадать с `*_PRIMARY_DOMAIN`.
 
-3. Поднимите стек в HTTP-режиме:
+3. Убедитесь, что Solfeo product deployment создал внешнюю Docker-сеть
+   `solfeo-proxy`, затем поднимите стек в HTTP-режиме:
 
 ```bash
 docker compose -f docker-compose.yaml up -d --build
@@ -66,6 +76,10 @@ docker compose -f docker-compose.yaml up -d --build
 chmod +x issue-certificates.sh
 ./issue-certificates.sh
 ```
+
+Для Solfeo переменные домена должны быть заданы и на VPS. Сеть `solfeo-proxy`
+создаётся отдельным product deployment; общий nginx подключается к ней, чтобы
+достичь alias `solfeo-product-frontend`.
 
 5. После успешной выдачи сертификатов общий `nginx` начнёт обслуживать HTTPS.
    Если сертификаты появились уже после старта, `nginx` подхватит их автоматически при ближайшей проверке (`NGINX_CERT_POLL_INTERVAL`, по умолчанию 300 секунд).

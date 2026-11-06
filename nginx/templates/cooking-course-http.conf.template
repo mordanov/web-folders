@@ -1,0 +1,17 @@
+server {
+    listen 80;
+    listen [::]:80;
+    server_name ${COOKING_COURSE_SERVER_NAMES};
+
+    # ACME challenge for certbot
+    location /.well-known/acme-challenge/ {
+        root /var/www/certbot;
+    }
+
+    location / {
+        set $cooking_course http://cooking-course:8000;
+        proxy_pass $cooking_course;
+        include /etc/nginx/snippets/proxy-common.conf;
+        proxy_read_timeout 60s;
+    }
+}

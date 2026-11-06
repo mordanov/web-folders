@@ -272,6 +272,8 @@ services:
       MATH_RACERS_SERVER_NAMES: ${MATH_RACERS_SERVER_NAMES:-mathracers.miveralta.ru}
       SOLFEO_PRIMARY_DOMAIN: ${SOLFEO_PRIMARY_DOMAIN:-solfeo.miveralta.ru}
       SOLFEO_SERVER_NAMES: ${SOLFEO_SERVER_NAMES:-solfeo.miveralta.ru}
+      COOKING_COURSE_PRIMARY_DOMAIN: ${COOKING_COURSE_PRIMARY_DOMAIN:-cooking.example.com}
+      COOKING_COURSE_SERVER_NAMES: ${COOKING_COURSE_SERVER_NAMES:-cooking.example.com}
       REMINDERS2_AUTH_USER_1_USERNAME: ${REMINDERS2_AUTH_USER_1_USERNAME:?REMINDERS2_AUTH_USER_1_USERNAME is required}
       REMINDERS2_AUTH_USER_1_PASSWORD: ${REMINDERS2_AUTH_USER_1_PASSWORD:?REMINDERS2_AUTH_USER_1_PASSWORD is required}
       REMINDERS2_AUTH_USER_2_USERNAME: ${REMINDERS2_AUTH_USER_2_USERNAME:?REMINDERS2_AUTH_USER_2_USERNAME is required}
@@ -317,6 +319,7 @@ services:
       - math-racers-backend
       - math-racers-worker
       - math-racers-frontend
+      - cooking-course
 
   certbot:
     image: certbot/certbot:latest
@@ -880,6 +883,18 @@ services:
     restart: unless-stopped
     expose:
       - "80"
+
+  cooking-course:
+    image: ghcr.io/mordanov/cooking-course:latest
+    restart: unless-stopped
+    environment:
+      GC_EMAIL: ${COOKING_COURSE_GC_EMAIL:?COOKING_COURSE_GC_EMAIL is required}
+      GC_PASSWORD: ${COOKING_COURSE_GC_PASSWORD:?COOKING_COURSE_GC_PASSWORD is required}
+      JWT_SECRET: ${COOKING_COURSE_JWT_SECRET:?COOKING_COURSE_JWT_SECRET is required}
+    volumes:
+      - ${COOKING_COURSE_OFFLINE_DIR:-/srv/cooking-course/offline}:/app/offline:ro
+    expose:
+      - "8000"
 
   pgview:
     image: sosedoff/pgweb

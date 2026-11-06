@@ -66,6 +66,9 @@ jobs:
           MATH_RACERS_STORAGE_ENDPOINT="${MATH_RACERS_STORAGE_ENDPOINT:-https://example.invalid}" \
           MATH_RACERS_STORAGE_ACCESS_KEY="${MATH_RACERS_STORAGE_ACCESS_KEY:-placeholder-math-racers-storage-access}" \
           MATH_RACERS_STORAGE_SECRET_KEY="${MATH_RACERS_STORAGE_SECRET_KEY:-placeholder-math-racers-storage-secret}" \
+          COOKING_COURSE_GC_EMAIL="${COOKING_COURSE_GC_EMAIL:-placeholder-cooking-email}" \
+          COOKING_COURSE_GC_PASSWORD="${COOKING_COURSE_GC_PASSWORD:-placeholder-cooking-password}" \
+          COOKING_COURSE_JWT_SECRET="${COOKING_COURSE_JWT_SECRET:-placeholder-cooking-jwt-secret}" \
           docker compose -f docker-compose.yaml config > /dev/null
 
   deploy:

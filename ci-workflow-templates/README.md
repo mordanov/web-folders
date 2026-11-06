@@ -60,6 +60,7 @@ Repeat for each repo. Secrets `VPS_HOST`, `VPS_USER`, `VPS_SSH_KEY` are already 
 | `label-system` | `label-system.yml` | label-system-backend, label-system-frontend |
 | `movie-catalog` | `movie-catalog.yml` | movie-catalog-backend, movie-catalog-bot, movie-catalog-web |
 | `math-racers` | `math-racers.yml` | math-racers-backend, math-racers-worker, math-racers-frontend |
+| `cooking-course` | `cooking-course.yml` | cooking-course |
 
 `dark-factory` (ticket-manager) is excluded — being offboarded.
 

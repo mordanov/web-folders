@@ -659,6 +659,7 @@ services:
     restart: unless-stopped
     environment:
       DATABASE_URL: postgresql://${FUEL_WEATHER_BOT_POSTGRES_USER:-fuel_weather_bot_user}:${FUEL_WEATHER_BOT_POSTGRES_PASSWORD:-change-me-fuel-weather-bot-db}@recipes-db:5432/${FUEL_WEATHER_BOT_POSTGRES_DB:-fuel_weather_bot}
+      BUDGET_DATABASE_URL: postgresql://${BUDGET_POSTGRES_USER:-budget_user}:${BUDGET_POSTGRES_PASSWORD:-change-me-budget-db}@recipes-db:5432/${BUDGET_POSTGRES_DB:-budget}
       TELEGRAM_BOT_TOKEN: ${FUEL_WEATHER_BOT_TELEGRAM_BOT_TOKEN:?FUEL_WEATHER_BOT_TELEGRAM_BOT_TOKEN is required}
       PROVINCE_CODE: ${FUEL_WEATHER_BOT_PROVINCE_CODE:-29}
       MUNICIPIO_NAME: ${FUEL_WEATHER_BOT_MUNICIPIO_NAME:-Malaga}

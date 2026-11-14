@@ -919,6 +919,7 @@ services:
       ARCHIVE_URL: ${FILE_UPLOADER_BOT_ARCHIVE_URL:-http://archive-backend:8000/api/v1/uploads/sortout}
       ARCHIVE_FOLDER_ID: ${FILE_UPLOADER_BOT_ARCHIVE_FOLDER_ID:?FILE_UPLOADER_BOT_ARCHIVE_FOLDER_ID is required}
       ARCHIVE_API_KEY: ${ARCHIVE_SORTOUT_API_KEY:-}
+      OPENAI_API_KEY: ${FILE_UPLOADER_BOT_OPENAI_API_KEY:-}
 
   verdecora-bot:
     image: ghcr.io/mordanov/verdecora-bot:latest

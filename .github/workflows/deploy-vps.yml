@@ -40,7 +40,6 @@ jobs:
           FLYING_SEARCH_BOT_TELEGRAM_BOT_TOKEN="${FLYING_SEARCH_BOT_TELEGRAM_BOT_TOKEN:-placeholder-flying-search-bot-token}" \
           FLYING_SEARCH_BOT_OPENAI_API_KEY="${FLYING_SEARCH_BOT_OPENAI_API_KEY:-placeholder-flying-search-bot-openai-key}" \
           GOOGLE_TIMELINE_JWT_SECRET="${GOOGLE_TIMELINE_JWT_SECRET:-placeholder-google-timeline-jwt-secret}" \
-          TRAVELSEARCH_JWT_SECRET="${TRAVELSEARCH_JWT_SECRET:-placeholder-travelsearch-jwt-secret}" \
           DOC_FORGE_PASSWORD="${DOC_FORGE_PASSWORD:-placeholder-doc-forge-password}" \
           DOC_FORGE_SECRET_KEY="${DOC_FORGE_SECRET_KEY:-placeholder-doc-forge-secret-key}" \
           REMINDERS2_POSTGRES_PASSWORD="${REMINDERS2_POSTGRES_PASSWORD:-placeholder-reminders2-db-password}" \
@@ -49,9 +48,6 @@ jobs:
           REMINDERS2_AUTH_USER_1_PASSWORD="${REMINDERS2_AUTH_USER_1_PASSWORD:-placeholder-password1}" \
           REMINDERS2_AUTH_USER_2_USERNAME="${REMINDERS2_AUTH_USER_2_USERNAME:-placeholder-user2}" \
           REMINDERS2_AUTH_USER_2_PASSWORD="${REMINDERS2_AUTH_USER_2_PASSWORD:-placeholder-password2}" \
-          IDEAL_CITY_FINDER_JWT_SECRET_KEY="${IDEAL_CITY_FINDER_JWT_SECRET_KEY:-placeholder-ideal-city-finder-jwt-secret}" \
-          IDEAL_CITY_FINDER_OPENAI_API_KEY="${IDEAL_CITY_FINDER_OPENAI_API_KEY:-placeholder-ideal-city-finder-openai-key}" \
-          IDEAL_CITY_FINDER_GOOGLE_MAPS_API_KEY="${IDEAL_CITY_FINDER_GOOGLE_MAPS_API_KEY:-placeholder-ideal-city-finder-maps-key}" \
           MOVIECATALOG_OPENAI_API_KEY="${MOVIECATALOG_OPENAI_API_KEY:-placeholder-movie-catalog-openai-key}" \
           MOVIECATALOG_TMDB_API_KEY="${MOVIECATALOG_TMDB_API_KEY:-placeholder-movie-catalog-tmdb-key}" \
           MOVIECATALOG_JWT_SECRET="${MOVIECATALOG_JWT_SECRET:-placeholder-movie-catalog-jwt-secret}" \

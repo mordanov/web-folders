@@ -54,6 +54,7 @@ Repeat for each repo. Secrets `VPS_HOST`, `VPS_USER`, `VPS_SSH_KEY` are already 
 | `home-resources` | `home-resources.yml` | home-resources-backend, home-resources-frontend |
 | `verdecora-bot` | `verdecora-bot.yml` | verdecora-bot |
 | `fuel-weather-bot` | `fuel-weather-bot.yml` | fuel-weather-bot |
+| `file-uploader-bot` | `file-uploader-bot.yml` | file-uploader-bot |
 | `google-timeline-web-app` | `google-timeline.yml` | google-timeline-backend, google-timeline-importer, google-timeline-frontend |
 | `doc-forge` | `doc-forge.yml` | doc-forge-backend, doc-forge-frontend |
 | `reminders2-app` | `reminders2-app.yml` | reminders2-backend, reminders2-frontend |

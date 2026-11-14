@@ -469,6 +469,8 @@ services:
       DB_POOL_OVERFLOW: ${ARCHIVE_DB_POOL_OVERFLOW:-10}
       ALLOWED_ORIGINS: ${ARCHIVE_ALLOWED_ORIGINS:-https://${ARCHIVE_PRIMARY_DOMAIN:-archive.mainpage.local}}
       LOG_LEVEL: ${ARCHIVE_LOG_LEVEL:-INFO}
+      SORTOUT_API_KEY: ${ARCHIVE_SORTOUT_API_KEY:-}
+      SORTOUT_USER_ID: ${ARCHIVE_SORTOUT_USER_ID:-1}
     volumes:
       - archive_thumbnails_data:/app/data/thumbnails
     expose:
@@ -908,6 +910,15 @@ services:
     depends_on:
       recipes-db:
         condition: service_healthy
+
+  file-uploader-bot:
+    image: ghcr.io/mordanov/file-uploader-bot:latest
+    restart: unless-stopped
+    environment:
+      BOT_TOKEN: ${FILE_UPLOADER_BOT_BOT_TOKEN:?FILE_UPLOADER_BOT_BOT_TOKEN is required}
+      ARCHIVE_URL: ${FILE_UPLOADER_BOT_ARCHIVE_URL:-http://archive-backend:8000/api/v1/uploads/sortout}
+      ARCHIVE_FOLDER: ${FILE_UPLOADER_BOT_ARCHIVE_FOLDER:?FILE_UPLOADER_BOT_ARCHIVE_FOLDER is required}
+      ARCHIVE_API_KEY: ${ARCHIVE_SORTOUT_API_KEY:-}
 
   verdecora-bot:
     image: ghcr.io/mordanov/verdecora-bot:latest

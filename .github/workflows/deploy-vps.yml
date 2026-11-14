@@ -69,6 +69,8 @@ jobs:
           COOKING_COURSE_GC_EMAIL="${COOKING_COURSE_GC_EMAIL:-placeholder-cooking-email}" \
           COOKING_COURSE_GC_PASSWORD="${COOKING_COURSE_GC_PASSWORD:-placeholder-cooking-password}" \
           COOKING_COURSE_JWT_SECRET="${COOKING_COURSE_JWT_SECRET:-placeholder-cooking-jwt-secret}" \
+          FILE_UPLOADER_BOT_BOT_TOKEN="${FILE_UPLOADER_BOT_BOT_TOKEN:-placeholder-file-uploader-bot-token}" \
+          FILE_UPLOADER_BOT_ARCHIVE_FOLDER="${FILE_UPLOADER_BOT_ARCHIVE_FOLDER:-1}" \
           docker compose -f docker-compose.yaml config > /dev/null
 
   deploy:

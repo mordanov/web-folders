@@ -260,3 +260,7 @@ workers:
       user_var: FLYING_SEARCH_BOT_POSTGRES_USER
       password_var: FLYING_SEARCH_BOT_POSTGRES_PASSWORD
     compose_services: [flying-search-bot]
+
+  - id: file-uploader-bot
+    compose_services: [file-uploader-bot]
+
